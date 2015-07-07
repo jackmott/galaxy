@@ -22,10 +22,11 @@ namespace GalaxyServer
 
         public GalaxyServer()
         {
-            Task.Factory.StartNew(() => AcceptClientsAsync());
+            
             message_queue = new ConcurrentQueue<GalaxyMessage>();
             messages = new BlockingCollection<GalaxyMessage>(message_queue);
             messagePool = new MessagePool();
+            Task.Factory.StartNew(() => AcceptClientsAsync());
             for (int i =0; i < MessageThreads; i++)
             {
                 Task.Factory.StartNew(() => ProcessMessages());
