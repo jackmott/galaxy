@@ -9,8 +9,10 @@ namespace GalaxyServer
 {
     class GalaxyServer
     {
-        ConcurrentQueue<GalaxyMessage> q;
+        ConcurrentQueue<GalaxyMessage> message_queue;
+        BlockingCollection<GalaxyMessage> messages;
         MessagePool messagePool;
+        int MessageThreads = 4;
 
 
         public static void Main(string[] args)
@@ -21,8 +23,13 @@ namespace GalaxyServer
         public GalaxyServer()
         {
             Task.Factory.StartNew(() => AcceptClientsAsync());
-            q = new ConcurrentQueue<GalaxyMessage>();
+            message_queue = new ConcurrentQueue<GalaxyMessage>();
+            messages = new BlockingCollection<GalaxyMessage>(message_queue);
             messagePool = new MessagePool();
+            for (int i =0; i < MessageThreads; i++)
+            {
+                Task.Factory.StartNew(() => ProcessMessages());
+            }
             Console.ReadLine();
 
         }
@@ -36,7 +43,7 @@ namespace GalaxyServer
             {
                 Console.WriteLine("Begin accept loop");
                 TcpClient client = await listener.AcceptTcpClientAsync();
-                Console.WriteLine("got one");
+                Console.WriteLine("Client Connected");
                 GalaxyClient gClient = new GalaxyClient(client);
                 Task.Factory.StartNew(() => HandleClientRead(gClient));
             }
@@ -63,19 +70,31 @@ namespace GalaxyServer
                 
                 message.Size = BitConverter.ToInt16(message.buffer, 0);
                 
+                
 
                 while (message.BufferPos < message.Size)
-                {
-                    int bytesRead = await client.GalaxyTcpStream.ReadAsync(message.buffer, message.BufferPos, GalaxyMessage.BUFFER_SIZE);
+                {                    
+                    int bytesRead = await client.GalaxyTcpStream.ReadAsync(message.buffer, message.BufferPos, message.Size - 2);
                     if (bytesRead == 0) { client.Cleanup(); return; }
                     message.BufferPos += bytesRead;
                 }
-
-                q.Enqueue(message);
+                Console.WriteLine("Complete Message Received, Enqueing on thread:"+Thread.CurrentThread.ManagedThreadId);
+                messages.Add(message);
                                     
 
             }
 
+        }
+
+
+        private void ProcessMessages()
+        {
+            while (true)
+            {
+                GalaxyMessage message = messages.Take();                
+                Console.WriteLine("message processed on thread:"+ Thread.CurrentThread.ManagedThreadId);
+                
+            }
         }
 
     }
