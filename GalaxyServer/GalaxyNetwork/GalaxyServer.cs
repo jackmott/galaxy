@@ -17,7 +17,9 @@ namespace GalaxyServer
 
         public static void Main(string[] args)
         {
-            new GalaxyServer();
+            //new GalaxyServer();
+            new GalaxyGen();
+            Console.ReadLine();
         }
 
         public GalaxyServer()
