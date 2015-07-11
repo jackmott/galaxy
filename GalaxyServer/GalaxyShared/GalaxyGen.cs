@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace GalaxyServer
+namespace GalaxyShared
 {
 
 
-    class GalaxyGen
+    public class GalaxyGen
     {
 
         const ulong MAX_DISTANCE = 16777216;
@@ -17,7 +13,7 @@ namespace GalaxyServer
 
         public GalaxyGen()
         {
-            hash = new MMHash3(41);
+            hash = new MMHash3(1);
             
 
         }

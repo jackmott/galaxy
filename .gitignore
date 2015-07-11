@@ -68,3 +68,6 @@ $RECYCLE.BIN/
 
 GalaxyServer/GalaxyNetwork/bin/Debug/GalaxyNetwork.exe
 GalaxyServer/GalaxyNetwork/bin/Debug/GalaxyNetwork.pdb
+galaxy/Assets/GalaxyShared/GalaxyShared.dll
+GalaxyServer/GalaxyNetwork/bin/Debug/GalaxyNetwork.exe
+GalaxyServer/GalaxyNetwork/bin/Debug/GalaxyNetwork.pdb

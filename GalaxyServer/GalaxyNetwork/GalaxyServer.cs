@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Net;
 using System.Threading.Tasks;
+using GalaxyShared;
 
 namespace GalaxyServer
 {
