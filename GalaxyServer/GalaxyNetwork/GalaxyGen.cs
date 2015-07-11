@@ -17,7 +17,7 @@ namespace GalaxyServer
 
         public GalaxyGen()
         {
-            hash = new MMHash3(42);
+            hash = new MMHash3(41);
             
 
         }
