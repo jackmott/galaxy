@@ -19,7 +19,10 @@ namespace GalaxyServer
         public static void Main(string[] args)
         {
             //new GalaxyServer();
-            new GalaxyGen();
+            GalaxyGen gen = new GalaxyGen();
+            GalaxySector sector = new GalaxySector(new GalaxyCoord(0, 0, 0));
+            gen.PopulateSector(sector);
+
             Console.ReadLine();
         }
 

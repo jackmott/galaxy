@@ -16,7 +16,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -35,8 +35,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GalaxyCoord.cs" />
     <Compile Include="GalaxyGen.cs" />
-    <Compile Include="MMHash3.cs" />
+    <Compile Include="GalaxySector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SolarSystem.cs" />
   </ItemGroup>
