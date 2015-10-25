@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace GalaxyShared
+﻿namespace GalaxyShared
 {
     public struct GalaxyCoord
     {
-        public ushort x;
-        public ushort y;
-        public ushort z;
+        public int x;
+        public int y;
+        public int z;
 
-        public GalaxyCoord(ushort x, ushort y, ushort z)
+        public GalaxyCoord(int x, int y, int z)
         {
             this.x = x;
             this.y = y;
