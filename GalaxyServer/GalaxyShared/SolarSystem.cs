@@ -1,18 +1,20 @@
-﻿using System;
+﻿using System.Drawing;
+
 namespace GalaxyShared
 {
     public class SolarSystem
     {
         public GalaxySector sector;
-        public GalaxyCoord coord;
+        public SystemCoord coord;
         public GalaxyGen.StarType type;
         public int size;
+        public Color color;
 
-        public SolarSystem(GalaxyCoord coord, GalaxySector sector, GalaxyGen.StarType type, int size)
+        public SolarSystem(SystemCoord coord, GalaxySector sector, Color color, int size)
         {
             this.coord = coord;
             this.sector = sector;
-            this.type = type;
+            this.color = color;
             this.size = size;
         }
     }

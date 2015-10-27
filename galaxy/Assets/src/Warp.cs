@@ -5,13 +5,16 @@ using System;
 using GalaxyShared;
 
 public class Warp : MonoBehaviour {
-    List<TcpClient> clients;
+    
     float speed = 0;
     int sectorCount = 5; //must be odd
     int expandFactor = 5; //multiplied by galaxy coordinates to get unity coordinates
     
     Dictionary<int,ClientSector> loadedSectors;
     Stack<GameObject> starPool;
+
+    GameObject resourceGo;
+    Material material;
 
 
 
@@ -20,6 +23,9 @@ public class Warp : MonoBehaviour {
 
         // Thread thread = new Thread(new ThreadStart(NetworkLoop));
         // thread.Start();
+        resourceGo = Resources.Load<GameObject>("star-object");
+        material = Resources.Load<Material>("star-material");
+
         starPool = new Stack<GameObject>(50000);
         loadedSectors = new Dictionary<int, ClientSector>();
         Camera.main.farClipPlane = GalaxyGen.SECTOR_SIZE * expandFactor * (sectorCount / 2.0f);
@@ -53,9 +59,10 @@ public class Warp : MonoBehaviour {
 
 
         
-        int minX = x - (sectorCount - 1) / 2;
-        int minY = y - (sectorCount - 1) / 2;
+        int minX = x - (sectorCount - 1) / 2;        
+        int minY = y - (sectorCount - 1) / 2;        
         int minZ = z - (sectorCount - 1) / 2;
+        
         
         
         List<int> itemsToRemove = new List<int>();
@@ -110,9 +117,7 @@ public class Warp : MonoBehaviour {
 
     }
 
-
-    
-   
+       
     public ClientSector GenStars(int x, int y, int z)
     {
 
@@ -123,13 +128,11 @@ public class Warp : MonoBehaviour {
         int zAdjust = z * GalaxyGen.SECTOR_SIZE * expandFactor;
         
         GalaxyGen gen = new GalaxyGen();
-        GalaxySector sector = new GalaxySector(new GalaxyCoord(x, y, z));
-        gen.PopulateSector(sector);
+        GalaxySector sector = new GalaxySector(new SectorCoord(x, y, z));
+        gen.PopulateSector(sector,1);
 
                
         List<GameObject> systems = new List<GameObject>();
-        GameObject resourceGo = Resources.Load<GameObject>("star-white");
-
         
         int colorPropID = Shader.PropertyToID("_color");
         
@@ -148,30 +151,16 @@ public class Warp : MonoBehaviour {
                 go = starPool.Pop();
                 go.transform.position = new Vector3(system.coord.x * expandFactor + xAdjust, system.coord.y * expandFactor + yAdjust, system.coord.z * expandFactor + zAdjust);
             }
-            go.transform.localScale = new Vector3(system.size/8.0f, system.size/8.0f, 1);
+           // go.transform.localScale = new Vector3(system.size/8.0f, system.size/8.0f, 1);
             Renderer r = go.GetComponent<Renderer>();
-            if (system.type == GalaxyGen.StarType.Red)
-            {                
-                r.material.SetColor(colorPropID, Color.red);
-                
-            }
-            else if (system.type == GalaxyGen.StarType.White)
-            {               
-                r.material.SetColor(colorPropID, Color.white);
-            }
-            else if (system.type == GalaxyGen.StarType.Yellow)
-            {
-                r.material.SetColor(colorPropID, Color.yellow);
-            }
-            else if (system.type == GalaxyGen.StarType.Blue)
-            {                
-                r.material.SetColor(colorPropID, Color.blue);
-            }
+            r.material.SetColor(colorPropID, new Color(system.color.R / 128f, system.color.G / 128f, system.color.B / 128f));
+
+
             systems.Add(go);
         }        
         
         
-        ClientSector cSector = new ClientSector(new GalaxyCoord(x, y, z), systems);
+        ClientSector cSector = new ClientSector(new SectorCoord(x, y, z), systems);
 
      
 

@@ -20,8 +20,9 @@ namespace GalaxyServer
         {
             //new GalaxyServer();
             GalaxyGen gen = new GalaxyGen();
-            GalaxySector sector = new GalaxySector(new GalaxyCoord(0, 0, 0));
-            gen.PopulateSector(sector);
+              GalaxySector sector = new GalaxySector(new SectorCoord(522*118, 192*118, 0));
+                        
+            //gen.loadGalaxyBitmap();
 
             Console.ReadLine();
         }

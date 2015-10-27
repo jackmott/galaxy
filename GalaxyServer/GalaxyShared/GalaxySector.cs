@@ -4,11 +4,11 @@ namespace GalaxyShared
 {
     public class GalaxySector
     {
-        public GalaxyCoord coord;
+        public SectorCoord coord;
 
         public List<SolarSystem> systems;
 
-        public GalaxySector(GalaxyCoord coord)
+        public GalaxySector(SectorCoord coord)
         {
             this.coord = coord;
             systems = new List<SolarSystem>();

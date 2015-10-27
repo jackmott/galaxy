@@ -1,12 +1,12 @@
 ﻿namespace GalaxyShared
 {
-    public struct GalaxyCoord
+    public struct SectorCoord
     {
         public int x;
         public int y;
         public int z;
 
-        public GalaxyCoord(int x, int y, int z)
+        public SectorCoord(int x, int y, int z)
         {
             this.x = x;
             this.y = y;
