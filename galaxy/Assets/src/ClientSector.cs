@@ -4,21 +4,31 @@ using GalaxyShared;
 
 public class ClientSector  {
 
-    public List<GameObject> gameObjects;
-    public SectorCoord pos;
+    public ParticleSystem particleSystem;
+    public SectorCoord coord = new SectorCoord();
+    public bool active = false;
+    public int hash;
 
-    public ClientSector(SectorCoord pos, List<GameObject> gameObjects)
-    {
-        this.pos = pos;
-        this.gameObjects = gameObjects;
+    public void Activate(int x,int y, int z,ParticleSystem.Particle[] particles)
+    {        
+        hash = x + y * GalaxyGen.SECTOR_SIZE + z * GalaxyGen.SECTOR_SIZE * GalaxyGen.SECTOR_SIZE;
+        coord.x = x;
+        coord.y = y;
+        coord.z = z;
+        active = true;        
+        particleSystem.SetParticles(particles,particles.Length);
+        
         
     }
-	
-    public void Dispose(Stack<GameObject> starPool)
+
+  
+
+    public void Dispose()
     {
-        foreach (GameObject go in gameObjects)
-        {
-            starPool.Push(go);
-        }
+        active = false;
+        //particleSystem.Stop();
+        particleSystem.SetParticles(new ParticleSystem.Particle[0], 0);
     }
+    	
+    
 }

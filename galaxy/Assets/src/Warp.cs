@@ -11,11 +11,13 @@ public class Warp : MonoBehaviour {
     int expandFactor = 5; //multiplied by galaxy coordinates to get unity coordinates
     
     Dictionary<int,ClientSector> loadedSectors;
-    Stack<GameObject> starPool;
+    
 
     GameObject resourceGo;
     Material material;
+    GalaxyGen gen;
 
+    int colorPropID;
 
 
     // Use this for initialization
@@ -23,11 +25,26 @@ public class Warp : MonoBehaviour {
 
         // Thread thread = new Thread(new ThreadStart(NetworkLoop));
         // thread.Start();
+        gen = new GalaxyGen();
+        colorPropID = Shader.PropertyToID("_color");
         resourceGo = Resources.Load<GameObject>("star-object");
         material = Resources.Load<Material>("star-material");
 
-        starPool = new Stack<GameObject>(50000);
+        GameObject OriginalParticlePrefab = Resources.Load<GameObject>("StarParticles");
+
+
         loadedSectors = new Dictionary<int, ClientSector>();
+        for (int i = 0; i < sectorCount*sectorCount*sectorCount; i++)
+        {
+            
+            ClientSector c = new ClientSector();
+            GameObject go = (GameObject)GameObject.Instantiate(OriginalParticlePrefab, new Vector3(0, 0, 0), Quaternion.identity);
+            ParticleSystem p = go.GetComponent<ParticleSystem>();
+            c.particleSystem = p;
+            c.active = false;
+            c.hash = i+GalaxyGen.GALAXY_SIZE_LIGHTYEARS+10;
+            loadedSectors.Add(c.hash, c);
+        }
         Camera.main.farClipPlane = GalaxyGen.SECTOR_SIZE * expandFactor * (sectorCount / 2.0f);
 
     }
@@ -39,6 +56,9 @@ public class Warp : MonoBehaviour {
         {
             speed = speed + .05f;
             
+        } else if (Input.GetKeyDown("p"))
+        {
+            speed = 0f;
         }
 
         Camera.main.transform.Translate(Vector3.forward * speed);
@@ -63,29 +83,25 @@ public class Warp : MonoBehaviour {
         int minY = y - (sectorCount - 1) / 2;        
         int minZ = z - (sectorCount - 1) / 2;
         
-        
-        
-        List<int> itemsToRemove = new List<int>();
+                        
         foreach (ClientSector cSector in loadedSectors.Values)
         {
             
-            x = cSector.pos.x;
-            y = cSector.pos.y;
-            z = cSector.pos.z;
+            x = cSector.coord.x;
+            y = cSector.coord.y;
+            z = cSector.coord.z;
+
             Vector3 sectorPos = new Vector3(x * expandFactor * GalaxyGen.SECTOR_SIZE, y * expandFactor * GalaxyGen.SECTOR_SIZE, z * expandFactor * GalaxyGen.SECTOR_SIZE);
+
             float distance = Vector3.Distance(cameraPos, sectorPos);
+
             int hash = x + y * GalaxyGen.SECTOR_SIZE + z * GalaxyGen.SECTOR_SIZE * GalaxyGen.SECTOR_SIZE;
-            if (distance > distanceThreshold) itemsToRemove.Add(hash);
+
+            if (distance > distanceThreshold) cSector.Dispose();
             
         }
 
-        foreach (int hash in itemsToRemove)
-        {
-            ClientSector cSector;
-            loadedSectors.TryGetValue(hash, out cSector);
-            cSector.Dispose(starPool);
-            loadedSectors.Remove(hash);                            
-        }
+        
 
 
         for ( x = minX; x < minX + sectorCount; x++)
@@ -102,71 +118,66 @@ public class Warp : MonoBehaviour {
                         Vector3 sectorPos = new Vector3(x * expandFactor * GalaxyGen.SECTOR_SIZE, y * expandFactor * GalaxyGen.SECTOR_SIZE, z * expandFactor * GalaxyGen.SECTOR_SIZE);
                         float distance = Vector3.Distance(cameraPos, sectorPos);
                         if (distance <= distanceThreshold)
-                        {                         
-                            ClientSector cSector = GenStars(x, y, z);
-                            loadedSectors.Add(hash, cSector);
-                        }
-                    }
+                        {
+
+                            ClientSector removeSector = null;
+                            foreach (ClientSector sector in loadedSectors.Values)
+                            {
+                                if (!sector.active)
+                                {
+                                    removeSector = sector;
+                                    break;
+                                } //if sector active
+                            } // foreach sector
+
+                            if (removeSector != null)
+                            {
+                                loadedSectors.Remove(removeSector.hash);                                
+                                removeSector.Activate(x, y, z, GenStars(x,y, z));
+                                loadedSectors.Add(removeSector.hash, removeSector);
+                            }
+                            
+                        } // if distance <= distanceThreshold
+                    }// if sector doesn't already exist
                     
-                }
+                }//z
 
-            }
+            }//y
 
-        }
+        }//x
 
 
-    }
+    }//updatesectors
 
-       
-    public ClientSector GenStars(int x, int y, int z)
+
+
+    public ParticleSystem.Particle[] GenStars(int x, int y, int z)
     {
 
-       
-                        
         int xAdjust = x * GalaxyGen.SECTOR_SIZE * expandFactor;
         int yAdjust = y * GalaxyGen.SECTOR_SIZE * expandFactor;
         int zAdjust = z * GalaxyGen.SECTOR_SIZE * expandFactor;
+
         
-        GalaxyGen gen = new GalaxyGen();
         GalaxySector sector = new GalaxySector(new SectorCoord(x, y, z));
-        gen.PopulateSector(sector,1);
+        gen.PopulateSector(sector, 1);
 
-               
-        List<GameObject> systems = new List<GameObject>();
-        
-        int colorPropID = Shader.PropertyToID("_color");
-        
-        
-
+                
+        ParticleSystem.Particle[] particles = new ParticleSystem.Particle[sector.systems.Count];
+        int i = 0;        
         foreach (SolarSystem system in sector.systems)
         {
-            GameObject go;            
-            if (starPool.Count == 0)
-            {
-                go = (GameObject)GameObject.Instantiate(resourceGo, new Vector3(system.coord.x * expandFactor + xAdjust, system.coord.y * expandFactor + yAdjust, system.coord.z * expandFactor + zAdjust), new Quaternion());
-               
-            }
-            else
-            {
-                go = starPool.Pop();
-                go.transform.position = new Vector3(system.coord.x * expandFactor + xAdjust, system.coord.y * expandFactor + yAdjust, system.coord.z * expandFactor + zAdjust);
-            }
-           // go.transform.localScale = new Vector3(system.size/8.0f, system.size/8.0f, 1);
-            Renderer r = go.GetComponent<Renderer>();
-            r.material.SetColor(colorPropID, new Color(system.color.R / 128f, system.color.G / 128f, system.color.B / 128f));
-
-
-            systems.Add(go);
-        }        
+            particles[i].position = new Vector3(system.coord.x * expandFactor + xAdjust, system.coord.y * expandFactor + yAdjust, system.coord.z * expandFactor + zAdjust);
+            particles[i].size = .5f;
+            particles[i].color = new Color(system.color.R / 128f, system.color.G / 128f, system.color.B / 128f);            
+            //particles[i].color = Color.red;
+            i++;
+        }
         
-        
-        ClientSector cSector = new ClientSector(new SectorCoord(x, y, z), systems);
 
-     
-
-
-        return cSector;
+        return particles;
     }
+
 
     public void GenSkybox(Stack<GameObject> systems)
     {

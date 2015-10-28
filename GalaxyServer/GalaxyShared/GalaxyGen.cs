@@ -23,7 +23,7 @@ namespace GalaxyShared
         {
             loadGalaxyBitmap();
 
-            GenStars(0, 0, 0, 1);
+         //   GenStars(0, 0, 0, 1);
         }
 
         public void loadGalaxyBitmap()
@@ -102,18 +102,13 @@ namespace GalaxyShared
             int avgDelta = (int)(1 / STELLAR_DENSITY);
             avgDelta *= 2; //for average
             avgDelta *= everyNth;
-            
-            
-            Debug.WriteLine("X,Y=(" + pixelX + "," + pixelY + ")");
+
+           /* Debug.WriteLine("X,Y=(" + pixelX + "," + pixelY + ")");
             Debug.WriteLine("intensity=" + sectorIntensity);
             Debug.WriteLine("StellarDen=" + STELLAR_DENSITY);
             Debug.WriteLine("avgDelta2=" + avgDelta);
-            
-
-            int starCount = 0;
-            int i = 0;
-
-          
+            */
+                        int i = 0;          
 
             while (true)
             {
@@ -121,8 +116,7 @@ namespace GalaxyShared
 
                 i = i + delta;
                 if (i >= sectorCubed)
-                {
-                    Debug.WriteLine("i");
+                {                   
                     break;
                 }
 
@@ -133,17 +127,12 @@ namespace GalaxyShared
                 index = index / SECTOR_SIZE;
                 int z = index - HALF_SECTOR_SIZE;
 
-                
-
-                Debug.WriteLine("XYZ:(" + x + "," + y + "," + z + ")");
+                                
                 SolarSystem system = new SolarSystem(new SystemCoord(x, y, z), sector, sectorColor, 1);
-                sector.systems.Add(system);
-                starCount++;
+                sector.systems.Add(system);                
 
             }
-
-            Debug.WriteLine("max:" + max + " min:" + min);
-           Debug.WriteLine("starcount:" + starCount);
+                       
             
 
         }
