@@ -41,8 +41,10 @@
     <Compile Include="GalaxyCoord.cs" />
     <Compile Include="GalaxyGen.cs" />
     <Compile Include="GalaxySector.cs" />
+    <Compile Include="Planet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SolarSystem.cs" />
+    <Compile Include="Star.cs" />
     <Compile Include="SystemCoord.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -63,22 +63,14 @@ public class Map : MonoBehaviour
     }
 
    
-
-
     public void GenStars(int x, int y, int z, int everyNth)
     {
-
-
-
-        float xAdjust = x * GalaxyGen.SECTOR_SIZE/30;
-        float yAdjust = y * GalaxyGen.SECTOR_SIZE/30;
-        float zAdjust = z * GalaxyGen.SECTOR_SIZE/30;
-
+        float xAdjust = x * GalaxySector.SECTOR_SIZE/30;
+        float yAdjust = y * GalaxySector.SECTOR_SIZE/30;
+        float zAdjust = z * GalaxySector.SECTOR_SIZE/30;
         
-        GalaxySector sector = new GalaxySector(new SectorCoord(x, y, z));
-        gen.PopulateSector(sector,everyNth);
-
-
+        GalaxySector sector = gen.GetSector(new SectorCoord(x, y, z),everyNth);
+        
         List<GameObject> systems = new List<GameObject>();
 
         int colorPropID = Shader.PropertyToID("_color");
@@ -90,10 +82,8 @@ public class Map : MonoBehaviour
             GameObject go;
 
             Vector3 pos = new Vector3((system.coord.x + xAdjust)*expandFactor, (system.coord.y + yAdjust) * expandFactor, (system.coord.z + zAdjust)*expandFactor);
-            go = (GameObject)GameObject.Instantiate(resourceGo,pos, new Quaternion());
-
-            
-             go.transform.localScale = new Vector3(system.size/50.0f, system.size/50.0f, 1);
+            go = (GameObject)GameObject.Instantiate(resourceGo,pos, new Quaternion());            
+            go.transform.localScale = new Vector3(system.size/50.0f, system.size/50.0f, 1);
             Renderer r = go.GetComponent<Renderer>();
             r.material.SetColor(colorPropID, new Color(system.color.R/128f, system.color.G/128f, system.color.B/128f));
             

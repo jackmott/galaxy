@@ -1,0 +1,19 @@
+Class O - ultraviolet,slightly purple/blue?  can be supergiant
+
+Class B - blue, can be supergiant
+
+Class A - blueish white
+
+Class F - white
+
+Class G - yellow - supergiants unstable here, do not stay yellow for long
+
+Class K - orange, can be supergiant
+
+Class M - Red, can be dwarf, riang, and supergiant, not very bright, most are dwarfs
+
+
+Intensity -> stellar density
+Color -> spectral class distribution
+Spectral Class -> size distribution
+

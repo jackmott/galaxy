@@ -2,11 +2,11 @@
 {
     public struct SystemCoord
     {
-        public int x;
-        public int y;
-        public int z;
+        public float x;
+        public float y;
+        public float z;
 
-        public SystemCoord(int x, int y, int z)
+        public SystemCoord(float x, float y, float z)
         {
             this.x = x;
             this.y = y;

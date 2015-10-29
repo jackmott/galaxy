@@ -18,13 +18,7 @@ namespace GalaxyServer
 
         public static void Main(string[] args)
         {
-            //new GalaxyServer();
-            GalaxyGen gen = new GalaxyGen();
-              GalaxySector sector = new GalaxySector(new SectorCoord(522*118, 192*118, 0));
-                        
-            //gen.loadGalaxyBitmap();
-
-            Console.ReadLine();
+           
         }
 
         public GalaxyServer()

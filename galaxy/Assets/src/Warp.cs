@@ -4,12 +4,21 @@ using System.Collections.Generic;
 using System;
 using GalaxyShared;
 
+
+[AddComponentMenu("Camera/Warp ")]
 public class Warp : MonoBehaviour {
     
     float speed = 0;
-    int sectorCount = 5; //must be odd
-    int expandFactor = 5; //multiplied by galaxy coordinates to get unity coordinates
+    int sectorCount = 10; //must be odd
+    public static float expandFactor = 3; //multiplied by galaxy coordinates to get unity coordinates
+    public static ClientSector closestSector = null;
+
+    //stuff that solarsystem scene will look up
+    public static SolarSystem systemToLoad;
+    public static Cubemap cubemap;
+    public static Quaternion cameraRotation;
     
+
     Dictionary<int,ClientSector> loadedSectors;
     
 
@@ -22,17 +31,15 @@ public class Warp : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-
+        
+        
         // Thread thread = new Thread(new ThreadStart(NetworkLoop));
         // thread.Start();
-        gen = new GalaxyGen();
-        colorPropID = Shader.PropertyToID("_color");
-        resourceGo = Resources.Load<GameObject>("star-object");
-        material = Resources.Load<Material>("star-material");
-
+        gen = new GalaxyGen();                
         GameObject OriginalParticlePrefab = Resources.Load<GameObject>("StarParticles");
 
 
+        //warm up clientsectors
         loadedSectors = new Dictionary<int, ClientSector>();
         for (int i = 0; i < sectorCount*sectorCount*sectorCount; i++)
         {
@@ -40,12 +47,12 @@ public class Warp : MonoBehaviour {
             ClientSector c = new ClientSector();
             GameObject go = (GameObject)GameObject.Instantiate(OriginalParticlePrefab, new Vector3(0, 0, 0), Quaternion.identity);
             ParticleSystem p = go.GetComponent<ParticleSystem>();
-            c.particleSystem = p;
+            c.particleSystem = p;            
             c.active = false;
-            c.hash = i+GalaxyGen.GALAXY_SIZE_LIGHTYEARS+10;
+            c.hash = i+GalaxySector.GALAXY_SIZE_LIGHTYEARS+10;
             loadedSectors.Add(c.hash, c);
         }
-        Camera.main.farClipPlane = GalaxyGen.SECTOR_SIZE * expandFactor * (sectorCount / 2.0f);
+        Camera.main.farClipPlane = GalaxySector.SECTOR_SIZE * expandFactor * (sectorCount / 2.0f);
 
     }
 
@@ -64,6 +71,8 @@ public class Warp : MonoBehaviour {
         Camera.main.transform.Translate(Vector3.forward * speed);
 
         UpdateSectors();
+
+
     }
 
     void UpdateSectors()
@@ -73,17 +82,19 @@ public class Warp : MonoBehaviour {
         
         Vector3 cameraPos = Camera.main.transform.position;
         
-        int x = Convert.ToInt32(cameraPos.x / expandFactor / GalaxyGen.SECTOR_SIZE);
-        int y = Convert.ToInt32(cameraPos.y / expandFactor / GalaxyGen.SECTOR_SIZE);
-        int z = Convert.ToInt32(cameraPos.z / expandFactor / GalaxyGen.SECTOR_SIZE);
+        int x = Convert.ToInt32(cameraPos.x / expandFactor / GalaxySector.SECTOR_SIZE);
+        int y = Convert.ToInt32(cameraPos.y / expandFactor / GalaxySector.SECTOR_SIZE);
+        int z = Convert.ToInt32(cameraPos.z / expandFactor / GalaxySector.SECTOR_SIZE);
 
 
         
         int minX = x - (sectorCount - 1) / 2;        
         int minY = y - (sectorCount - 1) / 2;        
         int minZ = z - (sectorCount - 1) / 2;
-        
-                        
+
+
+        closestSector = null;
+        float minDistance = float.MaxValue;                
         foreach (ClientSector cSector in loadedSectors.Values)
         {
             
@@ -91,18 +102,31 @@ public class Warp : MonoBehaviour {
             y = cSector.coord.y;
             z = cSector.coord.z;
 
-            Vector3 sectorPos = new Vector3(x * expandFactor * GalaxyGen.SECTOR_SIZE, y * expandFactor * GalaxyGen.SECTOR_SIZE, z * expandFactor * GalaxyGen.SECTOR_SIZE);
+            Vector3 sectorPos = new Vector3(x * expandFactor * GalaxySector.SECTOR_SIZE, y * expandFactor * GalaxySector.SECTOR_SIZE, z * expandFactor * GalaxySector.SECTOR_SIZE);
 
             float distance = Vector3.Distance(cameraPos, sectorPos);
 
-            int hash = x + y * GalaxyGen.SECTOR_SIZE + z * GalaxyGen.SECTOR_SIZE * GalaxyGen.SECTOR_SIZE;
+            int hash = x + y * GalaxySector.SECTOR_SIZE + z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE;
 
             if (distance > distanceThreshold) cSector.Dispose();
-            
+            else if (distance < minDistance)
+            {
+                minDistance = distance;
+                closestSector = cSector;
+            }
         }
 
-        
-
+        if (closestSector.active)
+        {
+            systemToLoad = closestSector.GetClosestSystem();
+            
+            if (systemToLoad.clientDistance < .1)
+            {
+                GenSkybox();
+                Application.LoadLevel("SolarSystem");
+            }
+            
+        }
 
         for ( x = minX; x < minX + sectorCount; x++)
         {
@@ -112,11 +136,12 @@ public class Warp : MonoBehaviour {
                 {
 
       //              Debug.Log("build new sectors xyz: (" + x + "," + y + "," + z + ")");
-                    int hash = x + y * GalaxyGen.SECTOR_SIZE + z * GalaxyGen.SECTOR_SIZE * GalaxyGen.SECTOR_SIZE;
+                    int hash = x + y * GalaxySector.SECTOR_SIZE + z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE;
                     if (!loadedSectors.ContainsKey(hash))
                     {
-                        Vector3 sectorPos = new Vector3(x * expandFactor * GalaxyGen.SECTOR_SIZE, y * expandFactor * GalaxyGen.SECTOR_SIZE, z * expandFactor * GalaxyGen.SECTOR_SIZE);
+                        Vector3 sectorPos = new Vector3(x * expandFactor * GalaxySector.SECTOR_SIZE, y * expandFactor * GalaxySector.SECTOR_SIZE, z * expandFactor * GalaxySector.SECTOR_SIZE);
                         float distance = Vector3.Distance(cameraPos, sectorPos);
+                        
                         if (distance <= distanceThreshold)
                         {
 
@@ -133,7 +158,7 @@ public class Warp : MonoBehaviour {
                             if (removeSector != null)
                             {
                                 loadedSectors.Remove(removeSector.hash);                                
-                                removeSector.Activate(x, y, z, GenStars(x,y, z));
+                                removeSector.Activate(gen.GetSector(new SectorCoord(x,y, z),1));
                                 loadedSectors.Add(removeSector.hash, removeSector);
                             }
                             
@@ -149,56 +174,14 @@ public class Warp : MonoBehaviour {
 
     }//updatesectors
 
-
-
-    public ParticleSystem.Particle[] GenStars(int x, int y, int z)
+   
+    public void GenSkybox()
     {
-
-        int xAdjust = x * GalaxyGen.SECTOR_SIZE * expandFactor;
-        int yAdjust = y * GalaxyGen.SECTOR_SIZE * expandFactor;
-        int zAdjust = z * GalaxyGen.SECTOR_SIZE * expandFactor;
-
+        closestSector.particleSystem.Clear();
+        cubemap = new Cubemap(2048, TextureFormat.ARGB32, false);
+        cameraRotation = Camera.main.transform.rotation;
+        bool work = Camera.main.RenderToCubemap(cubemap);
         
-        GalaxySector sector = new GalaxySector(new SectorCoord(x, y, z));
-        gen.PopulateSector(sector, 1);
-
-                
-        ParticleSystem.Particle[] particles = new ParticleSystem.Particle[sector.systems.Count];
-        int i = 0;        
-        foreach (SolarSystem system in sector.systems)
-        {
-            particles[i].position = new Vector3(system.coord.x * expandFactor + xAdjust, system.coord.y * expandFactor + yAdjust, system.coord.z * expandFactor + zAdjust);
-            particles[i].size = .5f;
-            particles[i].color = new Color(system.color.R / 128f, system.color.G / 128f, system.color.B / 128f);            
-            //particles[i].color = Color.red;
-            i++;
-        }
-        
-
-        return particles;
-    }
-
-
-    public void GenSkybox(Stack<GameObject> systems)
-    {
-        
-
-        Cubemap cubemap = new Cubemap(1024, TextureFormat.ARGB32, false);
-        Camera.main.RenderToCubemap(cubemap);
-
-        while (systems.Count > 0)
-        {
-            Destroy(systems.Pop());
-        }
-
-
-        Shader skyshader = Shader.Find("Skybox/Cubemap");
-        Material mat = new Material(skyshader);
-        mat.SetTexture("_Tex", cubemap);
-        //sb.material = mat;
-        
-         
-         RenderSettings.skybox = mat;
     }
 
     public void NetworkLoop()
