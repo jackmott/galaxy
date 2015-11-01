@@ -2,15 +2,15 @@
 {
     public struct SectorCoord
     {
-        public int x;
-        public int y;
-        public int z;
+        public int X;
+        public int Y;
+        public int Z;
 
         public SectorCoord(int x, int y, int z)
         {
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            X = x;
+            Y = y;
+             Z = z;
         }
     }
 }

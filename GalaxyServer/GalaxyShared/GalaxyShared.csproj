@@ -33,22 +33,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Drawing">
-      <Private>True</Private>
-    </Reference>
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GalaxyColor.cs" />
     <Compile Include="GalaxyCoord.cs" />
     <Compile Include="GalaxyGen.cs" />
     <Compile Include="GalaxySector.cs" />
+    <Compile Include="Moon.cs" />
     <Compile Include="Planet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SolarSystem.cs" />
     <Compile Include="Star.cs" />
     <Compile Include="SystemCoord.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="hoag.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\hoag-ring.bmp">
@@ -61,7 +58,6 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDir)..\galaxy\Assets\GalaxyShared\
-copy /Y "$(TargetDir)System.Drawing.dll" "$(SolutionDir)..\galaxy\Assets\GalaxyShared\
 copy /Y "$(TargetDir)assets" "$(SolutionDir)..\galaxy\Assets\GalaxyShared\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

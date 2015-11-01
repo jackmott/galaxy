@@ -6,41 +6,46 @@ namespace GalaxyShared
 {
     public class GalaxySector
     {
-        public SectorCoord coord;
-        public Color sectorColor;
-        public List<SolarSystem> systems;
-        public int dominantStarType;
+        public SectorCoord Coord;
+        public Color Color;
+        public List<SolarSystem> Systems;
+        public int DominantStarType;
+        
 
-        public static int GALAXY_SIZE_LIGHTYEARS = 128000; //light years, cube
-        public static int SECTOR_SIZE = 25; //light years cubed
-        public static int GALAXY_SIZE_SECTORS = GALAXY_SIZE_LIGHTYEARS / SECTOR_SIZE;
+        public const int GALAXY_SIZE_LIGHTYEARS = 128000; //light years, cube
+        public const int SECTOR_SIZE = 25; //light years cubed
+        public const int GALAXY_SIZE_SECTORS = GALAXY_SIZE_LIGHTYEARS / SECTOR_SIZE;
+
+        public int Hash = 0;
 
         public GalaxySector(SectorCoord coord, Bitmap hoag, int everyNth)
         {
-            this.coord = coord;            
-            systems = new List<SolarSystem>();
+            this.Coord = coord;
+
+            Hash = coord.X + coord.Y * SECTOR_SIZE + coord.Z * SECTOR_SIZE * SECTOR_SIZE;
+            Systems = new List<SolarSystem>();
 
             
-            Random r = new Random(coord.x + coord.y * SECTOR_SIZE + coord.z * SECTOR_SIZE * SECTOR_SIZE);
+            Random r = new Random(Hash);
 
             int HALF_SECTOR_SIZE = SECTOR_SIZE / 2;
             //things to be looked up from data somehow
             float lightYearsPerPixel = GALAXY_SIZE_LIGHTYEARS / hoag.Width;
 
-            int adjustedSectorX = coord.x + GALAXY_SIZE_SECTORS / 2;
-            int adjustedSectorY = coord.y + GALAXY_SIZE_SECTORS / 2;
+            int adjustedSectorX = coord.X + GALAXY_SIZE_SECTORS / 2;
+            int adjustedSectorY = coord.Y + GALAXY_SIZE_SECTORS / 2;
 
             int pixelX = Convert.ToInt32(adjustedSectorX * SECTOR_SIZE / lightYearsPerPixel);
             int pixelY = Convert.ToInt32(adjustedSectorY * SECTOR_SIZE / lightYearsPerPixel);
-            sectorColor = hoag.GetPixel(pixelX, pixelY);
-            float saturation = sectorColor.GetSaturation();
-            if (saturation < .4) dominantStarType = Star.F;
+            Color = hoag.GetPixel(pixelX, pixelY);
+            float saturation = Color.GetSaturation();
+            if (saturation < .4) DominantStarType = Star.F;
             else
             {
-                dominantStarType = Star.hueToType[Convert.ToInt32(sectorColor.GetHue() / 30)];
+                DominantStarType = Star.hueToType[Convert.ToInt32(Color.GetHue() / 30)];
             }
 
-            float sectorIntensity = sectorColor.GetBrightness();
+            float sectorIntensity = Color.GetBrightness();
             if (sectorIntensity < .1) sectorIntensity = .01f;
             float STELLAR_DENSITY = .014f * sectorIntensity; //stars per cubic light year
             //if (STELLAR_DENSITY == 0) STELLAR_DENSITY = .00001f;
@@ -66,9 +71,10 @@ namespace GalaxyShared
                     break;
                 }
 
-                float x = (float)r.NextDouble() - .5f;
-                float y = (float)r.NextDouble() - .5f;
-                float z = (float)r.NextDouble() - .5f;
+                
+                float x = GalaxyGen.RandomRange(r, -.5f, .5f);
+                float y = GalaxyGen.RandomRange(r, -.5f, .5f);
+                float z = GalaxyGen.RandomRange(r, -.5f, .5f);
 
                 int index = i;
                 x += (index % SECTOR_SIZE) - HALF_SECTOR_SIZE;
@@ -78,8 +84,8 @@ namespace GalaxyShared
                 z += index - HALF_SECTOR_SIZE;
 
 
-                SolarSystem system = new SolarSystem(new SystemCoord(x, y, z), this, sectorColor, 1, r);
-                systems.Add(system);
+                SolarSystem system = new SolarSystem(new SystemCoord(x, y, z), this,  1, r);
+                Systems.Add(system);
 
             }
         }

@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Drawing;
-
 namespace GalaxyShared
 {
 
     public class Star
     {
-        GalaxySector parentSector;
+        SolarSystem ParentSystem;
 
         public const int O = 0;
         public const int B = 1;
@@ -16,8 +14,10 @@ namespace GalaxyShared
         public const int K = 5;
         public const int M = 6;
 
-        public int type;
-        public float size;
+        public int Type;
+        public float Size;
+
+        public GalaxyColor Color;
         
 
 
@@ -65,13 +65,38 @@ namespace GalaxyShared
         
 
 
-        public Star(GalaxySector parentSector,  Random r)
+        public Star(SolarSystem parentSystem,  Random r)
         {
-            this.parentSector = parentSector;                           
-            type = typeToTypeDistribution[parentSector.dominantStarType][r.Next(0, 10)];
-            size = typeToSizeDistribution[type][r.Next(0, 10)];
+            ParentSystem = parentSystem;
+            Type = typeToTypeDistribution[parentSystem.ParentSector.DominantStarType][r.Next(0, 10)];
+            Size = typeToSizeDistribution[Type][r.Next(0, 10)];
 
             
+            switch (Type)
+            {
+                case Star.O:
+                    Color.FromArgb(149, 71, 254);
+                    break;
+                case Star.B:
+                    Color.FromArgb(123, 109, 252);
+                    break;
+                case Star.A:
+                    Color.FromArgb(186, 179, 253);
+                    break;
+                case Star.F:
+                    Color.FromArgb(255, 255, 255);
+                    break;
+                case Star.G:
+                    Color.FromArgb(255, 247, 85);
+                    break;
+                case Star.K:
+                    Color.FromArgb(240, 96, 0);
+                    break;
+                case Star.M:
+                    Color.FromArgb(250, 18, 5);
+                    break;
+            }
+
         }
 
     }

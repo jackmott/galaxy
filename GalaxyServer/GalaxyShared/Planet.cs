@@ -5,13 +5,26 @@ using System.Text;
 
 namespace GalaxyShared
 {
-    class Planet
+    public class Planet
     {
-        SolarSystem parentSystem;
+        public SolarSystem ParentSystem;
+        public int Orbit;
+        public float OrbitAngle;
+        public float RotationRate;
+        public int Hash;
+        public float Size;
+        
 
-        public Planet(SolarSystem parentsystem)
+        public Planet(SolarSystem parentSystem, int orbit, Random r)
         {
-            this.parentSystem = parentsystem;
+
+            Hash = orbit ^ parentSystem.Hash;            
+            ParentSystem = parentSystem;
+            Orbit = orbit;
+            RotationRate = GalaxyGen.RandomRange(r, .01f, .1f);
+            OrbitAngle = GalaxyGen.RandomRange(r, 0f, 360f);
+            Size = GalaxyGen.RandomRange(r, .25f, 14f);
+
         }
     }
 }

@@ -10,7 +10,7 @@ namespace GalaxyShared
     public class GalaxyGen
     {
         
-        Bitmap hoag;
+        Bitmap Hoag;
 
         public GalaxyGen()
         {
@@ -22,19 +22,32 @@ namespace GalaxyShared
         {
             try
             {
-                hoag = (Bitmap)Bitmap.FromFile("Assets/GalaxyShared/hoag-ring.bmp");
+                Hoag = (Bitmap)Bitmap.FromFile("Assets/GalaxyShared/hoag-ring.bmp");
             }
             catch
             {
-                hoag = (Bitmap)Bitmap.FromFile("assets/hoag-ring.bmp");
+                Hoag = (Bitmap)Bitmap.FromFile("assets/hoag-ring.bmp");
             }
 
+        }
+
+        public static int RandomRange(Random rand, int min, int max)
+        {
+            return rand.Next(min, max);
+        }
+
+        public static float RandomRange(Random rand, float min, float max)
+        {
+                        
+            return (float)rand.NextDouble() * (max - min) + min;
+            
+            
         }
 
 
         public GalaxySector GetSector(SectorCoord coord, int everyNth)
         {
-            return new GalaxySector(coord, hoag,everyNth);
+            return new GalaxySector(coord, Hoag,everyNth);
         }
 
 

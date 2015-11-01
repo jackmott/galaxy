@@ -6,13 +6,13 @@ namespace GalaxyServer
     {
         public const int BUFFER_SIZE = 1024;
         public int Size { get; set; }
-        public byte[] buffer { get; set; }
+        public byte[] Buffer { get; set; }
         public int BufferPos { get; set; }
         public GalaxyClient Client { get; set; }
 
         public GalaxyMessage()
         {
-            buffer = new byte[BUFFER_SIZE];
+            Buffer = new byte[BUFFER_SIZE];
             Size = -1;
         }
 

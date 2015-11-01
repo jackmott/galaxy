@@ -4,35 +4,36 @@ using GalaxyShared;
 
 public class ClientSector  {
 
-    public ParticleSystem particleSystem;
-    public SectorCoord coord = new SectorCoord();
-    public bool active = false;
-    public int hash;
-    public GalaxySector sector;
+    public ParticleSystem ParticleSystem;
+    public SectorCoord Coord = new SectorCoord();
+    public bool Active = false;
+    public int Hash;
+    public GalaxySector Sector;
 
-    public float unityX, unityY, unityZ;
+    public float UnityX, UnityY, UnityZ;
 
     public void Activate(GalaxySector galaxySector)
     {
-        sector = galaxySector;
-        int x = galaxySector.coord.x;
-        int y = galaxySector.coord.y;
-        int z = galaxySector.coord.z;
+        Debug.Log("Activate");
+        Sector = galaxySector;
+        int x = galaxySector.Coord.X;
+        int y = galaxySector.Coord.Y;
+        int z = galaxySector.Coord.Z;
 
-        hash = x + y * GalaxySector.SECTOR_SIZE + z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE;
-        coord.x = x;
-        coord.y = y;
-        coord.z = z;
-        active = true;
+        Hash = x + y * GalaxySector.SECTOR_SIZE + z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE;
+        Coord.X = x;
+        Coord.Y = y;
+        Coord.Z = z;
+        Active = true;
 
 
-        unityX = x * GalaxySector.SECTOR_SIZE * Warp.expandFactor;
-        unityY = y * GalaxySector.SECTOR_SIZE * Warp.expandFactor;
-        unityZ = z * GalaxySector.SECTOR_SIZE * Warp.expandFactor;
+        UnityX = x * GalaxySector.SECTOR_SIZE * Warp.ExpandFactor;
+        UnityY = y * GalaxySector.SECTOR_SIZE * Warp.ExpandFactor;
+        UnityZ = z * GalaxySector.SECTOR_SIZE * Warp.ExpandFactor;
 
 
         ParticleSystem.Particle[] particles = GenStars();
-        particleSystem.SetParticles(particles,particles.Length);
+        ParticleSystem.SetParticles(particles,particles.Length);
        
         
         
@@ -43,9 +44,9 @@ public class ClientSector  {
         Vector3 cameraPos = Camera.main.transform.position;
         float minDistance = float.MaxValue;
         SolarSystem closestSystem = null;
-        foreach (SolarSystem system in sector.systems)
+        foreach (SolarSystem system in Sector.Systems)
         {
-            Vector3 systemPos = (Vector3)system.clientCoord;
+            Vector3 systemPos = (Vector3)system.ClientCoord;
             float distance = Vector3.Distance(cameraPos, systemPos);
             if (distance < minDistance)
             {
@@ -54,50 +55,24 @@ public class ClientSector  {
             }
 
         }
-        closestSystem.clientDistance = minDistance;
+        closestSystem.ClientDistance = minDistance;
         return closestSystem;
     }
 
     public ParticleSystem.Particle[] GenStars()
     {
-
-
-        
-
-        ParticleSystem.Particle[] particles = new ParticleSystem.Particle[sector.systems.Count];
+        Debug.Log("GenSTars");
+        ParticleSystem.Particle[] particles = new ParticleSystem.Particle[Sector.Systems.Count];
         int i = 0;
-        foreach (SolarSystem system in sector.systems)
+        Debug.Log(Sector.Systems.Count);
+        foreach (SolarSystem system in Sector.Systems)
         {
 
-            Vector3 clientPos = new Vector3(system.coord.x * Warp.expandFactor + unityX, system.coord.y * Warp.expandFactor + unityY, system.coord.z * Warp.expandFactor + unityZ);
-            system.clientCoord = clientPos;
+            Vector3 clientPos = new Vector3(system.Coord.X * Warp.ExpandFactor + UnityX, system.Coord.Y * Warp.ExpandFactor + UnityY, system.Coord.Z * Warp.ExpandFactor + UnityZ);
+            system.ClientCoord = clientPos;
             particles[i].position = clientPos;
-            particles[i].size = system.star.size / 5f;
-
-            switch (system.star.type)
-            {
-                case Star.O:
-                    particles[i].color = new Color(149 / 255f, 71 / 255f, 254 / 255f);
-                    break;
-                case Star.B:
-                    particles[i].color = new Color(123 / 255f, 109 / 255f, 252 / 255f);
-                    break;
-                case Star.A:
-                    particles[i].color = new Color(186 / 255f, 179 / 255f, 253 / 255f);
-                    break;
-                case Star.F:
-                    particles[i].color = new Color(255 / 255f, 255 / 255f, 255 / 255f);
-                    break;
-                case Star.G:
-                    particles[i].color = new Color(255 / 255f, 247 / 255f, 85 / 255f);
-                    break;
-                case Star.K:
-                    particles[i].color = new Color(240 / 255f, 96 / 255f, 0 / 255f);
-                    break;
-                case Star.M:
-                    particles[i].color = new Color(250 / 255f, 18 / 255f, 5 / 255f);
-                    break;
-            }
+            particles[i].size = system.Star.Size / 5f;
+            particles[i].color = new Color(system.Star.Color.R / 255f, system.Star.Color.G / 255f, system.Star.Color.B / 255f);      
             i++;
         }
 
@@ -109,9 +84,10 @@ public class ClientSector  {
 
     public void Dispose()
     {
-        active = false;
+        Active = false;
         //particleSystem.Stop();
-        particleSystem.SetParticles(new ParticleSystem.Particle[0], 0);
+        ParticleSystem.Clear();
+        
     }
     	
     

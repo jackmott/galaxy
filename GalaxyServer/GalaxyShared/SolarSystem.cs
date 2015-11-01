@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -7,38 +6,54 @@ namespace GalaxyShared
 {
     public class SolarSystem
     {
-        public GalaxySector sector;
-        public SystemCoord coord;
-        public Object clientCoord;
-        public float clientDistance = float.MaxValue;
-        public Star star;
-        public int size;
-        public Color color;
-        List<Planet> planets;
+        public GalaxySector ParentSector;
+        public SystemCoord Coord;
+        public Object ClientCoord;
+        public float ClientDistance = float.MaxValue;
+        public Star Star;
+        public int Size;
+        public List<Planet> Planets;
+        public int Hash = 0;
 
-        public SolarSystem(SystemCoord coord, GalaxySector sector, Color color, int size, Random r)
+        int[] PlanetCountDistribution = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+
+
+
+        public SolarSystem(SystemCoord coord, GalaxySector parentSector, int size, Random r)
         {
-            this.coord = coord;
-            this.sector = sector;
-            this.color = color;
-            this.size = size;
-            star = new Star(sector, r);
+            Hash = Convert.ToInt32(coord.X + coord.Y * GalaxySector.SECTOR_SIZE + coord.Z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE);
+            Hash = Hash ^ parentSector.Hash;
+            Coord = coord;
+            ParentSector = parentSector;
+            Size = size;
+            Star = new Star(this, r);
         }
 
         public void Generate()
         {
-            int hash1 = sector.coord.x + sector.coord.y * GalaxySector.SECTOR_SIZE + sector.coord.z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE;
-            int hash2 = Convert.ToInt32(coord.x + coord.y * GalaxySector.SECTOR_SIZE + coord.z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE);
 
-            Random r = new Random(hash1 ^ hash2);
+            Random r = new Random(Hash ^ ParentSector.Hash);
 
-            int numPlanets = r.Next(0, 20);
-            
+            List<int> availableOrbits = new List<int>();
+            int numOrbits = 50;
+            for (int i = 0; i < numOrbits; i++)
+            {
+                availableOrbits.Add(i);
+            }
+
+            int numPlanets = PlanetCountDistribution[r.Next(0, PlanetCountDistribution.Length)];
+
+            Planets = new List<Planet>();
             for (int i = 0; i < numPlanets; i++)
             {
-                Planet p = new Planet(this);
+                int orbitIndex = r.Next(0, availableOrbits.Count);
+                int orbit = availableOrbits[orbitIndex];
+                availableOrbits.RemoveAt(orbitIndex);
+                Planet p = new Planet(this, orbit,r);
+                Planets.Add(p);
+
             }
-                
+
         }
 
     }
