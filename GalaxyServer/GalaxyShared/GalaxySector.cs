@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using UnityEngine;
 
 namespace GalaxyShared
 {
     public class GalaxySector
     {
         public SectorCoord Coord;
-        public Color Color;
+        public System.Drawing.Color Color;
         public List<SolarSystem> Systems;
         public int DominantStarType;
         
@@ -26,7 +27,7 @@ namespace GalaxyShared
             Systems = new List<SolarSystem>();
 
             
-            Random r = new Random(Hash);
+            System.Random r = new System.Random(Hash);
 
             int HALF_SECTOR_SIZE = SECTOR_SIZE / 2;
             //things to be looked up from data somehow
@@ -54,11 +55,12 @@ namespace GalaxyShared
             int avgDelta = Convert.ToInt32(avgDeltaF * 2f); //for average
             avgDelta *= everyNth;
 
-            /* Debug.WriteLine("X,Y=(" + pixelX + "," + pixelY + ")");
-             Debug.WriteLine("intensity=" + sectorIntensity);
-             Debug.WriteLine("StellarDen=" + STELLAR_DENSITY);
-             Debug.WriteLine("avgDelta2=" + avgDelta);
-             */
+            
+           System.Diagnostics.Debug.WriteLine("pixel X,Y=(" + pixelX + "," + pixelY + ")");
+           System.Diagnostics.Debug.WriteLine("intensity=" + sectorIntensity);
+           System.Diagnostics.Debug.WriteLine("StellarDen=" + STELLAR_DENSITY);
+           System.Diagnostics.Debug.WriteLine("avgDelta2=" + avgDelta);
+             
             int i = 0;
 
             while (true)
@@ -84,7 +86,7 @@ namespace GalaxyShared
                 z += index - HALF_SECTOR_SIZE;
 
 
-                SolarSystem system = new SolarSystem(new SystemCoord(x, y, z), this,  1, r);
+                SolarSystem system = new SolarSystem(new Vector3(x, y, z), this,  1, r);
                 Systems.Add(system);
 
             }

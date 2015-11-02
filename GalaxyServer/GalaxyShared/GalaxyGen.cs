@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
-
+using UnityEngine;
 
 namespace GalaxyShared
 {
@@ -11,10 +11,15 @@ namespace GalaxyShared
     {
         
         Bitmap Hoag;
+        
 
         public GalaxyGen()
         {
             loadGalaxyBitmap();
+            
+            GalaxySector sector = GetSector(new SectorCoord(0, 0, 0), 1);            
+            SolarSystem s = sector.Systems[0];
+            s.Generate();
 
         }
 
@@ -31,12 +36,12 @@ namespace GalaxyShared
 
         }
 
-        public static int RandomRange(Random rand, int min, int max)
+        public static int RandomRange(System.Random rand, int min, int max)
         {
             return rand.Next(min, max);
         }
 
-        public static float RandomRange(Random rand, float min, float max)
+        public static float RandomRange(System.Random rand, float min, float max)
         {
                         
             return (float)rand.NextDouble() * (max - min) + min;
@@ -47,7 +52,12 @@ namespace GalaxyShared
 
         public GalaxySector GetSector(SectorCoord coord, int everyNth)
         {
-            return new GalaxySector(coord, Hoag,everyNth);
+            try {
+                return new GalaxySector(coord, Hoag, everyNth);
+            } catch (Exception)
+            {
+                return null;
+            }
         }
 
 

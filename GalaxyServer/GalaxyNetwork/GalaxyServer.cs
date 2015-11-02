@@ -18,7 +18,8 @@ namespace GalaxyServer
 
         public static void Main(string[] args)
         {
-           
+            GalaxyGen gen = new GalaxyGen();
+
         }
 
         public GalaxyServer()

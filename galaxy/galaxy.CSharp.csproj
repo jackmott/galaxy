@@ -51,17 +51,11 @@
     <Reference Include="UnityEngine">
       <HintPath>Library\UnityAssemblies\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Advertisements">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Advertisements.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Analytics">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Analytics.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
@@ -83,14 +77,19 @@
     <Compile Include="Assets\ShaderForge\Example Assets\Scripts\EditorLabel.cs" />
     <Compile Include="Assets\ShaderForge\Example Assets\Scripts\EnableCameraDepthInForward.cs" />
     <Compile Include="Assets\ShaderForge\Example Assets\Scripts\SoftNormalsToVertexColor.cs" />
+    <Compile Include="Assets\src\ClientAsteroid.cs" />
     <Compile Include="Assets\src\ClientPlanet.cs" />
     <Compile Include="Assets\src\ClientSector.cs" />
     <Compile Include="Assets\src\ClientSolarSystem.cs" />
     <Compile Include="Assets\src\ColorRamp.cs" />
-    <Compile Include="Assets\src\Movement.cs" />
     <Compile Include="Assets\src\Noise.cs" />
     <Compile Include="Assets\src\PlanetTextureGenerator.cs" />
+    <Compile Include="Assets\src\RadarCamera.cs" />
+    <Compile Include="Assets\src\RadarObject.cs" />
+    <Compile Include="Assets\src\RadarPlayer.cs" />
+    <Compile Include="Assets\src\SystemMovement.cs" />
     <Compile Include="Assets\src\Warp.cs" />
+    <Compile Include="Assets\src\WarpMovement.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\Common\ExtractChannel.shader" />

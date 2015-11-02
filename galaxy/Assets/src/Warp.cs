@@ -10,8 +10,8 @@ using GalaxyShared;
 public class Warp : MonoBehaviour {
     
     
-    int SectorCount = 10; //must be odd
-    public static float ExpandFactor = 3; //multiplied by galaxy coordinates to get unity coordinates
+    int SectorCount = 9; //must be odd
+    public static float ExpandFactor = 1f/2.5f; //multiplied by galaxy coordinates to get unity coordinates
     public static ClientSector ClosestSector = null;
 
     //stuff that solarsystem scene will look up
@@ -38,20 +38,21 @@ public class Warp : MonoBehaviour {
         GameObject OriginalParticlePrefab = Resources.Load<GameObject>("StarParticles");
 
 
+        Camera.main.farClipPlane = GalaxySector.SECTOR_SIZE * ExpandFactor * (SectorCount / 2f);
         //warm up clientsectors
-        LoadedSectors = new Dictionary<int, ClientSector>();
+        LoadedSectors = new Dictionary<int, ClientSector>();        
         for (int i = 0; i < SectorCount*SectorCount*SectorCount; i++)
         {
             
             ClientSector c = new ClientSector();
-            GameObject go = (GameObject)Instantiate(OriginalParticlePrefab, new Vector3(0, 0, 0), Quaternion.identity);            
-            ParticleSystem p = go.GetComponent<ParticleSystem>();                        
+            GameObject go = (GameObject)Instantiate(OriginalParticlePrefab,Vector3.zero, Quaternion.identity);            
+            ParticleSystem p = go.GetComponent<ParticleSystem>();                    
             c.ParticleSystem = p;            
             c.Active = false;
             c.Hash = i+GalaxySector.GALAXY_SIZE_LIGHTYEARS+10;
             LoadedSectors.Add(c.Hash, c);
         }
-        Camera.main.farClipPlane = GalaxySector.SECTOR_SIZE * ExpandFactor * (SectorCount / 2.0f);
+        
 
     }
 
@@ -67,7 +68,7 @@ public class Warp : MonoBehaviour {
     void UpdateSectors()
     {
 
-        float distanceThreshold = Camera.main.farClipPlane + 100;
+        float distanceThreshold = Camera.main.farClipPlane;
         
         Vector3 cameraPos = Camera.main.transform.position;
         
@@ -95,8 +96,7 @@ public class Warp : MonoBehaviour {
 
             float distance = Vector3.Distance(cameraPos, sectorPos);
 
-            int hash = x + y * GalaxySector.SECTOR_SIZE + z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE;
-
+            
             if (distance > distanceThreshold) cSector.Dispose();
             else if (distance < minDistance)
             {
@@ -105,7 +105,7 @@ public class Warp : MonoBehaviour {
             }
         }
 
-        if (ClosestSector.Active)
+        if (ClosestSector != null && ClosestSector.Active)
         {
             SystemToLoad = ClosestSector.GetClosestSystem();
             
@@ -146,9 +146,16 @@ public class Warp : MonoBehaviour {
 
                             if (removeSector != null)
                             {
-                                LoadedSectors.Remove(removeSector.Hash);                                                                
-                                removeSector.Activate(GalaxyGenerator.GetSector(new SectorCoord(x,y, z),1));
-                                //Debug.Log("Sector created at:" + x + "," + y + "," + z);
+                                LoadedSectors.Remove(removeSector.Hash);
+                                GalaxySector gSector = GalaxyGenerator.GetSector(new SectorCoord(x, y, z), 1);
+                                if (gSector != null)
+                                {
+                                    removeSector.Activate(gSector);
+                                } else
+                                {
+                                    Debug.Log("no more sectors!");
+                                }
+                                Debug.Log("Sector created at:" + x + "," + y + "," + z);
                                 LoadedSectors.Add(removeSector.Hash, removeSector);
                             }
                             

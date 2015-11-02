@@ -1,19 +1,20 @@
 ﻿using UnityEngine;
+using System.Collections;
 
-public class Movement : MonoBehaviour
-{
+public class WarpMovement : MonoBehaviour {
+
     float Speed = 0;
 
     void Start()
     {
-       
+
     }
 
     void Update()
     {
         // Ensure the cursor is always locked when set
         //Cursor.lockState = CursorLockMode.Locked;
-        
+
         Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
         Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
 
@@ -27,28 +28,29 @@ public class Movement : MonoBehaviour
         xDelta = Mathf.Clamp(xDelta, -70, 70);
         if (System.Math.Abs(xDelta) > 10 || System.Math.Abs(yDelta) > 10)
         {
-           Camera.main.transform.Rotate(new Vector3(-xDelta * Time.deltaTime, yDelta  * Time.deltaTime, 0));
+            Camera.main.transform.Rotate(new Vector3(-xDelta * Time.deltaTime, yDelta * Time.deltaTime, 0));
         }
 
         if (Input.GetKey("w"))
         {
-            Speed = Speed + 50f;
+            Speed = Speed + .5f;
 
         }
         else if (Input.GetKey("s"))
         {
-            Speed = Speed - 50f;
+            Speed = Speed - .5f;
         }
         else if (Input.GetKeyDown("space"))
         {
             Speed = 0f;
-        } else if (Input.GetKey("q"))
+        }
+        else if (Input.GetKey("q"))
         {
-            Camera.main.transform.Rotate(new Vector3(0, 0, -50*Time.deltaTime));
+            Camera.main.transform.Rotate(new Vector3(0, 0, -50 * Time.deltaTime));
         }
         else if (Input.GetKey("e"))
         {
-            Camera.main.transform.Rotate(new Vector3(0, 0, 50*Time.deltaTime));
+            Camera.main.transform.Rotate(new Vector3(0, 0, 50 * Time.deltaTime));
         }
 
         Camera.main.transform.Translate(Vector3.forward * Speed * Time.deltaTime);
