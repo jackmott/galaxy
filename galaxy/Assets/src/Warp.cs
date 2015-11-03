@@ -181,40 +181,5 @@ public class Warp : MonoBehaviour {
         
     }
 
-    public void NetworkLoop()
-    {
-        TcpClient socket = new TcpClient("localhost", 8888);
-        NetworkStream stream = socket.GetStream();
-        
-        byte[] buffer = new byte[1024];
-        int pos = 0;
-        while (true)
-        {
-            pos = 0;             
-            while (pos < 2)
-            {
-                int bytesRead = stream.Read(buffer, pos, 2);
-                if (bytesRead == 0) { 
-                    //cleanup
-                }
-                pos += bytesRead;
-            }
-
-            int size = BitConverter.ToInt16(buffer, 0);
-
-
-
-            while (pos < size)
-            {
-                int bytesRead = stream.Read(buffer, pos, size - 2);
-                if (bytesRead == 0) {
-                    //cleanup
-                }
-                pos += bytesRead;
-            }
-            
-
-        }
-
-    }
+   
 }

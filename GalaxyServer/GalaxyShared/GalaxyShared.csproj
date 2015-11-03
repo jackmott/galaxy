@@ -46,10 +46,17 @@
     <Compile Include="GalaxyGen.cs" />
     <Compile Include="GalaxyItem.cs" />
     <Compile Include="GalaxyPlayer.cs" />
+    <Compile Include="GalaxyPlayerLogin.cs" />
     <Compile Include="GalaxySector.cs" />
     <Compile Include="GalaxyShip.cs" />
     <Compile Include="GalaxyStation.cs" />
     <Compile Include="Moon.cs" />
+    <Compile Include="Networking\MessageSender.cs" />
+    <Compile Include="Networking\Messages\GalaxyMessage.cs" />
+    <Compile Include="Networking\Messages\LoginMessage.cs" />
+    <Compile Include="Networking\Messages\BooleanResultMessage.cs" />
+    <Compile Include="Networking\Messages\NewUserMessage.cs" />
+    <Compile Include="Networking\TypeDictionary.cs" />
     <Compile Include="Planet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SolarSystem.cs" />

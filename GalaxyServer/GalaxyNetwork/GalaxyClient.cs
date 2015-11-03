@@ -4,7 +4,7 @@ namespace GalaxyServer
 {
     
 
-    class GalaxyClient
+    public class GalaxyClient
     {
        
 

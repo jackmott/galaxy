@@ -1,12 +1,12 @@
 ﻿
 using System.Collections.Concurrent;
-
+using GalaxyShared.Networking.Messages;
 
 namespace GalaxyServer
 {
     class MessagePool
     {
-        
+
         private ConcurrentQueue<GalaxyMessage> messagePool;
 
         public MessagePool()
@@ -24,16 +24,14 @@ namespace GalaxyServer
             GalaxyMessage result;
             while (!messagePool.TryDequeue(out result))
             {
-               
+
             }
             return result;
         }
 
         public void ReplaceMessage(GalaxyMessage message)
         {
-            message.Size = -1;
-            message.BufferPos = 0;
-            message.Client = null;
+            message.Size = 0;                        
             messagePool.Enqueue(message);
         }
 

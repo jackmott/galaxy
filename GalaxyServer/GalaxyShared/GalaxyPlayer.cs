@@ -8,5 +8,6 @@ namespace GalaxyShared
     [Serializable]
     class GalaxyPlayer
     {
+        
     }
 }

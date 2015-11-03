@@ -59,24 +59,21 @@ public class ClientSolarSystem : MonoBehaviour
             cp.Planet = p;
            
 
-         /*   LineRenderer lr = planetGO.GetComponent<LineRenderer>();
+            LineRenderer lr = planetGO.GetComponent<LineRenderer>();
             Color c = new Color(1, 1, 1);
             lr.material = new Material(Shader.Find("Unlit/Color"));
             lr.SetColors(c, c);
             lr.SetWidth(10f, 10f);
-            int vertexCount = 50;
+            int vertexCount = 200;
             lr.SetVertexCount(vertexCount + 1);
 
             for (int i = 0; i < vertexCount + 1; i++)
             {
 
                 float angle = ((float)i / (float)vertexCount) * Mathf.PI * 2f;
-                Vector3 pos = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * (p.Orbit + 1) * EARTH_CONSANT * 50;
-                //pos = new Vector3(pos.x + planetGO.transform.position.x, pos.y + planetGO.transform.position.y, pos.z + planetGO.transform.position.z);
+                Vector3 pos = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * (p.Orbit + 1) * Planet.EARTH_CONSTANT * 50;                
                 lr.SetPosition(i, pos);
-            }
-            */
-
+            }            
 
         }
 
