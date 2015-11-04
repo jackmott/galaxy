@@ -9,6 +9,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using GalaxyShared.Networking.Messages;
 using GalaxyShared.Networking;
+using GalaxyShared;
 
 namespace GalaxyServer
 {
@@ -122,22 +123,11 @@ namespace GalaxyServer
 
         }
 
-        public static void SendSuccess(GalaxyClient c)
-        {
-            BooleanResultMessage b;
-            b.success = true;
-            Send(c, b);
-        }
-
-        public static void SendFailure(GalaxyClient c)
-        {
-            BooleanResultMessage b;
-            b.success = false;
-            GalaxyServer.Send(c, b);
-        }
+      
 
         public static void Send(GalaxyClient c,object o)
         {
+            Console.WriteLine("Send");
             GalaxyOutgoingMessage m;
             m.c = c;
             m.o = o;
@@ -150,7 +140,13 @@ namespace GalaxyServer
             while (true)
             {
                 GalaxyOutgoingMessage m = OutgoingMessages.Take();
-                binaryFormatter.Serialize(m.c.GalaxyTcpStream, m.o);
+                try {
+                    binaryFormatter.Serialize(m.c.GalaxyTcpStream, m.o);
+                } catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+                Console.WriteLine("Message Sent");
             }
         }
 
@@ -166,16 +162,16 @@ namespace GalaxyServer
                 GalaxyClient client = (GalaxyClient)message.Client;
                 MemoryStream m = new MemoryStream(message.Buffer, 0, message.Size);
                 object result = binaryFormatter.Deserialize(m);
-
+                
                 int type = TypeDictionary.GetID(result);
 
                 switch (type)
                 {
                     case 0:
-                        D.HandleLoginMessage((LoginMessage)result,client);
+                        LogicLayer.HandleLoginMessage((LoginMessage)result,client);
                         break;
                     case 1:
-                        D.HandleNewUserMessage((NewUserMessage)result,client);
+                        LogicLayer.HandleNewUserMessage((NewUserMessage)result,client);
                         break;
                     default:
                         Console.WriteLine("unknown message");

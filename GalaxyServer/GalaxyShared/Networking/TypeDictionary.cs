@@ -15,7 +15,10 @@ namespace GalaxyShared.Networking
             Dictionary = new Dictionary<Type, int>();            
             Dictionary.Add(typeof(LoginMessage), 0);
             Dictionary.Add(typeof(NewUserMessage), 1);
-
+            Dictionary.Add(typeof(LoginResultMessage), 2);
+            Dictionary.Add(typeof(NewUserResultMessage), 3);
+            Dictionary.Add(typeof(GalaxyPlayer), 4);
+             
         }
 
         public int GetID(object o)

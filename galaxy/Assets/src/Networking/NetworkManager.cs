@@ -12,10 +12,15 @@ using System.Threading;
 public class NetworkManager : MonoBehaviour {
 
     private static TcpClient socket;
-    private static NetworkStream stream; 
+    private static NetworkStream stream;
+
+    public static Queue messageQueue;
 
     void Awake()
     {
+        Queue q = new Queue();
+        messageQueue = Queue.Synchronized(q);
+
         DontDestroyOnLoad(this);
         socket = new TcpClient("localhost", 8888);
         socket.NoDelay = true;
@@ -30,8 +35,42 @@ public class NetworkManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+        processMessages();
 	
 	}
+
+    private void processMessages()
+    {
+        TypeDictionary TypeDictionary = new TypeDictionary();
+        while (messageQueue.Count > 0)
+        {
+            object o = messageQueue.Dequeue();
+            int type = TypeDictionary.GetID(o);
+
+            switch (type)
+            {
+                case 0:
+                    //todo
+                    break;
+                case 1:
+                    //todo
+                    break;
+                case 2:
+                    HandleLoginResultMessage((LoginResultMessage)o);
+                    break;
+                case 3:
+                    HandleNewUserResultMessage((NewUserResultMessage)o);
+                    break;
+                case 4:
+                    HandleGalaxyPlayerMessage((GalaxyPlayer)o);
+                    break;
+                default:
+                    Console.WriteLine("unknown message");
+                    break;
+            }
+        }
+    }
 
     public static void Send(object msg)
     {
@@ -42,16 +81,36 @@ public class NetworkManager : MonoBehaviour {
     }
 
     public void NetworkReadLoop()
-    {
-        
-
-        IFormatter binaryFormatter = new BinaryFormatter();
-                        
+    {        
+        IFormatter binaryFormatter = new BinaryFormatter();        
         while (true)
         {
             object o = binaryFormatter.Deserialize(stream);
-            Debug.Log("Got an object!");
+            messageQueue.Enqueue(o);
+            Debug.Log("Got an object! Enqued it.");            
         }
+
+    }
+
+
+    public void HandleLoginResultMessage(LoginResultMessage msg)
+    {
+        //show error
+    }
+
+    public void HandleNewUserResultMessage(NewUserResultMessage msg)
+    {
+        //show error
+    }
+
+    public void HandleGalaxyPlayerMessage(GalaxyPlayer player)
+    {
+        Debug.Log("handle galaxyplayer message");
+        GalaxyGen gen = new GalaxyGen();
+        GalaxySector s = gen.GetSector(player.SectorPos, 1);
+        ClientSolarSystem.SolarSystem = s.Systems[player.SystemIndex];
+        ClientSolarSystem.PlayerStartPos = new Vector3(player.PlayerPos.X, player.PlayerPos.Y, player.PlayerPos.Z);
+        Application.LoadLevel("SolarSystem");
 
     }
 }

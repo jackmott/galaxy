@@ -6,7 +6,11 @@ using System.Text;
 namespace GalaxyShared
 {
     [Serializable]
-    class GalaxyShip : GalaxyEntity
+    public class GalaxyShip : GalaxyEntity
     {
+        public GalaxyShip()
+        {
+
+        }
     }
 }

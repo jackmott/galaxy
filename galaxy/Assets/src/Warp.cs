@@ -14,10 +14,7 @@ public class Warp : MonoBehaviour {
     public static float ExpandFactor = 1f/2.5f; //multiplied by galaxy coordinates to get unity coordinates
     public static ClientSector ClosestSector = null;
 
-    //stuff that solarsystem scene will look up
-    public static SolarSystem SystemToLoad;
-    public static Cubemap Cubemap;
-    public static Quaternion CameraRotation;
+    //stuff that solarsystem scene will look up    
     
 
     Dictionary<int,ClientSector> LoadedSectors;
@@ -107,9 +104,9 @@ public class Warp : MonoBehaviour {
 
         if (ClosestSector != null && ClosestSector.Active)
         {
-            SystemToLoad = ClosestSector.GetClosestSystem();
+            ClientSolarSystem.SolarSystem = ClosestSector.GetClosestSystem();
             
-            if (SystemToLoad.ClientDistance < .1)
+            if (ClientSolarSystem.SolarSystem.ClientDistance < .1)
             {
                 GenSkybox();
                 Application.LoadLevel("SolarSystem");
@@ -175,9 +172,9 @@ public class Warp : MonoBehaviour {
     public void GenSkybox()
     {
         ClosestSector.ParticleSystem.Clear();
-        Cubemap = new Cubemap(2048, TextureFormat.ARGB32, false);
-        CameraRotation = Camera.main.transform.rotation;
-        bool work = Camera.main.RenderToCubemap(Cubemap);
+        ClientSolarSystem.Cubemap = new Cubemap(2048, TextureFormat.ARGB32, false);
+        ClientSolarSystem.CameraRotation = Camera.main.transform.rotation;
+        bool work = Camera.main.RenderToCubemap(ClientSolarSystem.Cubemap);
         
     }
 

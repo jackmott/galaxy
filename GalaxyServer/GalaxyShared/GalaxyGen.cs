@@ -15,11 +15,7 @@ namespace GalaxyShared
 
         public GalaxyGen()
         {
-            loadGalaxyBitmap();
-            
-            GalaxySector sector = GetSector(new SectorCoord(0, 0, 0), 1);            
-            SolarSystem s = sector.Systems[0];
-            s.Generate();
+            loadGalaxyBitmap();                      
 
         }
 

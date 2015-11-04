@@ -33,7 +33,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -79,9 +79,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataLayer.cs" />
-    <Compile Include="GalaxyClient.cs" />
     <Compile Include="GalaxyOutgoingMessage.cs" />
     <Compile Include="GalaxyServer.cs" />
+    <Compile Include="LogicLayer.cs" />
     <Compile Include="MessagePool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

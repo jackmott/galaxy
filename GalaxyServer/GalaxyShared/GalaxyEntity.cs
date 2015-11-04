@@ -7,10 +7,10 @@ using UnityEngine;
 namespace GalaxyShared
 {
     [Serializable]
-    class GalaxyEntity
+    public class GalaxyEntity
     {
-        int solarSystemHash;
-        Vector3 pos;
+        public int SystemHash;
+        public Coord Pos;
 
         public GalaxyEntity()
         {

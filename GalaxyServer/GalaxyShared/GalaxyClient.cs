@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 
-namespace GalaxyServer
+namespace GalaxyShared
 {
     
 

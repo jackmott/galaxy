@@ -4,17 +4,16 @@ using GalaxyShared;
 public class ClientSolarSystem : MonoBehaviour
 {
 
-    SolarSystem SolarSystem;
-    
+    public static SolarSystem SolarSystem;
+    public static Cubemap Cubemap;
+    public static Quaternion CameraRotation;
+    public static Vector3 PlayerStartPos;
+
 
     // Use this for initialization
     void Start()
     {
-        if (Warp.SystemToLoad != null)
-        {
-            SolarSystem = Warp.SystemToLoad;
-        }
-        else
+        if (SolarSystem == null)
         {
             GalaxyGen gen = new GalaxyGen();
             GalaxySector sector = gen.GetSector(new SectorCoord(0, 0, 0), 1);
@@ -31,10 +30,10 @@ public class ClientSolarSystem : MonoBehaviour
         GeneratePlanets();
         GenerateAsteroids();
 
-        if (Warp.Cubemap != null)
+        if (Cubemap != null)
         {         
-           Camera.main.GetComponent<Skybox>().material.SetTexture("_Tex", Warp.Cubemap);
-           Camera.main.transform.rotation = Warp.CameraRotation;
+           Camera.main.GetComponent<Skybox>().material.SetTexture("_Tex", Cubemap);
+           Camera.main.transform.rotation = CameraRotation;
            Camera.main.transform.Translate(Vector3.back * Planet.EARTH_CONSTANT * 50);
          
         }       
