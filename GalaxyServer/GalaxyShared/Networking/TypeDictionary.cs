@@ -18,6 +18,7 @@ namespace GalaxyShared.Networking
             Dictionary.Add(typeof(LoginResultMessage), 2);
             Dictionary.Add(typeof(NewUserResultMessage), 3);
             Dictionary.Add(typeof(GalaxyPlayer), 4);
+            Dictionary.Add(typeof(InputMessage), 5);
              
         }
 

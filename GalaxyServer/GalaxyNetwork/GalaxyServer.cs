@@ -173,6 +173,9 @@ namespace GalaxyServer
                     case 1:
                         LogicLayer.HandleNewUserMessage((NewUserMessage)result,client);
                         break;
+                    case 5:
+                        LogicLayer.HandleInput((InputMessage)result, client);
+                        break;
                     default:
                         Console.WriteLine("unknown message");
                         break;

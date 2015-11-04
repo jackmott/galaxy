@@ -16,6 +16,9 @@ public class NetworkManager : MonoBehaviour {
 
     public static Queue messageQueue;
 
+    int PositionUpdateRate = 500; //ms
+    
+
     void Awake()
     {
         Queue q = new Queue();
@@ -37,6 +40,8 @@ public class NetworkManager : MonoBehaviour {
 	void Update () {
 
         processMessages();
+        
+        
 	
 	}
 
@@ -78,6 +83,11 @@ public class NetworkManager : MonoBehaviour {
         stream.Write(m.SizeBuffer, 0, m.SizeBuffer.Length);
         stream.Write(m.Buffer, 0, m.Size);
         Debug.Log("Sent One Message");
+    }
+
+    public static void SendInput(InputMessage m)
+    {        
+        Send(m);  
     }
 
     public void NetworkReadLoop()

@@ -18,10 +18,10 @@ namespace GalaxyShared
         public int Hash = 0;
         public static GameObject go;
         int[] PlanetCountDistribution = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+        public int index;
 
 
-
-        public SolarSystem(Vector3 coord, GalaxySector parentSector, int size, System.Random r)
+        public SolarSystem(Vector3 coord, GalaxySector parentSector, int size, int index, System.Random r)
         {
             Hash = Convert.ToInt32(coord.x + coord.y * GalaxySector.SECTOR_SIZE + coord.z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE);
             Hash = Hash ^ parentSector.Hash;

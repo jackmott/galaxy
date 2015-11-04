@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using GalaxyShared;
+using GalaxyShared.Networking.Messages;
 
 public class ClientSolarSystem : MonoBehaviour
 {
@@ -25,7 +26,13 @@ public class ClientSolarSystem : MonoBehaviour
         star.transform.localScale *= SolarSystem.Star.Size * Planet.EARTH_CONSTANT * 30;
         GameObject light = (GameObject)Instantiate(Resources.Load<GameObject>("StarLight"), Vector3.zero, Quaternion.identity);
         light.transform.position = Vector3.zero;
-        star.GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(SolarSystem.Star.Color.R / 255f, SolarSystem.Star.Color.G / 255f, SolarSystem.Star.Color.B / 255f));
+        Light l = light.GetComponent<Light>();
+        LensFlare flare = star.GetComponent<LensFlare>();        
+        Color c = new Color(SolarSystem.Star.Color.R / 255f, SolarSystem.Star.Color.G / 255f, SolarSystem.Star.Color.B / 255f);
+        flare.color = c;
+        
+        l.color = c;
+        star.GetComponent<Renderer>().material.SetColor("_EmissionColor",c);
         SolarSystem.Generate();
         GeneratePlanets();
         GenerateAsteroids();
@@ -41,11 +48,11 @@ public class ClientSolarSystem : MonoBehaviour
         {
             Camera.main.transform.Translate(Vector3.back * Planet.EARTH_CONSTANT * 50);
         }
-
-
+        
 
 
     }
+   
 
     public void GeneratePlanets()
     {

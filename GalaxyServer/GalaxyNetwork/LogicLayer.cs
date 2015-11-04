@@ -1,11 +1,14 @@
 ﻿using System;
 using GalaxyShared.Networking.Messages;
 using GalaxyShared;
+using System.Collections.Concurrent;
 
 namespace GalaxyServer
 {
     class LogicLayer
     {
+
+        private static ConcurrentDictionary<GalaxyClient, GalaxyPlayer> PlayerTable = new ConcurrentDictionary<GalaxyClient, GalaxyPlayer>();
 
 
         public static void HandleLoginMessage(LoginMessage msg, GalaxyClient client)
@@ -41,6 +44,7 @@ namespace GalaxyServer
             }
 
             Console.WriteLine("About to send player data");
+            PlayerTable.TryAdd(client, player);
             GalaxyServer.Send(client, player);
             Console.WriteLine("Player Data Sent");
                 
@@ -48,7 +52,7 @@ namespace GalaxyServer
 
 
         public static void HandleNewUserMessage(NewUserMessage msg, GalaxyClient client)
-        {
+        {            
             Console.WriteLine("HandleNewUserMessage");
             NewUserResultMessage m;
             GalaxyPlayerLogin login = new GalaxyPlayerLogin(msg.UserName, msg.Password);
@@ -62,6 +66,14 @@ namespace GalaxyServer
                 GalaxyServer.Send(client, m);
             }
             
+        }
+
+        public static void HandleInput(InputMessage msg, GalaxyClient client)
+        {
+            GalaxyPlayer player;
+            PlayerTable.TryGetValue(client, out player);
+            Console.WriteLine("got input!");
+
         }
 
     }

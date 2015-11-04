@@ -33,7 +33,7 @@ namespace GalaxyShared
             go.transform.position = Vector3.one;
             go.transform.rotation = Quaternion.AngleAxis(OrbitAngle, Vector3.up);
             go.transform.Translate(Vector3.forward * (Orbit + 1) * Planet.EARTH_CONSTANT * 50);
-            float magnitude = 5000;
+            float magnitude = 25000;
             float xAdjust = GalaxyGen.RandomRange(R, -magnitude, magnitude);
             float yAdjust = GalaxyGen.RandomRange(R, -magnitude, magnitude);
             float zAdjust = GalaxyGen.RandomRange(R, -magnitude, magnitude);

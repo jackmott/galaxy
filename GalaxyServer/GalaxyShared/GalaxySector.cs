@@ -19,7 +19,7 @@ namespace GalaxyShared
 
         public int Hash = 0;
 
-        public GalaxySector(SectorCoord coord, Bitmap hoag, int everyNth)
+        public GalaxySector(SectorCoord coord, Bitmap hoag, int everyNth = 1)
         {
             this.Coord = coord;
 
@@ -56,10 +56,10 @@ namespace GalaxyShared
             avgDelta *= everyNth;
 
             
-           System.Diagnostics.Debug.WriteLine("pixel X,Y=(" + pixelX + "," + pixelY + ")");
-           System.Diagnostics.Debug.WriteLine("intensity=" + sectorIntensity);
-           System.Diagnostics.Debug.WriteLine("StellarDen=" + STELLAR_DENSITY);
-           System.Diagnostics.Debug.WriteLine("avgDelta2=" + avgDelta);
+          //System.Diagnostics.Debug.WriteLine("pixel X,Y=(" + pixelX + "," + pixelY + ")");
+          // System.Diagnostics.Debug.WriteLine("intensity=" + sectorIntensity);
+           //System.Diagnostics.Debug.WriteLine("StellarDen=" + STELLAR_DENSITY);
+           //System.Diagnostics.Debug.WriteLine("avgDelta2=" + avgDelta);
              
             int i = 0;
 
@@ -86,7 +86,7 @@ namespace GalaxyShared
                 z += index - HALF_SECTOR_SIZE;
 
 
-                SolarSystem system = new SolarSystem(new Vector3(x, y, z), this,  1, r);
+                SolarSystem system = new SolarSystem(new Vector3(x, y, z), this, 1,i, r);
                 Systems.Add(system);
 
             }

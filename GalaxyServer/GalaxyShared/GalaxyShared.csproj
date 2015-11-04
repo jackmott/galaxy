@@ -54,6 +54,7 @@
     <Compile Include="Moon.cs" />
     <Compile Include="Networking\MessageSender.cs" />
     <Compile Include="Networking\Messages\GalaxyMessage.cs" />
+    <Compile Include="Networking\Messages\InputMessage.cs" />
     <Compile Include="Networking\Messages\UtilityMessages.cs" />
     <Compile Include="Networking\TypeDictionary.cs" />
     <Compile Include="Planet.cs" />
