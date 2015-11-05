@@ -10,6 +10,16 @@ namespace GalaxyShared.Networking
     {
         Dictionary<Type, int> Dictionary;
 
+        public enum MsgType {
+            LoginMessage,
+            NewUserMessage,
+            LoginResultMessage,
+            NewUserResultMessage,
+            GalaxyPlayer,
+            ListOfInputMessage,
+            PlayerStateMessage
+        }
+
         public TypeDictionary()
         {
             Dictionary = new Dictionary<Type, int>();            
@@ -22,11 +32,11 @@ namespace GalaxyShared.Networking
             Dictionary.Add(typeof(PlayerStateMessage), 6);
         }
 
-        public int GetID(object o)
+        public MsgType GetID(object o)
         {
             int id = -1;
             Dictionary.TryGetValue(o.GetType(), out id);
-            return id;
+            return (MsgType)id;
         }
     }
 }

@@ -46,7 +46,7 @@ public class SystemMovement : MonoBehaviour
         xDelta = Mathf.Clamp(xDelta, -70, 70);
         if (System.Math.Abs(xDelta) > 10 || System.Math.Abs(yDelta) > 10)
         {
-            //Camera.main.transforinput.Rotate(new Vector3(-xDelta * Time.deltaTime, yDelta  * Time.deltaTime, 0));        
+            Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
            input.XTurn = xDelta/4000f;
            input.YTurn = -yDelta/4000f;
            anyInput = true;
@@ -100,7 +100,7 @@ public class SystemMovement : MonoBehaviour
             anyInput = true;
         }
 
-        //Camera.main.transform.Translate(Vector3.forward * ClientPlayerStateMessage.throttle * 40 *  Time.deltaTime);
+        Camera.main.transform.Translate(Vector3.forward * throttle * 40 *  Time.deltaTime);
 
         if (anyInput)
         {

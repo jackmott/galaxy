@@ -52,26 +52,21 @@ public class NetworkManager : MonoBehaviour {
         while (messageQueue.Count > 0)
         {
             object o = messageQueue.Dequeue();
-            int type = TypeDictionary.GetID(o);
+            TypeDictionary.MsgType type = TypeDictionary.GetID(o);
 
             switch (type)
             {
-                case 0:
-                    //todo
-                    break;
-                case 1:
-                    //todo
-                    break;
-                case 2:
+                
+                case TypeDictionary.MsgType.LoginResultMessage:
                     HandleLoginResultMessage((LoginResultMessage)o);
                     break;
-                case 3:
+                case TypeDictionary.MsgType.NewUserResultMessage:
                     HandleNewUserResultMessage((NewUserResultMessage)o);
                     break;
-                case 4:
+                case TypeDictionary.MsgType.GalaxyPlayer:
                     HandleGalaxyPlayerMessage((GalaxyPlayer)o);
                     break;
-                case 6:
+                case TypeDictionary.MsgType.PlayerStateMessage:
                     HandlePlayerStateMessage((PlayerStateMessage)o);
                     break;
                 default:

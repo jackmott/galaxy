@@ -163,17 +163,17 @@ namespace GalaxyServer
                 MemoryStream m = new MemoryStream(message.Buffer, 0, message.Size);
                 object result = binaryFormatter.Deserialize(m);
                 
-                int type = TypeDictionary.GetID(result);
+                TypeDictionary.MsgType type = TypeDictionary.GetID(result);
 
                 switch (type)
                 {
-                    case 0:
+                    case TypeDictionary.MsgType.LoginMessage:
                         LogicLayer.HandleLoginMessage((LoginMessage)result,client);
                         break;
-                    case 1:
+                    case TypeDictionary.MsgType.NewUserMessage:
                         LogicLayer.HandleNewUserMessage((NewUserMessage)result,client);
                         break;
-                    case 5:
+                    case TypeDictionary.MsgType.ListOfInputMessage:
                         LogicLayer.HandleInputs((List<InputMessage>)result, client);                        
                         break;
                     default:
