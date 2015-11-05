@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using XnaGeometry;
 
 namespace GalaxyShared
 {
@@ -16,14 +16,14 @@ namespace GalaxyShared
         public List<Planet> Planets;
         public List<Asteroid> Asteroids;
         public int Hash = 0;
-        public static GameObject go;
+                
         int[] PlanetCountDistribution = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
         public int index;
 
 
         public SolarSystem(Vector3 coord, GalaxySector parentSector, int size, int index, System.Random r)
         {
-            Hash = Convert.ToInt32(coord.x + coord.y * GalaxySector.SECTOR_SIZE + coord.z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE);
+            Hash = Convert.ToInt32(coord.X + coord.Y * GalaxySector.SECTOR_SIZE + coord.Z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE);
             Hash = Hash ^ parentSector.Hash;
             Coord = coord;
             ParentSector = parentSector;
@@ -33,8 +33,8 @@ namespace GalaxyShared
 
         public void Generate()
         {
-            go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            System.Random r = new System.Random(Hash ^ ParentSector.Hash);
+            
+            Random r = new Random(Hash ^ ParentSector.Hash);
 
             List<int> availableOrbits = new List<int>();
             int numOrbits = 50;

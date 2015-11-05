@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
+using XnaGeometry;
 
 namespace GalaxyShared
 {
@@ -10,7 +10,7 @@ namespace GalaxyShared
     public class GalaxyEntity
     {
         public int SystemHash;
-        public Coord Pos;
+        public Vector3 Pos;
 
         public GalaxyEntity()
         {

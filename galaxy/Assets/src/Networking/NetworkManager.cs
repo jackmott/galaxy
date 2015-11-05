@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using System.Collections;
 using System.Net.Sockets;
 using System;
@@ -70,6 +71,9 @@ public class NetworkManager : MonoBehaviour {
                 case 4:
                     HandleGalaxyPlayerMessage((GalaxyPlayer)o);
                     break;
+                case 6:
+                    HandlePlayerStateMessage((PlayerStateMessage)o);
+                    break;
                 default:
                     Console.WriteLine("unknown message");
                     break;
@@ -85,9 +89,9 @@ public class NetworkManager : MonoBehaviour {
         Debug.Log("Sent One Message");
     }
 
-    public static void SendInput(InputMessage m)
+    public static void SendInputs(List<InputMessage> l)
     {        
-        Send(m);  
+        Send(l);  
     }
 
     public void NetworkReadLoop()
@@ -119,8 +123,14 @@ public class NetworkManager : MonoBehaviour {
         GalaxyGen gen = new GalaxyGen();
         GalaxySector s = gen.GetSector(player.SectorPos, 1);
         ClientSolarSystem.SolarSystem = s.Systems[player.SystemIndex];
-        ClientSolarSystem.PlayerStartPos = new Vector3(player.PlayerPos.X, player.PlayerPos.Y, player.PlayerPos.Z);
+        ClientSolarSystem.PlayerStartPos = Utility.UVector(player.PlayerPos);
         Application.LoadLevel("SolarSystem");
 
+    }
+
+    public void HandlePlayerStateMessage(PlayerStateMessage p)
+    {
+        Camera.main.transform.rotation = Utility.UQuaternion(p.rotation);
+        Camera.main.transform.position = Utility.UVector(p.PlayerPos);
     }
 }

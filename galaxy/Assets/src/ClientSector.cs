@@ -42,7 +42,7 @@ public class ClientSector  {
         SolarSystem closestSystem = null;
         foreach (SolarSystem system in Sector.Systems)
         {
-            Vector3 systemPos = (Vector3)system.ClientCoord;
+            Vector3 systemPos = Utility.UVector(system.ClientCoord);
             float distance = Vector3.Distance(cameraPos, systemPos);
             if (distance < minDistance)
             {
@@ -63,9 +63,10 @@ public class ClientSector  {
         
         foreach (SolarSystem system in Sector.Systems)
         {
+            Vector3 systemCoord = Utility.UVector(system.Coord);
 
-            Vector3 clientPos = new Vector3(system.Coord.x * Warp.ExpandFactor + UnityX, system.Coord.y * Warp.ExpandFactor + UnityY, system.Coord.z * Warp.ExpandFactor + UnityZ);
-            system.ClientCoord = clientPos;
+            Vector3 clientPos = new Vector3(systemCoord.x * Warp.ExpandFactor + UnityX, systemCoord.y * Warp.ExpandFactor + UnityY, systemCoord.z * Warp.ExpandFactor + UnityZ);
+            system.ClientCoord = Utility.XVector(clientPos);
             particles[i].position = clientPos;
             particles[i].size = system.Star.Size / 37.5f;
             particles[i].color = new Color(system.Star.Color.R / 255f, system.Star.Color.G / 255f, system.Star.Color.B / 255f);                  

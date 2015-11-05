@@ -2,12 +2,15 @@
 using GalaxyShared.Networking.Messages;
 using GalaxyShared;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using XnaGeometry;
+
 
 namespace GalaxyServer
 {
     class LogicLayer
     {
-
+        
         private static ConcurrentDictionary<GalaxyClient, GalaxyPlayer> PlayerTable = new ConcurrentDictionary<GalaxyClient, GalaxyPlayer>();
 
 
@@ -68,11 +71,45 @@ namespace GalaxyServer
             
         }
 
-        public static void HandleInput(InputMessage msg, GalaxyClient client)
+       
+        public static void HandleInputs(object o, GalaxyClient client)
         {
+           
+            List<InputMessage> msgs = (List<InputMessage>)o;           
             GalaxyPlayer player;
+         
             PlayerTable.TryGetValue(client, out player);
-            Console.WriteLine("got input!");
+         
+            foreach (InputMessage msg in msgs )
+            {
+                UpdateState(player, msg);
+            }
+            
+                        
+            PlayerStateMessage pState = new PlayerStateMessage();
+            pState.PlayerPos = player.PlayerPos;
+            pState.rotation = player.rotation;     
+            GalaxyServer.Send(client, pState);
+            
+
+        }
+
+        public static  void UpdateState(GalaxyPlayer player, InputMessage input)
+        {
+          
+            //   go.transform.Translate(Vector3.forward * input.Throttle * 40 * GalaxyClient.TICK_RATE);
+
+            //rotate
+            Matrix startRotation = Matrix.CreateFromQuaternion(player.rotation);
+            Matrix changeRotation = Matrix.CreateFromYawPitchRoll(input.XTurn, input.YTurn, input.RollTurn);
+            Matrix result = startRotation * changeRotation;
+            player.rotation = Quaternion.CreateFromRotationMatrix(result);
+
+            //translate
+          
+            player.PlayerPos += Vector3.Transform(Vector3.Forward*input.Throttle, result);
+            player.Throttle = input.Throttle;
+          
 
         }
 

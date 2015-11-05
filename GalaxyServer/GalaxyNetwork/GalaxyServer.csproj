@@ -38,7 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -105,6 +105,10 @@
     <ProjectReference Include="..\GalaxyShared\GalaxyShared.csproj">
       <Project>{ec90305b-8a8f-4d86-b957-347189fb2bec}</Project>
       <Name>GalaxyShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XnaGeometry\XnaGeometry.csproj">
+      <Project>{a4398650-10f4-450f-8e4f-fb3f30a39683}</Project>
+      <Name>XnaGeometry</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

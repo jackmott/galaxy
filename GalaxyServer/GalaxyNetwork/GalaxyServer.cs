@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 using System.Net;
@@ -102,20 +103,19 @@ namespace GalaxyServer
                     pos += bytesRead;
                 }
 
-                Console.WriteLine("Got Size");
+                
                 int size = BitConverter.ToInt16(message.SizeBuffer, 0);
                 message.Size = size;
 
                 pos = 0;
                 while (pos < size)
                 {
-                    Console.WriteLine("Getting Message");
+                
                     int bytesRead = await client.GalaxyTcpStream.ReadAsync(message.Buffer, pos, size);
                     if (bytesRead == 0) { client.Cleanup(); return; }
                     pos += bytesRead;
                 }
-                message.Client = client;
-                Console.WriteLine("Complete Message Received, Enqueing on thread:"+Thread.CurrentThread.ManagedThreadId);
+                message.Client = client;                
                 Messages.Add(message);
                                     
 
@@ -127,7 +127,7 @@ namespace GalaxyServer
 
         public static void Send(GalaxyClient c,object o)
         {
-            Console.WriteLine("Send");
+            
             GalaxyOutgoingMessage m;
             m.c = c;
             m.o = o;
@@ -146,7 +146,7 @@ namespace GalaxyServer
                 {
                     Console.WriteLine(ex);
                 }
-                Console.WriteLine("Message Sent");
+                
             }
         }
 
@@ -174,13 +174,13 @@ namespace GalaxyServer
                         LogicLayer.HandleNewUserMessage((NewUserMessage)result,client);
                         break;
                     case 5:
-                        LogicLayer.HandleInput((InputMessage)result, client);
+                        LogicLayer.HandleInputs((List<InputMessage>)result, client);                        
                         break;
                     default:
                         Console.WriteLine("unknown message");
                         break;
                 }
-                Console.WriteLine("message processed on thread:"+ Thread.CurrentThread.ManagedThreadId);
+                
                 
             }
         }

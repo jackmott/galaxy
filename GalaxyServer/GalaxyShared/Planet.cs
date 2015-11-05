@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿
+using XnaGeometry;
 
 namespace GalaxyShared
 {
@@ -12,31 +9,25 @@ namespace GalaxyShared
 
         public SolarSystem ParentSystem;
         public int Orbit;
-        public float OrbitAngle;
+        public double OrbitAngle;
         public float RotationRate;
         public int Hash;
         public float Size;
-        public Vector3 pos;
+        public Vector3 Pos;
 
         public Planet(SolarSystem parentSystem, int orbit, System.Random r)
         {
-
-            
-
-            
+                        
             Hash = orbit ^ parentSystem.Hash;            
             ParentSystem = parentSystem;
             Orbit = orbit;
             RotationRate = GalaxyGen.RandomRange(r, .01f, .1f);
-            OrbitAngle = GalaxyGen.RandomRange(r, 0f, 360f);
+            OrbitAngle = GalaxyGen.RandomRange(r, 0f, MathHelper.TwoPi);
             Size = GalaxyGen.RandomRange(r, 2.5f, 14f);
-
-            GameObject go = SolarSystem.go;
-            go.transform.position = Vector3.one;
-            go.transform.rotation = Quaternion.AngleAxis(OrbitAngle, Vector3.up);
-            go.transform.Translate(Vector3.forward * (Orbit + 1) * EARTH_CONSTANT * 40);
-            pos = go.transform.position;
-
+            
+            Vector3 start = Vector3.Zero;
+            Matrix rotation = Matrix.CreateFromYawPitchRoll(OrbitAngle, 0, 0);
+            Pos = start + Vector3.Transform(Vector3.Forward * (Orbit + 1) * Planet.EARTH_CONSTANT * 40, rotation);
 
 
         }

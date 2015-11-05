@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+using XnaGeometry;
 
 namespace GalaxyShared
 {
@@ -10,12 +7,12 @@ namespace GalaxyShared
     {
         public SolarSystem ParentSystem;
         public int Orbit;
-        public float OrbitAngle;
+        public double OrbitAngle;
         public float RotationRate;
         public int Hash;
         public float Size;
-        public System.Random R;
-        public Vector3 pos;
+        public Random R;
+        public Vector3 Pos;
         
 
 
@@ -26,19 +23,22 @@ namespace GalaxyShared
             ParentSystem = parentSystem;
             Orbit = orbit;
             RotationRate = GalaxyGen.RandomRange(r, .01f, .1f);
-            OrbitAngle = GalaxyGen.RandomRange(r, 0f, 360f);
+            OrbitAngle = GalaxyGen.RandomRange(r, 0f, MathHelper.TwoPi);
             Size = GalaxyGen.RandomRange(r, 1f, 3.5f);
 
-            GameObject go = SolarSystem.go;
-            go.transform.position = Vector3.one;
-            go.transform.rotation = Quaternion.AngleAxis(OrbitAngle, Vector3.up);
-            go.transform.Translate(Vector3.forward * (Orbit + 1) * Planet.EARTH_CONSTANT * 50);
+
+            Vector3 start = Vector3.Zero;                                    
+            Matrix rotation = Matrix.CreateFromYawPitchRoll(OrbitAngle,0,0);
+            Pos = start + Vector3.Transform(Vector3.Forward * (Orbit+1)*Planet.EARTH_CONSTANT*40, rotation);
+
             float magnitude = 25000;
             float xAdjust = GalaxyGen.RandomRange(R, -magnitude, magnitude);
             float yAdjust = GalaxyGen.RandomRange(R, -magnitude, magnitude);
             float zAdjust = GalaxyGen.RandomRange(R, -magnitude, magnitude);
-            go.transform.Translate(xAdjust, yAdjust, zAdjust);        
-            pos = go.transform.position;
+
+            Pos.X += xAdjust;
+            Pos.Y += yAdjust;
+            Pos.Z += zAdjust;
 
         }
     }

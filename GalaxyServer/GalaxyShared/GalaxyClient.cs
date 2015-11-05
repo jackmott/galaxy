@@ -3,10 +3,12 @@
 namespace GalaxyShared
 {
     
+    
 
     public class GalaxyClient
     {
-       
+
+        public const float TICK_RATE = .03f; //s
 
         public TcpClient GalaxyTcpClient { get; set; }
         public UdpClient GalaxyUdpClient { get; set; }

@@ -1,4 +1,5 @@
 ﻿using System;
+using XnaGeometry;
 
 
 namespace GalaxyShared.Networking.Messages
@@ -45,9 +46,8 @@ namespace GalaxyShared.Networking.Messages
 
     [Serializable]
     public struct PlayerStateMessage
-    {
-        SectorCoord SectorPos;
-        Coord SystemPos;
-        Coord PlayerPos;
+    {        
+        public Vector3 PlayerPos;
+        public Quaternion rotation;
     }
 }

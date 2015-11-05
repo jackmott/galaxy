@@ -6,7 +6,7 @@ namespace GalaxyShared.Networking.Messages
     public class GalaxyMessage
     {
         public object Client = null;
-        public const int BUFFER_SIZE = 1024;
+        public const int BUFFER_SIZE = 1024*8;
         public const int SIZE_BUFFER_SIZE = 4;
         public byte[] SizeBuffer { get; set; }
         public byte[] Buffer { get; set; }

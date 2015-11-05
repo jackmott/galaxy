@@ -37,16 +37,23 @@ public class ClientSolarSystem : MonoBehaviour
         GeneratePlanets();
         GenerateAsteroids();
 
+        //load stars if we have em
         if (Cubemap != null)
         {         
            Camera.main.GetComponent<Skybox>().material.SetTexture("_Tex", Cubemap);
            Camera.main.transform.rotation = CameraRotation;
-           Camera.main.transform.Translate(Vector3.back * Planet.EARTH_CONSTANT * 50);
-         
         }       
-        else 
+
+        
+
+        //if the server said we start here, we start here, otherwise back away from the sun
+        if (PlayerStartPos == null)
         {
-            Camera.main.transform.Translate(Vector3.back * Planet.EARTH_CONSTANT * 50);
+            Camera.main.transform.Translate(Vector3.back * Planet.EARTH_CONSTANT * 60);
+        }
+        else
+        {
+            Camera.main.transform.position = PlayerStartPos;
         }
         
 
@@ -59,7 +66,7 @@ public class ClientSolarSystem : MonoBehaviour
         GameObject resourcePlanet = Resources.Load<GameObject>("Planet");
         foreach (Planet p in SolarSystem.Planets)
         {
-            GameObject planetGO = (GameObject)Instantiate(resourcePlanet, p.pos, Quaternion.AngleAxis(p.OrbitAngle, Vector3.up));       
+            GameObject planetGO = (GameObject)Instantiate(resourcePlanet, Utility.UVector(p.Pos), Quaternion.identity);       
             planetGO.transform.localScale *= p.Size * Planet.EARTH_CONSTANT;
             ClientPlanet cp = planetGO.GetComponent<ClientPlanet>();
             cp.Planet = p;
@@ -90,7 +97,7 @@ public class ClientSolarSystem : MonoBehaviour
         GameObject resourceAsteroid = Resources.Load<GameObject>("Asteroid");
         foreach (Asteroid a in SolarSystem.Asteroids)
         {
-            GameObject asteroidGO = (GameObject)Instantiate(resourceAsteroid, a.pos, Random.rotation);            
+            GameObject asteroidGO = (GameObject)Instantiate(resourceAsteroid, Utility.UVector(a.Pos), Random.rotation);            
             asteroidGO.transform.localScale *= a.Size * Planet.EARTH_CONSTANT;          
         }
 

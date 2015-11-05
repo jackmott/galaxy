@@ -18,8 +18,8 @@ namespace GalaxyShared.Networking
             Dictionary.Add(typeof(LoginResultMessage), 2);
             Dictionary.Add(typeof(NewUserResultMessage), 3);
             Dictionary.Add(typeof(GalaxyPlayer), 4);
-            Dictionary.Add(typeof(InputMessage), 5);
-             
+            Dictionary.Add(typeof(List<InputMessage>), 5);
+            Dictionary.Add(typeof(PlayerStateMessage), 6);
         }
 
         public int GetID(object o)

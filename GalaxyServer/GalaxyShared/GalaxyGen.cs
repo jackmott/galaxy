@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
-using UnityEngine;
+
 
 namespace GalaxyShared
 {
@@ -32,17 +32,22 @@ namespace GalaxyShared
 
         }
 
-        public static int RandomRange(System.Random rand, int min, int max)
+        public static int RandomRange(Random rand, int min, int max)
         {
             return rand.Next(min, max);
         }
 
-        public static float RandomRange(System.Random rand, float min, float max)
+        public static float RandomRange(Random rand, float min, float max)
         {
                         
             return (float)rand.NextDouble() * (max - min) + min;
             
             
+        }
+
+        public static double RandomRange(Random rand,double min, double max)
+        {
+            return rand.NextDouble() * (max - min) + min;
         }
 
 

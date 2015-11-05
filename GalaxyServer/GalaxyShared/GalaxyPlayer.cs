@@ -1,4 +1,5 @@
 ﻿using System;
+using XnaGeometry;
 
 namespace GalaxyShared
 {
@@ -8,8 +9,10 @@ namespace GalaxyShared
         public string UserName;
         public SectorCoord SectorPos;
         public int SystemIndex;
-        public Coord PlayerPos;
+        public Vector3 PlayerPos;
+        public Quaternion rotation;
         public GalaxyShip ship;
+        public float Throttle;
 
         [NonSerialized]        
         public GalaxyClient Client;
@@ -24,7 +27,9 @@ namespace GalaxyShared
             GalaxyGen gen = new GalaxyGen();
             GalaxySector sector = gen.GetSector(SectorPos, 1);
             SystemIndex = 0;
-            PlayerPos = new Coord(1000, 0, 0);
+            PlayerPos = new Vector3(0, 0, -5000);
+            rotation = Quaternion.Identity;
+            Throttle = 0;
                         
         }
 

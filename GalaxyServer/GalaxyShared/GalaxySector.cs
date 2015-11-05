@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using UnityEngine;
+using XnaGeometry;
+
 
 namespace GalaxyShared
 {
     public class GalaxySector
     {
         public SectorCoord Coord;
-        public System.Drawing.Color Color;
+        public Color Color;
         public List<SolarSystem> Systems;
         public int DominantStarType;
         
@@ -27,7 +28,7 @@ namespace GalaxyShared
             Systems = new List<SolarSystem>();
 
             
-            System.Random r = new System.Random(Hash);
+            Random r = new Random(Hash);
 
             int HALF_SECTOR_SIZE = SECTOR_SIZE / 2;
             //things to be looked up from data somehow
