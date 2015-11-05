@@ -44,8 +44,7 @@ namespace GalaxyServer
         }
 
         public static bool UpdateGalaxyPlayer(GalaxyPlayer player)
-        {
-            Serializer.Serialize(player);
+        {            
             return CacheClient.Add(GALAXY_PLAYER + player.UserName, player);
         }
     }

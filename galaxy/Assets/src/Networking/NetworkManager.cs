@@ -10,15 +10,17 @@ using GalaxyShared.Networking;
 using GalaxyShared.Networking.Messages;
 using System.Threading;
 
-public class NetworkManager : MonoBehaviour {
+public class NetworkManager : MonoBehaviour
+{
 
     private static TcpClient socket;
     private static NetworkStream stream;
 
     public static Queue messageQueue;
 
-    int PositionUpdateRate = 500; //ms
-    
+    private Thread NetworkThread;
+
+
 
     void Awake()
     {
@@ -29,22 +31,27 @@ public class NetworkManager : MonoBehaviour {
         socket = new TcpClient("localhost", 8888);
         socket.NoDelay = true;
         stream = socket.GetStream();
-        Thread t = new Thread(new ThreadStart(NetworkReadLoop));
-        t.Start();        
+        NetworkThread = new Thread(new ThreadStart(NetworkReadLoop));
+        NetworkThread.Start();
     }
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    // Use this for initialization
+    void Start()
+    {
+
+    }
+
+    void OnApplicationQuit()
+    {
+        NetworkThread.Abort();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
 
         processMessages();
-        
-        
-	
-	}
+
+    }
 
     private void processMessages()
     {
@@ -56,7 +63,7 @@ public class NetworkManager : MonoBehaviour {
 
             switch (type)
             {
-                
+
                 case TypeDictionary.MsgType.LoginResultMessage:
                     HandleLoginResultMessage((LoginResultMessage)o);
                     break;
@@ -78,25 +85,25 @@ public class NetworkManager : MonoBehaviour {
 
     public static void Send(object msg)
     {
-        GalaxyMessage m = MessageSender.PrepareForServerSend(msg);
+        GalaxyMessage m = NetworkUtils.PrepareForServerSend(msg);
         stream.Write(m.SizeBuffer, 0, m.SizeBuffer.Length);
         stream.Write(m.Buffer, 0, m.Size);
         Debug.Log("Sent One Message");
     }
 
     public static void SendInputs(List<InputMessage> l)
-    {        
-        Send(l);  
+    {
+        Send(l);
     }
 
     public void NetworkReadLoop()
-    {        
-        IFormatter binaryFormatter = new BinaryFormatter();        
+    {
+        IFormatter binaryFormatter = new BinaryFormatter();
         while (true)
         {
             object o = binaryFormatter.Deserialize(stream);
             messageQueue.Enqueue(o);
-            Debug.Log("Got an object! Enqued it.");            
+            Debug.Log("Got an object! Enqued it.");
         }
 
     }
@@ -125,7 +132,9 @@ public class NetworkManager : MonoBehaviour {
 
     public void HandlePlayerStateMessage(PlayerStateMessage p)
     {
-        Camera.main.transform.rotation = Utility.UQuaternion(p.rotation);
+        Camera.main.transform.rotation = Utility.UQuaternion(p.Rotation);
         Camera.main.transform.position = Utility.UVector(p.PlayerPos);
+        Debug.Log(p.PlayerPos);
+        SystemMovement.throttle = p.Throttle;
     }
 }

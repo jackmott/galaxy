@@ -35,7 +35,7 @@ namespace GalaxyShared.Networking
         public MsgType GetID(object o)
         {
             int id = -1;
-            Dictionary.TryGetValue(o.GetType(), out id);
+            while(!Dictionary.TryGetValue(o.GetType(), out id)) { }
             return (MsgType)id;
         }
     }

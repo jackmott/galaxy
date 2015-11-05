@@ -8,7 +8,7 @@ public class ClientSolarSystem : MonoBehaviour
     public static SolarSystem SolarSystem;
     public static Cubemap Cubemap;
     public static Quaternion CameraRotation;
-    public static Vector3 PlayerStartPos;
+    public static Vector3 PlayerStartPos = Vector3.zero;
 
 
     // Use this for initialization
@@ -47,7 +47,7 @@ public class ClientSolarSystem : MonoBehaviour
         
 
         //if the server said we start here, we start here, otherwise back away from the sun
-        if (PlayerStartPos == null)
+        if (PlayerStartPos == Vector3.zero)
         {
             Camera.main.transform.Translate(Vector3.back * Planet.EARTH_CONSTANT * 60);
         }

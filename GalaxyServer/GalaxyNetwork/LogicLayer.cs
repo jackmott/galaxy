@@ -10,7 +10,7 @@ namespace GalaxyServer
     class LogicLayer
     {
         
-        private static ConcurrentDictionary<GalaxyClient, GalaxyPlayer> PlayerTable = new ConcurrentDictionary<GalaxyClient, GalaxyPlayer>();
+        public static ConcurrentDictionary<GalaxyClient, GalaxyPlayer> PlayerTable = new ConcurrentDictionary<GalaxyClient, GalaxyPlayer>();
 
 
         public static void HandleLoginMessage(LoginMessage msg, GalaxyClient client)
@@ -27,7 +27,7 @@ namespace GalaxyServer
             {
                 LoginResultMessage m;
                 m.success = false;
-                GalaxyServer.Send(client, m);
+                GalaxyServer.AddToSendQueue(client, m);
             }
                                         
         }
@@ -46,8 +46,8 @@ namespace GalaxyServer
             }
 
             Console.WriteLine("About to send player data");
-            PlayerTable.TryAdd(client, player);
-            GalaxyServer.Send(client, player);
+            while (!PlayerTable.TryAdd(client, player)) { }
+            GalaxyServer.AddToSendQueue(client, player);
             Console.WriteLine("Player Data Sent");
                 
         }
@@ -65,32 +65,17 @@ namespace GalaxyServer
             else
             {
                 m.success = false;
-                GalaxyServer.Send(client, m);
+                GalaxyServer.AddToSendQueue(client, m);
             }
             
         }
-
        
-        public static void HandleInputs(object o, GalaxyClient client)
+        public static void HandleInputs(List<InputMessage> inputs, GalaxyClient client)
         {
-           
-            List<InputMessage> msgs = (List<InputMessage>)o;           
-            GalaxyPlayer player;
-         
-            PlayerTable.TryGetValue(client, out player);
-         
-            foreach (InputMessage msg in msgs )
+            foreach (InputMessage input in inputs)
             {
-                Simulator.UpdateState(player, msg);
-            }
-            
-                        
-            PlayerStateMessage pState = new PlayerStateMessage();
-            pState.PlayerPos = player.PlayerPos;
-            pState.rotation = player.rotation;     
-            GalaxyServer.Send(client, pState);
-            
-
+                client.Inputs.Enqueue(input);
+            }                                                                                             
         }
 
       

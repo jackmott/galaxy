@@ -207,44 +207,54 @@ namespace XnaGeometry
 
         public static Quaternion CreateFromRotationMatrix(Matrix matrix)
         {
-            double num8 = (matrix.M11 + matrix.M22) + matrix.M33;
-            Quaternion quaternion = new Quaternion();
-            if (num8 > 0f)
+            Quaternion quaternion;
+            double sqrt;
+            double half;
+            double scale = matrix.M11 + matrix.M22 + matrix.M33;
+
+            if (scale > 0.0f)
             {
-                double num = (double)Math.Sqrt((double)(num8 + 1f));
-                quaternion.W = num * 0.5f;
-                num = 0.5f / num;
-                quaternion.X = (matrix.M23 - matrix.M32) * num;
-                quaternion.Y = (matrix.M31 - matrix.M13) * num;
-                quaternion.Z = (matrix.M12 - matrix.M21) * num;
+                sqrt = Math.Sqrt(scale + 1.0f);
+                quaternion.W = sqrt * 0.5f;
+                sqrt = 0.5f / sqrt;
+
+                quaternion.X = (matrix.M23 - matrix.M32) * sqrt;
+                quaternion.Y = (matrix.M31 - matrix.M13) * sqrt;
+                quaternion.Z = (matrix.M12 - matrix.M21) * sqrt;
+
                 return quaternion;
             }
             if ((matrix.M11 >= matrix.M22) && (matrix.M11 >= matrix.M33))
             {
-                double num7 = (double)Math.Sqrt((double)(((1f + matrix.M11) - matrix.M22) - matrix.M33));
-                double num4 = 0.5f / num7;
-                quaternion.X = 0.5f * num7;
-                quaternion.Y = (matrix.M12 + matrix.M21) * num4;
-                quaternion.Z = (matrix.M13 + matrix.M31) * num4;
-                quaternion.W = (matrix.M23 - matrix.M32) * num4;
+                sqrt = Math.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
+                half = 0.5f / sqrt;
+
+                quaternion.X = 0.5f * sqrt;
+                quaternion.Y = (matrix.M12 + matrix.M21) * half;
+                quaternion.Z = (matrix.M13 + matrix.M31) * half;
+                quaternion.W = (matrix.M23 - matrix.M32) * half;
+
                 return quaternion;
             }
             if (matrix.M22 > matrix.M33)
             {
-                double num6 = (double)Math.Sqrt((double)(((1f + matrix.M22) - matrix.M11) - matrix.M33));
-                double num3 = 0.5f / num6;
-                quaternion.X = (matrix.M21 + matrix.M12) * num3;
-                quaternion.Y = 0.5f * num6;
-                quaternion.Z = (matrix.M32 + matrix.M23) * num3;
-                quaternion.W = (matrix.M31 - matrix.M13) * num3;
+                sqrt = Math.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
+                half = 0.5f / sqrt;
+
+                quaternion.X = (matrix.M21 + matrix.M12) * half;
+                quaternion.Y = 0.5f * sqrt;
+                quaternion.Z = (matrix.M32 + matrix.M23) * half;
+                quaternion.W = (matrix.M31 - matrix.M13) * half;
+
                 return quaternion;
             }
-            double num5 = (double)Math.Sqrt((double)(((1f + matrix.M33) - matrix.M11) - matrix.M22));
-            double num2 = 0.5f / num5;
-            quaternion.X = (matrix.M31 + matrix.M13) * num2;
-            quaternion.Y = (matrix.M32 + matrix.M23) * num2;
-            quaternion.Z = 0.5f * num5;
-            quaternion.W = (matrix.M12 - matrix.M21) * num2;
+            sqrt = Math.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
+            half = 0.5f / sqrt;
+
+            quaternion.X = (matrix.M31 + matrix.M13) * half;
+            quaternion.Y = (matrix.M32 + matrix.M23) * half;
+            quaternion.Z = 0.5f * sqrt;
+            quaternion.W = (matrix.M12 - matrix.M21) * half;
 
             return quaternion;
 
@@ -253,80 +263,90 @@ namespace XnaGeometry
 
         public static void CreateFromRotationMatrix(ref Matrix matrix, out Quaternion result)
         {
-            double num8 = (matrix.M11 + matrix.M22) + matrix.M33;
-            if (num8 > 0f)
+            double sqrt;
+            double half;
+            double scale = matrix.M11 + matrix.M22 + matrix.M33;
+
+            if (scale > 0.0f)
             {
-                double num = (double)Math.Sqrt((double)(num8 + 1f));
-                result.W = num * 0.5f;
-                num = 0.5f / num;
-                result.X = (matrix.M23 - matrix.M32) * num;
-                result.Y = (matrix.M31 - matrix.M13) * num;
-                result.Z = (matrix.M12 - matrix.M21) * num;
+                sqrt = Math.Sqrt(scale + 1.0f);
+                result.W = sqrt * 0.5f;
+                sqrt = 0.5f / sqrt;
+
+                result.X = (matrix.M23 - matrix.M32) * sqrt;
+                result.Y = (matrix.M31 - matrix.M13) * sqrt;
+                result.Z = (matrix.M12 - matrix.M21) * sqrt;
             }
-            else if ((matrix.M11 >= matrix.M22) && (matrix.M11 >= matrix.M33))
+            else
+            if ((matrix.M11 >= matrix.M22) && (matrix.M11 >= matrix.M33))
             {
-                double num7 = (double)Math.Sqrt((double)(((1f + matrix.M11) - matrix.M22) - matrix.M33));
-                double num4 = 0.5f / num7;
-                result.X = 0.5f * num7;
-                result.Y = (matrix.M12 + matrix.M21) * num4;
-                result.Z = (matrix.M13 + matrix.M31) * num4;
-                result.W = (matrix.M23 - matrix.M32) * num4;
+                sqrt = Math.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
+                half = 0.5f / sqrt;
+
+                result.X = 0.5f * sqrt;
+                result.Y = (matrix.M12 + matrix.M21) * half;
+                result.Z = (matrix.M13 + matrix.M31) * half;
+                result.W = (matrix.M23 - matrix.M32) * half;
             }
             else if (matrix.M22 > matrix.M33)
             {
-                double num6 = (double)Math.Sqrt((double)(((1f + matrix.M22) - matrix.M11) - matrix.M33));
-                double num3 = 0.5f / num6;
-                result.X = (matrix.M21 + matrix.M12) * num3;
-                result.Y = 0.5f * num6;
-                result.Z = (matrix.M32 + matrix.M23) * num3;
-                result.W = (matrix.M31 - matrix.M13) * num3;
+                sqrt = Math.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
+                half = 0.5f / sqrt;
+
+                result.X = (matrix.M21 + matrix.M12) * half;
+                result.Y = 0.5f * sqrt;
+                result.Z = (matrix.M32 + matrix.M23) * half;
+                result.W = (matrix.M31 - matrix.M13) * half;
             }
             else
             {
-                double num5 = (double)Math.Sqrt((double)(((1f + matrix.M33) - matrix.M11) - matrix.M22));
-                double num2 = 0.5f / num5;
-                result.X = (matrix.M31 + matrix.M13) * num2;
-                result.Y = (matrix.M32 + matrix.M23) * num2;
-                result.Z = 0.5f * num5;
-                result.W = (matrix.M12 - matrix.M21) * num2;
+                sqrt = Math.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
+                half = 0.5f / sqrt;
+
+                result.X = (matrix.M31 + matrix.M13) * half;
+                result.Y = (matrix.M32 + matrix.M23) * half;
+                result.Z = 0.5f * sqrt;
+                result.W = (matrix.M12 - matrix.M21) * half;
             }
 
         }
 
         public static Quaternion CreateFromYawPitchRoll(double yaw, double pitch, double roll)
         {
-            Quaternion quaternion;
-            double num9 = roll * 0.5f;
-            double num6 = (double)Math.Sin((double)num9);
-            double num5 = (double)Math.Cos((double)num9);
-            double num8 = pitch * 0.5f;
-            double num4 = (double)Math.Sin((double)num8);
-            double num3 = (double)Math.Cos((double)num8);
-            double num7 = yaw * 0.5f;
-            double num2 = (double)Math.Sin((double)num7);
-            double num = (double)Math.Cos((double)num7);
-            quaternion.X = ((num * num4) * num5) + ((num2 * num3) * num6);
-            quaternion.Y = ((num2 * num3) * num5) - ((num * num4) * num6);
-            quaternion.Z = ((num * num3) * num6) - ((num2 * num4) * num5);
-            quaternion.W = ((num * num3) * num5) + ((num2 * num4) * num6);
-            return quaternion;
+            double halfRoll = roll * 0.5f;
+            double halfPitch = pitch * 0.5f;
+            double halfYaw = yaw * 0.5f;
+
+            double sinRoll = Math.Sin(halfRoll);
+            double cosRoll = Math.Cos(halfRoll);
+            double sinPitch = Math.Sin(halfPitch);
+            double cosPitch = Math.Cos(halfPitch);
+            double sinYaw = Math.Sin(halfYaw);
+            double cosYaw = Math.Cos(halfYaw);
+
+            return new Quaternion((cosYaw * sinPitch * cosRoll) + (sinYaw * cosPitch * sinRoll),
+                                  (sinYaw * cosPitch * cosRoll) - (cosYaw * sinPitch * sinRoll),
+                                  (cosYaw * cosPitch * sinRoll) - (sinYaw * sinPitch * cosRoll),
+                                  (cosYaw * cosPitch * cosRoll) + (sinYaw * sinPitch * sinRoll));
         }
 
         public static void CreateFromYawPitchRoll(double yaw, double pitch, double roll, out Quaternion result)
         {
-            double num9 = roll * 0.5f;
-            double num6 = (double)Math.Sin((double)num9);
-            double num5 = (double)Math.Cos((double)num9);
-            double num8 = pitch * 0.5f;
-            double num4 = (double)Math.Sin((double)num8);
-            double num3 = (double)Math.Cos((double)num8);
-            double num7 = yaw * 0.5f;
-            double num2 = (double)Math.Sin((double)num7);
-            double num = (double)Math.Cos((double)num7);
-            result.X = ((num * num4) * num5) + ((num2 * num3) * num6);
-            result.Y = ((num2 * num3) * num5) - ((num * num4) * num6);
-            result.Z = ((num * num3) * num6) - ((num2 * num4) * num5);
-            result.W = ((num * num3) * num5) + ((num2 * num4) * num6);
+            double halfRoll = roll * 0.5f;
+            double halfPitch = pitch * 0.5f;
+            double halfYaw = yaw * 0.5f;
+
+            double sinRoll = Math.Sin(halfRoll);
+            double cosRoll = Math.Cos(halfRoll);
+            double sinPitch = Math.Sin(halfPitch);
+            double cosPitch = Math.Cos(halfPitch);
+            double sinYaw = Math.Sin(halfYaw);
+            double cosYaw = Math.Cos(halfYaw);
+
+            result.X = (cosYaw * sinPitch * cosRoll) + (sinYaw * cosPitch * sinRoll);
+            result.Y = (sinYaw * cosPitch * cosRoll) - (cosYaw * sinPitch * sinRoll);
+            result.Z = (cosYaw * cosPitch * sinRoll) - (sinYaw * sinPitch * cosRoll);
+            result.W = (cosYaw * cosPitch * cosRoll) + (sinYaw * sinPitch * sinRoll);
         }
 
         public static Quaternion Divide(Quaternion quaternion1, Quaternion quaternion2)

@@ -2,21 +2,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using GalaxyShared.Networking.Messages;
-using GalaxyShared;
-    
+using GalaxyShared.Networking;
+using System;
 
 public class SystemMovement : MonoBehaviour
 {
-    float throttle = 0;
-    List<InputMessage> inputs;
-    
-    float timeSinceSend = 0; //s
+    public static float throttle = 0;
+    List<InputMessage> Inputs;
+
+    DateTime LastSend = new DateTime(1980, 1, 1);
     
 
     void Start()
     {
-        inputs = new List<InputMessage>();
-        InvokeRepeating("SampleInput", 0, GalaxyClient.TICK_RATE);
+        Inputs = new List<InputMessage>();
+        InvokeRepeating("SampleInput", 0, NetworkUtils.SERVER_TICK_RATE/1000f);
     }
 
     void Update()
@@ -46,9 +46,10 @@ public class SystemMovement : MonoBehaviour
         xDelta = Mathf.Clamp(xDelta, -70, 70);
         if (System.Math.Abs(xDelta) > 10 || System.Math.Abs(yDelta) > 10)
         {
-            Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
+           //  Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
            input.XTurn = xDelta/4000f;
            input.YTurn = -yDelta/4000f;
+            
            anyInput = true;
         }
         else
@@ -75,10 +76,11 @@ public class SystemMovement : MonoBehaviour
                 anyInput = true;
             }
         }
-        else if (Input.GetKeyDown("space"))
+        else if (Input.GetKey("space"))
         {
             if (throttle != 0)
             {
+                Debug.Log("ThrottleZero!");
                 throttle = 0;
                 anyInput = true;
             }
@@ -100,23 +102,23 @@ public class SystemMovement : MonoBehaviour
             anyInput = true;
         }
 
-        Camera.main.transform.Translate(Vector3.forward * throttle * 40 *  Time.deltaTime);
+       // Camera.main.transform.Translate(Vector3.forward * throttle * 40 *  Time.deltaTime);
 
         if (anyInput)
         {
             input.Throttle = throttle;
-            inputs.Add(input);
+            Inputs.Add(input);
         }
-        timeSinceSend += Time.deltaTime;
 
-        if (timeSinceSend >= GalaxyClient.TICK_RATE*3)
+        long deltaT = DateTime.Now.Subtract(LastSend).Milliseconds;
+        if (deltaT >= NetworkUtils.CLIENT_BUFFER_TIME)
         {
-            if (inputs.Count > 0)
+            if (Inputs.Count > 0)
             {
-                NetworkManager.SendInputs(inputs);
-                inputs = new List<InputMessage>();
+                NetworkManager.SendInputs(Inputs);
+                Inputs = new List<InputMessage>();
             }
-            timeSinceSend = 0;
+            LastSend = DateTime.Now;
         }
         
 

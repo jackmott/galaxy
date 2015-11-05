@@ -24,8 +24,9 @@ namespace GalaxyServer
 
 
         static MessagePool MessagePool;
-        static int MessageThreads = 2;  //threads that process message data
-        static int SendThreads = 2; //threads that send message data
+        static int MessageThreads = 1;  //threads that process message data
+        static int SendThreads = 1; //threads that send message data
+        static int PhysicsThreads = 1;
         static TypeDictionary TypeDictionary;
 
         static DataLayer D;
@@ -38,7 +39,7 @@ namespace GalaxyServer
 
         public GalaxyServer()
         {
-            
+
             MessageQueue = new ConcurrentQueue<GalaxyMessage>();
             Messages = new BlockingCollection<GalaxyMessage>(MessageQueue);
 
@@ -53,7 +54,7 @@ namespace GalaxyServer
 
             Task.Factory.StartNew(() => AcceptClientsAsync());
 
-            for (int i =0; i < MessageThreads; i++)
+            for (int i = 0; i < MessageThreads; i++)
             {
                 Task.Factory.StartNew(() => ProcessMessages());
             }
@@ -63,11 +64,16 @@ namespace GalaxyServer
                 Task.Factory.StartNew(() => SendMessages());
             }
 
+            for (int i = 0; i < PhysicsThreads; i++)
+            {
+                Task.Factory.StartNew(() => Simulator.DoPhysics());
+            }
+
             Console.ReadLine();
 
         }
 
-                     
+
 
         private async Task AcceptClientsAsync()
         {
@@ -76,12 +82,19 @@ namespace GalaxyServer
             listener.Start();
             while (true)
             {
-                Console.WriteLine("Begin accept loop");
-                TcpClient client = await listener.AcceptTcpClientAsync();
-                client.NoDelay = true;
-                Console.WriteLine("Client Connected");
-                GalaxyClient gClient = new GalaxyClient(client);
-                Task.Factory.StartNew(() => HandleClientRead(gClient));
+                try
+                {
+                    Console.WriteLine("Begin accept loop");
+                    TcpClient client = await listener.AcceptTcpClientAsync();
+                    client.NoDelay = true;
+                    Console.WriteLine("Client Connected");
+                    GalaxyClient gClient = new GalaxyClient(client);
+                    Task.Factory.StartNew(() => HandleClientRead(gClient));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("AcceptClientsAsycn Exception");
+                }
             }
         }
 
@@ -93,45 +106,63 @@ namespace GalaxyServer
             while (true)
             {
 
-                GalaxyMessage message = MessagePool.GetMessage();
-                
-                int pos = 0;
-                while (pos < GalaxyMessage.SIZE_BUFFER_SIZE)
-                {                
-                    int bytesRead = await client.GalaxyTcpStream.ReadAsync(message.SizeBuffer, pos, GalaxyMessage.SIZE_BUFFER_SIZE);                 
-                    if (bytesRead == 0) { client.Cleanup(); return; }
-                    pos += bytesRead;
-                }
-
-                
-                int size = BitConverter.ToInt16(message.SizeBuffer, 0);
-                message.Size = size;
-
-                pos = 0;
-                while (pos < size)
+                try
                 {
-                
-                    int bytesRead = await client.GalaxyTcpStream.ReadAsync(message.Buffer, pos, size);
-                    if (bytesRead == 0) { client.Cleanup(); return; }
-                    pos += bytesRead;
+
+
+                    GalaxyMessage message = MessagePool.GetMessage();
+
+                    int pos = 0;
+                    while (pos < GalaxyMessage.SIZE_BUFFER_SIZE)
+                    {
+                        int bytesRead = await client.GalaxyTcpStream.ReadAsync(message.SizeBuffer, pos, GalaxyMessage.SIZE_BUFFER_SIZE);
+                        if (bytesRead == 0) { client.Cleanup(); return; }
+                        pos += bytesRead;
+                    }
+
+
+                    int size = BitConverter.ToInt16(message.SizeBuffer, 0);
+                    message.Size = size;
+
+                    pos = 0;
+                    while (pos < size)
+                    {
+
+                        int bytesRead = await client.GalaxyTcpStream.ReadAsync(message.Buffer, pos, size);
+                        if (bytesRead == 0) { client.Cleanup(); return; }
+                        pos += bytesRead;
+                    }
+                    message.Client = client;
+                    Messages.Add(message);
                 }
-                message.Client = client;                
-                Messages.Add(message);
-                                    
+                catch (Exception)
+                {
+                    Console.WriteLine("handle read exception");
+                    CleanUpClient(client);
+                    return;
+                }
+
 
             }
 
         }
 
-      
-
-        public static void Send(GalaxyClient c,object o)
+        public static void CleanUpClient(GalaxyClient client)
         {
-            
+            client.Cleanup();
+            GalaxyPlayer p;
+            while (!LogicLayer.PlayerTable.TryRemove(client, out p)){ }
+        }
+
+
+
+        public static void AddToSendQueue(GalaxyClient c, object o)
+        {
+
             GalaxyOutgoingMessage m;
             m.c = c;
             m.o = o;
-            OutgoingMessages.Add(m); 
+            OutgoingMessages.Add(m);
         }
 
         private void SendMessages()
@@ -140,51 +171,62 @@ namespace GalaxyServer
             while (true)
             {
                 GalaxyOutgoingMessage m = OutgoingMessages.Take();
-                try {
+
+                try
+                {
                     binaryFormatter.Serialize(m.c.GalaxyTcpStream, m.o);
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex);
+                    CleanUpClient(m.c);
                 }
-                
             }
         }
 
         //spins and processes messages
         private void ProcessMessages()
         {
-            
+
             IFormatter binaryFormatter = new BinaryFormatter();
 
             while (true)
             {
                 GalaxyMessage message = Messages.Take();
-                GalaxyClient client = (GalaxyClient)message.Client;
-                MemoryStream m = new MemoryStream(message.Buffer, 0, message.Size);
-                object result = binaryFormatter.Deserialize(m);
-                
-                TypeDictionary.MsgType type = TypeDictionary.GetID(result);
-
-                switch (type)
+                GalaxyClient client = null;
+                try
                 {
-                    case TypeDictionary.MsgType.LoginMessage:
-                        LogicLayer.HandleLoginMessage((LoginMessage)result,client);
-                        break;
-                    case TypeDictionary.MsgType.NewUserMessage:
-                        LogicLayer.HandleNewUserMessage((NewUserMessage)result,client);
-                        break;
-                    case TypeDictionary.MsgType.ListOfInputMessage:
-                        LogicLayer.HandleInputs((List<InputMessage>)result, client);                        
-                        break;
-                    default:
-                        Console.WriteLine("unknown message");
-                        break;
+                    client = (GalaxyClient)message.Client;
+                    MemoryStream m = new MemoryStream(message.Buffer, 0, message.Size);
+                    object result = binaryFormatter.Deserialize(m);
+                    TypeDictionary.MsgType type = TypeDictionary.GetID(result);
+
+                    switch (type)
+                    {
+                        case TypeDictionary.MsgType.LoginMessage:
+                            LogicLayer.HandleLoginMessage((LoginMessage)result, client);
+                            break;
+                        case TypeDictionary.MsgType.NewUserMessage:
+                            LogicLayer.HandleNewUserMessage((NewUserMessage)result, client);
+                            break;
+                        case TypeDictionary.MsgType.ListOfInputMessage:
+                            LogicLayer.HandleInputs((List<InputMessage>)result, client);
+                            break;
+                        default:
+                            Console.WriteLine("unknown message");
+                            break;
+                    }
                 }
-                
-                
+                catch (Exception)
+                {
+                    Console.WriteLine("Exception on process messages");
+                    if (client != null) CleanUpClient(client);
+                }
+
+
             }
         }
 
-        
+
     }
 }
