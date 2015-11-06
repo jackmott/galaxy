@@ -38,15 +38,17 @@
   <ItemGroup>
     <Compile Include="Asteroid.cs" />
     <Compile Include="Buttons.cs" />
+    <Compile Include="Entities\Ships\BustedHeap.cs" />
     <Compile Include="GalaxyColor.cs" />
     <Compile Include="GalaxyCoord.cs" />
-    <Compile Include="GalaxyEntity.cs" />
+    <Compile Include="Entities\GalaxyEntity.cs" />
     <Compile Include="GalaxyGen.cs" />
-    <Compile Include="GalaxyItem.cs" />
+    <Compile Include="Entities\GalaxyItem.cs" />
+    <Compile Include="GalaxyLocation.cs" />
     <Compile Include="GalaxyPlayer.cs" />
-    <Compile Include="GalaxyPlayerLogin.cs" />
+    <Compile Include="Networking\Messages\GalaxyPlayerLogin.cs" />
     <Compile Include="GalaxySector.cs" />
-    <Compile Include="GalaxyShip.cs" />
+    <Compile Include="Entities\Ships\GalaxyShip.cs" />
     <Compile Include="GalaxyStation.cs" />
     <Compile Include="Moon.cs" />
     <Compile Include="Networking\NetworkUtils.cs" />

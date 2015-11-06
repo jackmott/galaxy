@@ -2,7 +2,7 @@
 using XnaGeometry;
 
 
-namespace GalaxyShared.Networking.Messages
+namespace GalaxyShared
 {
 
     [Serializable]

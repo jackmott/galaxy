@@ -97,7 +97,6 @@
     <Compile Include="Assets\src\RadarCamera.cs" />
     <Compile Include="Assets\src\RadarObject.cs" />
     <Compile Include="Assets\src\RadarPlayer.cs" />
-    <Compile Include="Assets\src\SystemMovement.cs" />
     <Compile Include="Assets\src\Utility.cs" />
     <Compile Include="Assets\src\Warp.cs" />
     <Compile Include="Assets\src\WarpMovement.cs" />

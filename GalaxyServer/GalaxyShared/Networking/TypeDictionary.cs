@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using GalaxyShared.Networking.Messages;
+using GalaxyShared;
 
-namespace GalaxyShared.Networking
+namespace GalaxyShared
 {
     public class TypeDictionary
     {

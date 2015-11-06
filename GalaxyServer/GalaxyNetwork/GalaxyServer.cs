@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using GalaxyShared.Networking.Messages;
-using GalaxyShared.Networking;
 using GalaxyShared;
 using XnaGeometry;
 namespace GalaxyServer
@@ -93,7 +91,7 @@ namespace GalaxyServer
                     GalaxyClient gClient = new GalaxyClient(client);
                     Task.Factory.StartNew(() => HandleClientRead(gClient));
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     Console.WriteLine("AcceptClientsAsycn Exception");
                 }
@@ -152,8 +150,13 @@ namespace GalaxyServer
         public static void CleanUpClient(GalaxyClient client)
         {
             client.Cleanup();
-            GalaxyPlayer p;
-            while (!LogicLayer.PlayerTable.TryRemove(client, out p)){ }
+            GalaxyPlayer p;            
+            while (!LogicLayer.PlayerTable.TryRemove(client, out p)){
+                if (!LogicLayer.PlayerTable.ContainsKey(client))
+                {
+                    return;
+                }
+            }
         }
 
 
@@ -180,9 +183,10 @@ namespace GalaxyServer
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    Console.WriteLine("Send Loop Exception");
                     CleanUpClient(m.c);
                 }
+                Console.WriteLine("Still Truckin");
             }
         }
 

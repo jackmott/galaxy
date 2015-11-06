@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using GalaxyShared.Networking.Messages;
+
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
-namespace GalaxyShared.Networking
-{
+namespace GalaxyShared
+{ 
     public class NetworkUtils
     {
 

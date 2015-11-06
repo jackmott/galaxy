@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
-using GalaxyShared.Networking;
-using GalaxyShared.Networking.Messages;
+using GalaxyShared;
 using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour {

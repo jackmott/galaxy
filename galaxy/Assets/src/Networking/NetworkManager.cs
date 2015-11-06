@@ -6,25 +6,36 @@ using System;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using GalaxyShared;
-using GalaxyShared.Networking;
-using GalaxyShared.Networking.Messages;
 using System.Threading;
+using System.Diagnostics;
 
 public class NetworkManager : MonoBehaviour
 {
 
     private static TcpClient socket;
     private static NetworkStream stream;
-
     public static Queue messageQueue;
-
     private Thread NetworkThread;
 
+    public static float throttle = 0;
+    public static List<InputMessage> InputsToSend;
+    public static List<InputMessage> BufferedInputs;
+
+    Stopwatch SendStopwatch = new Stopwatch();
+    Stopwatch InputSampleStopwatch = new Stopwatch();
+
+    public static GalaxyPlayer PlayerState = null;
+    
+
+    public static int Seq = 0;
+
+    enum Level { MainMenu, Warp, System};
+    Level CurrentLevel;
 
 
     void Awake()
     {
-
+    
         messageQueue = new Queue();
 
         DontDestroyOnLoad(this);
@@ -33,6 +44,13 @@ public class NetworkManager : MonoBehaviour
         stream = socket.GetStream();
         NetworkThread = new Thread(new ThreadStart(NetworkReadLoop));
         NetworkThread.Start();
+
+        InputsToSend = new List<InputMessage>();
+        BufferedInputs = new List<InputMessage>();
+
+        InputSampleStopwatch.Start();
+        SendStopwatch.Start();
+       
     }
     // Use this for initialization
     void Start()
@@ -42,16 +60,55 @@ public class NetworkManager : MonoBehaviour
 
     void OnApplicationQuit()
     {
+        socket.Close();
         NetworkThread.Abort();
+    }
+
+    void OnLevelWasLoaded(int level)
+    {
+        CurrentLevel = (Level)level;               
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (InputSampleStopwatch.ElapsedMilliseconds >= NetworkUtils.SERVER_TICK_RATE)
+        {
+            switch(CurrentLevel)
+            {
+                case Level.System:
+                    SampleSystemInput();
+                    break;
+                case Level.Warp:
+                    SampleWarpInput();
+                    break;
+                default:
+                    //nothin
+                    break;
+            }
+            InputSampleStopwatch.Stop();
+            InputSampleStopwatch.Reset();
+            InputSampleStopwatch.Start();
+        }
+        
+        if (SendStopwatch.ElapsedMilliseconds >= NetworkUtils.CLIENT_BUFFER_TIME)
+        {
+            if (InputsToSend.Count > 0)
+            {
+                NetworkManager.SendInputs(InputsToSend);
+                InputsToSend.Clear();
+            }
+            SendStopwatch.Stop();
+            SendStopwatch.Reset();
+            SendStopwatch.Start();
+        }
+
 
         processMessages();
 
     }
+
+   
 
     private void processMessages()
     {
@@ -128,33 +185,134 @@ public class NetworkManager : MonoBehaviour
 
     public void HandleGalaxyPlayerMessage(GalaxyPlayer player)
     {
-        Debug.Log("handle galaxyplayer message");
+        UnityEngine.Debug.Log("handle galaxyplayer message");
         GalaxyGen gen = new GalaxyGen();
-        GalaxySector s = gen.GetSector(player.SectorPos, 1);
-        ClientSolarSystem.SolarSystem = s.Systems[player.SystemIndex];
-        SystemMovement.PlayerState = player;
+        GalaxySector s = gen.GetSector(player.Location.SectorCoord, 1);
+        ClientSolarSystem.SolarSystem = s.Systems[player.Location.SystemIndex];
+        PlayerState = player;
         Application.LoadLevel("SolarSystem");
 
     }
 
     public void HandlePlayerStateMessage(PlayerStateMessage p)
     {
-        if (SystemMovement.BufferedInputs != null)
+        if (BufferedInputs != null)
         {
-            lock (SystemMovement.BufferedInputs)
+            lock (BufferedInputs)
             {
-                SystemMovement.BufferedInputs.RemoveAll(input => input.Seq <= p.Seq);
+                BufferedInputs.RemoveAll(input => input.Seq <= p.Seq);
 
-                SystemMovement.PlayerState.PlayerPos = p.PlayerPos;
-                SystemMovement.PlayerState.Rotation = p.Rotation;
-                foreach (InputMessage input in SystemMovement.BufferedInputs)
+                PlayerState.Location.Pos = p.PlayerPos;
+                PlayerState.Rotation = p.Rotation;
+                foreach (InputMessage input in BufferedInputs)
                 {
-                    Simulator.ProcessInput(SystemMovement.PlayerState, input);
-                    Simulator.ContinuedPhysics(SystemMovement.PlayerState);
+                    Simulator.ProcessInput(PlayerState, input);
+                    Simulator.ContinuedPhysics(PlayerState);
                 }
             }
         }
 
+
+    }
+
+    private void SampleWarpInput()
+    {
+
+    }
+
+    private void SampleSystemInput()
+    {
+        bool anyInput = false;
+
+        Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
+        Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+
+
+        float xDelta = mousePos.x - screenCenter.x;
+        float yDelta = mousePos.y - screenCenter.y;
+
+
+        InputMessage input = new InputMessage();
+
+
+        //rotation
+        yDelta = Mathf.Clamp(yDelta, -70, 70);
+        xDelta = Mathf.Clamp(xDelta, -70, 70);
+        if (Math.Abs(xDelta) > 10 || Math.Abs(yDelta) > 10)
+        {
+            //  Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
+            input.XTurn = xDelta / 4000f;
+            input.YTurn = -yDelta / 4000f;
+
+            anyInput = true;
+        }
+        else
+        {
+            input.XTurn = 0;
+            input.YTurn = 0;
+        }
+
+        //throttle    
+        if (Input.GetKey("w"))
+        {
+            if (throttle < 100)
+            {
+                throttle = Mathf.Clamp(throttle + 1, 0, 100);
+                anyInput = true;
+            }
+
+        }
+        else if (Input.GetKey("s"))
+        {
+            if (throttle > 0)
+            {
+                throttle = Mathf.Clamp(throttle - 1, 0, 100);
+                anyInput = true;
+            }
+        }
+        else if (Input.GetKey("space"))
+        {
+            Application.LoadLevel("Warp");
+        }
+
+
+        //do a barrel roll
+        if (Input.GetKey("q"))
+        {
+            //Camera.main.transforinput.Rotate(new Vector3(0, 0, -50*Time.deltaTime));
+            input.RollTurn = .001f;
+            anyInput = true;
+        }
+        else if (Input.GetKey("e"))
+        {
+            //Camera.main.transforinput.Rotate(new Vector3(0, 0, 50*Time.deltaTime));
+            input.RollTurn = -.001f;
+            anyInput = true;
+        }
+
+        // Camera.main.transform.Translate(Vector3.forward * throttle * 40 *  Time.deltaTime);
+
+        if (anyInput)
+        {
+            input.Seq = Seq;
+            input.Throttle = throttle;
+            InputsToSend.Add(input);
+            lock (BufferedInputs)
+            {
+                BufferedInputs.Add(input);
+            }
+            Simulator.ProcessInput(PlayerState, input);
+            Seq++;
+
+        }
+
+        Simulator.ContinuedPhysics(PlayerState);
+
+        Camera.main.transform.position = Utility.UVector(PlayerState.Location.Pos);
+        Camera.main.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
+
+
+       
 
     }
 }

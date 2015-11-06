@@ -5,7 +5,7 @@ using System.Text;
 
 namespace GalaxyShared
 {
-    
+    [Serializable]
     public class GalaxyPlayerLogin
     {
         public string UserName;
@@ -17,9 +17,6 @@ namespace GalaxyShared
             Password = password;
         }
 
-        public GalaxyPlayerLogin()
-        {
-            //required for MsgPack Serializer
-        }
+      
     }
 }

@@ -1,6 +1,6 @@
 ﻿
 using System.Collections.Concurrent;
-using GalaxyShared.Networking.Messages;
+using GalaxyShared;
 
 namespace GalaxyServer
 {

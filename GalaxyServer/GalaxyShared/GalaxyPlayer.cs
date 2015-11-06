@@ -1,6 +1,5 @@
 ﻿using System;
 using XnaGeometry;
-using GalaxyShared.Networking.Messages;
 using System.Collections.Generic;
 
 namespace GalaxyShared
@@ -9,27 +8,30 @@ namespace GalaxyShared
     public class GalaxyPlayer
     {
         public string UserName;
-        public SectorCoord SectorPos;
-        public int SystemIndex;
-        public Vector3 PlayerPos;
-        public Quaternion Rotation;
-        public GalaxyShip Ship;
+        public GalaxyLocation Location;
+        public Quaternion Rotation;        
         public float Throttle;
         public long Seq;
 
-                              
+        
+        public GalaxyShip Ship;
+
+
 
         //new player
-        public GalaxyPlayer(string UserName)
+        public GalaxyPlayer(string userName)
         {
-            SectorPos= new SectorCoord(100, 2500, 2500);
+            UserName = userName;
+            Location.SectorCoord = new SectorCoord(100, 2500, 2500);
             GalaxyGen gen = new GalaxyGen();
-            GalaxySector sector = gen.GetSector(SectorPos, 1);
-            SystemIndex = 0;
-            PlayerPos = new Vector3(0, 0, -5000);
+            GalaxySector sector = gen.GetSector(Location.SectorCoord, 1);
+            Location.SystemIndex = 0;
+            Location.Pos = new Vector3(0, 0, -5000);
             Rotation = Quaternion.Identity;
             Throttle = 0;
-                        
+
+            Ship = new BustedHeap(this);
+            Ship.Location = Location;
         }
 
         public GalaxyPlayer()

@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using GalaxyShared.Networking.Messages;
 using GalaxyShared;
 using XnaGeometry;
-using GalaxyShared.Networking;
 
 
-namespace GalaxyShared.Networking
+
+namespace GalaxyShared
 {
     public class Simulator
     {
@@ -29,7 +28,7 @@ namespace GalaxyShared.Networking
 
         public static void ContinuedPhysics(GalaxyPlayer player)
         {
-            player.PlayerPos += Vector3.Transform(Vector3.Forward * player.Throttle / NetworkUtils.SERVER_TICK_RATE * 50, player.Rotation);
+            player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle*player.Ship.TopSpeed / NetworkUtils.SERVER_TICK_RATE, player.Rotation);
         }
 
         public static void ProcessInput(GalaxyPlayer player, InputMessage input)

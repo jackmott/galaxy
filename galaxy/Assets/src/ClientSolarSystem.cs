@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using GalaxyShared;
-using GalaxyShared.Networking.Messages;
+
 
 public class ClientSolarSystem : MonoBehaviour
 {
@@ -47,17 +47,17 @@ public class ClientSolarSystem : MonoBehaviour
         
 
         //if the server said we start here, we start here, otherwise back away from the sun
-        if (SystemMovement.PlayerState == null)
+        if (NetworkManager.PlayerState == null)
         {
             Camera.main.transform.Translate(Vector3.back * Planet.EARTH_CONSTANT * 60);
         }
         else
         {
-            Camera.main.transform.position = Utility.UVector(SystemMovement.PlayerState.PlayerPos);
+            Camera.main.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
         }
+
         
-
-
+        
     }
    
 

@@ -1,5 +1,4 @@
 ﻿using System.Net.Sockets;
-using GalaxyShared.Networking.Messages;
 using System.Collections;
 using System.Collections.Generic;
 using System;

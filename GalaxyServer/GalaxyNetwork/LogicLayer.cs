@@ -1,9 +1,7 @@
 ﻿using System;
-using GalaxyShared.Networking.Messages;
 using GalaxyShared;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using GalaxyShared.Networking;
 using System.Diagnostics;
 using System.Threading;
 using XnaGeometry;
@@ -62,7 +60,7 @@ namespace GalaxyServer
             NewUserResultMessage m;
             GalaxyPlayerLogin login = new GalaxyPlayerLogin(msg.UserName, msg.Password);
             if (DataLayer.CreateNewLogin(msg.UserName,msg.Password))
-            {
+            {                
                 InitiateLogin(msg.UserName,client);
             }
             else
@@ -89,6 +87,7 @@ namespace GalaxyServer
 
         public static void DoPhysics()
         {
+            int persistCounter = 0;
             while (true)
             {
                 sw.Restart();
@@ -102,7 +101,7 @@ namespace GalaxyServer
                     if (deltaT >= client.ClientSendRate)
                     {
                         PlayerStateMessage pState = new PlayerStateMessage();
-                        pState.PlayerPos = player.PlayerPos;
+                        pState.PlayerPos = player.Location.Pos;
                         pState.Rotation = player.Rotation;
                         pState.Throttle = player.Throttle;
                         pState.Seq = player.Seq;
@@ -110,11 +109,18 @@ namespace GalaxyServer
                         client.LastSend = DateTime.Now;
                     }
 
+                    //Persist the player to the Database
+                    if (persistCounter * NetworkUtils.SERVER_TICK_RATE > DataLayer.PLAYER_STATE_PERSIST_RATE)
+                    {
+                        DataLayer.UpdateGalaxyPlayer(player);
+                        persistCounter = 0;
+                    }
+
                 }
-                sw.Stop();
+
+                persistCounter++;
+                sw.Stop();                
                 Thread.Sleep(Convert.ToInt32(MathHelper.Clamp(NetworkUtils.SERVER_TICK_RATE - sw.ElapsedMilliseconds, 0, 100)));
-
-
             }
 
         }

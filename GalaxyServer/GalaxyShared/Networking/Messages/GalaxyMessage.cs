@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace GalaxyShared.Networking.Messages
+namespace GalaxyShared
 {
     public class GalaxyMessage
     {
