@@ -11,7 +11,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using GalaxyShared.Networking.Messages;
 using GalaxyShared.Networking;
 using GalaxyShared;
-
+using XnaGeometry;
 namespace GalaxyServer
 {
     class GalaxyServer
@@ -33,6 +33,8 @@ namespace GalaxyServer
 
         public static void Main(string[] args)
         {
+            
+                
             GalaxyServer server = new GalaxyServer();
 
         }
@@ -66,7 +68,7 @@ namespace GalaxyServer
 
             for (int i = 0; i < PhysicsThreads; i++)
             {
-                Task.Factory.StartNew(() => Simulator.DoPhysics());
+                Task.Factory.StartNew(() => LogicLayer.DoPhysics());
             }
 
             Console.ReadLine();

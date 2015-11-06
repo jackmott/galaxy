@@ -15,6 +15,7 @@ namespace GalaxyShared
         public Quaternion Rotation;
         public GalaxyShip Ship;
         public float Throttle;
+        public long Seq;
 
                               
 

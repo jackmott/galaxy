@@ -46,7 +46,8 @@ namespace GalaxyShared.Networking.Messages
 
     [Serializable]
     public struct PlayerStateMessage
-    {        
+    {
+        public long Seq;
         public Vector3 PlayerPos;
         public Quaternion Rotation;
         public float Throttle;

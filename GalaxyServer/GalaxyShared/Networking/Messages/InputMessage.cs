@@ -8,6 +8,7 @@ namespace GalaxyShared.Networking.Messages
     [Serializable]
     public struct InputMessage
     {
+        public int Seq; 
         public float DeltaTime; //seconds
         public float XTurn;
         public float YTurn;

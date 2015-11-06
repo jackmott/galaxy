@@ -1,6 +1,7 @@
 ﻿using System.Net.Sockets;
 using GalaxyShared.Networking.Messages;
-using System.Collections.Concurrent;
+using System.Collections;
+using System.Collections.Generic;
 using System;
 
 namespace GalaxyShared
@@ -21,14 +22,16 @@ namespace GalaxyShared
         public NetworkStream GalaxyUdpStream { get; set; }
 
         
-        public ConcurrentQueue<InputMessage> Inputs;
+        public Queue<InputMessage> Inputs;
+        
 
 
         public GalaxyClient(TcpClient client)
         {
-            this.GalaxyTcpClient = client;
-            this.GalaxyTcpStream = client.GetStream();
-            Inputs = new ConcurrentQueue<InputMessage>();
+           GalaxyTcpClient = client;
+           GalaxyTcpStream = client.GetStream();
+
+            Inputs = new Queue<InputMessage>();
                                     
         }            
 

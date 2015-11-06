@@ -37,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Asteroid.cs" />
+    <Compile Include="Buttons.cs" />
     <Compile Include="GalaxyColor.cs" />
     <Compile Include="GalaxyCoord.cs" />
     <Compile Include="GalaxyEntity.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="Networking\Messages\GalaxyMessage.cs" />
     <Compile Include="Networking\Messages\InputMessage.cs" />
     <Compile Include="Networking\Messages\UtilityMessages.cs" />
+    <Compile Include="Networking\Simulator.cs" />
     <Compile Include="Networking\TypeDictionary.cs" />
     <Compile Include="Planet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

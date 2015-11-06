@@ -181,8 +181,8 @@ namespace XnaGeometry
 
             Quaternion quaternion;
             double num2 = angle * 0.5f;
-            double num = (double)Math.Sin((double)num2);
-            double num3 = (double)Math.Cos((double)num2);
+            double num = Math.Sin(num2);
+            double num3 = Math.Cos(num2);
             quaternion.X = axis.X * num;
             quaternion.Y = axis.Y * num;
             quaternion.Z = axis.Z * num;
@@ -195,8 +195,8 @@ namespace XnaGeometry
         public static void CreateFromAxisAngle(ref Vector3 axis, double angle, out Quaternion result)
         {
             double num2 = angle * 0.5f;
-            double num = (double)Math.Sin((double)num2);
-            double num3 = (double)Math.Cos((double)num2);
+            double num = Math.Sin(num2);
+            double num3 = Math.Cos(num2);
             result.X = axis.X * num;
             result.Y = axis.Y * num;
             result.Z = axis.Z * num;
@@ -459,7 +459,7 @@ namespace XnaGeometry
         public double Length()
         {
             double num = (((this.X * this.X) + (this.Y * this.Y)) + (this.Z * this.Z)) + (this.W * this.W);
-            return (double)Math.Sqrt((double)num);
+            return Math.Sqrt(num);
         }
 
 
@@ -490,7 +490,7 @@ namespace XnaGeometry
                 quaternion.W = (num2 * quaternion1.W) - (num * quaternion2.W);
             }
             double num4 = (((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W);
-            double num3 = 1f / ((double)Math.Sqrt((double)num4));
+            double num3 = 1f / (Math.Sqrt(num4));
             quaternion.X *= num3;
             quaternion.Y *= num3;
             quaternion.Z *= num3;
@@ -519,7 +519,7 @@ namespace XnaGeometry
                 result.W = (num2 * quaternion1.W) - (num * quaternion2.W);
             }
             double num4 = (((result.X * result.X) + (result.Y * result.Y)) + (result.Z * result.Z)) + (result.W * result.W);
-            double num3 = 1f / ((double)Math.Sqrt((double)num4));
+            double num3 = 1f / (Math.Sqrt(num4));
             result.X *= num3;
             result.Y *= num3;
             result.Z *= num3;
@@ -548,10 +548,10 @@ namespace XnaGeometry
             }
             else
             {
-                double num5 = (double)Math.Acos((double)num4);
-                double num6 = (double)(1.0 / Math.Sin((double)num5));
-                num3 = ((double)Math.Sin((double)((1f - num) * num5))) * num6;
-                num2 = flag ? (((double)-Math.Sin((double)(num * num5))) * num6) : (((double)Math.Sin((double)(num * num5))) * num6);
+                double num5 = Math.Acos(num4);
+                double num6 = (1.0 / Math.Sin(num5));
+                num3 = (Math.Sin(((1f - num) * num5))) * num6;
+                num2 = flag ? ((-Math.Sin((num * num5))) * num6) : ((Math.Sin((num * num5))) * num6);
             }
             quaternion.X = (num3 * quaternion1.X) + (num2 * quaternion2.X);
             quaternion.Y = (num3 * quaternion1.Y) + (num2 * quaternion2.Y);
@@ -580,10 +580,10 @@ namespace XnaGeometry
             }
             else
             {
-                double num5 = (double)Math.Acos((double)num4);
-                double num6 = (double)(1.0 / Math.Sin((double)num5));
-                num3 = ((double)Math.Sin((double)((1f - num) * num5))) * num6;
-                num2 = flag ? (((double)-Math.Sin((double)(num * num5))) * num6) : (((double)Math.Sin((double)(num * num5))) * num6);
+                double num5 = Math.Acos(num4);
+                double num6 = (1.0 / Math.Sin(num5));
+                num3 = (Math.Sin(((1f - num) * num5))) * num6;
+                num2 = flag ? ((-Math.Sin((num * num5))) * num6) : ((Math.Sin((num * num5))) * num6);
             }
             result.X = (num3 * quaternion1.X) + (num2 * quaternion2.X);
             result.Y = (num3 * quaternion1.Y) + (num2 * quaternion2.Y);
@@ -698,20 +698,19 @@ namespace XnaGeometry
 
         public void Normalize()
         {
-            double num2 = (((this.X * this.X) + (this.Y * this.Y)) + (this.Z * this.Z)) + (this.W * this.W);
-            double num = 1f / ((double)Math.Sqrt((double)num2));
-            this.X *= num;
-            this.Y *= num;
-            this.Z *= num;
-            this.W *= num;
+            double num = 1f / Math.Sqrt((((X * X) + (Y * Y)) + (Z * Z)) + (W * W));
+            
+            X *= num;
+            Y *= num;
+            Z *= num;
+            W *= num;
         }
 
 
         public static Quaternion Normalize(Quaternion quaternion)
         {
             Quaternion quaternion2;
-            double num2 = (((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W);
-            double num = 1f / ((double)Math.Sqrt((double)num2));
+            double num = 1f/ Math.Sqrt((((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W));            
             quaternion2.X = quaternion.X * num;
             quaternion2.Y = quaternion.Y * num;
             quaternion2.Z = quaternion.Z * num;
@@ -722,8 +721,7 @@ namespace XnaGeometry
 
         public static void Normalize(ref Quaternion quaternion, out Quaternion result)
         {
-            double num2 = (((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W);
-            double num = 1f / ((double)Math.Sqrt((double)num2));
+            double num = 1f / Math.Sqrt((((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W));
             result.X = quaternion.X * num;
             result.Y = quaternion.Y * num;
             result.Z = quaternion.Z * num;

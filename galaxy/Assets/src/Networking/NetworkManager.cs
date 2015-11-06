@@ -24,8 +24,8 @@ public class NetworkManager : MonoBehaviour
 
     void Awake()
     {
-        Queue q = new Queue();
-        messageQueue = Queue.Synchronized(q);
+
+        messageQueue = new Queue();
 
         DontDestroyOnLoad(this);
         socket = new TcpClient("localhost", 8888);
@@ -56,29 +56,33 @@ public class NetworkManager : MonoBehaviour
     private void processMessages()
     {
         TypeDictionary TypeDictionary = new TypeDictionary();
-        while (messageQueue.Count > 0)
+
+        lock (messageQueue)
         {
-            object o = messageQueue.Dequeue();
-            TypeDictionary.MsgType type = TypeDictionary.GetID(o);
-
-            switch (type)
+            while (messageQueue.Count > 0)
             {
+                object o = messageQueue.Dequeue();
+                TypeDictionary.MsgType type = TypeDictionary.GetID(o);
 
-                case TypeDictionary.MsgType.LoginResultMessage:
-                    HandleLoginResultMessage((LoginResultMessage)o);
-                    break;
-                case TypeDictionary.MsgType.NewUserResultMessage:
-                    HandleNewUserResultMessage((NewUserResultMessage)o);
-                    break;
-                case TypeDictionary.MsgType.GalaxyPlayer:
-                    HandleGalaxyPlayerMessage((GalaxyPlayer)o);
-                    break;
-                case TypeDictionary.MsgType.PlayerStateMessage:
-                    HandlePlayerStateMessage((PlayerStateMessage)o);
-                    break;
-                default:
-                    Console.WriteLine("unknown message");
-                    break;
+                switch (type)
+                {
+
+                    case TypeDictionary.MsgType.LoginResultMessage:
+                        HandleLoginResultMessage((LoginResultMessage)o);
+                        break;
+                    case TypeDictionary.MsgType.NewUserResultMessage:
+                        HandleNewUserResultMessage((NewUserResultMessage)o);
+                        break;
+                    case TypeDictionary.MsgType.GalaxyPlayer:
+                        HandleGalaxyPlayerMessage((GalaxyPlayer)o);
+                        break;
+                    case TypeDictionary.MsgType.PlayerStateMessage:
+                        HandlePlayerStateMessage((PlayerStateMessage)o);
+                        break;
+                    default:
+                        Console.WriteLine("unknown message");
+                        break;
+                }
             }
         }
     }
@@ -88,7 +92,7 @@ public class NetworkManager : MonoBehaviour
         GalaxyMessage m = NetworkUtils.PrepareForServerSend(msg);
         stream.Write(m.SizeBuffer, 0, m.SizeBuffer.Length);
         stream.Write(m.Buffer, 0, m.Size);
-        Debug.Log("Sent One Message");
+
     }
 
     public static void SendInputs(List<InputMessage> l)
@@ -102,8 +106,11 @@ public class NetworkManager : MonoBehaviour
         while (true)
         {
             object o = binaryFormatter.Deserialize(stream);
-            messageQueue.Enqueue(o);
-            Debug.Log("Got an object! Enqued it.");
+            lock (messageQueue)
+            {
+                messageQueue.Enqueue(o);
+            }
+
         }
 
     }
@@ -125,16 +132,29 @@ public class NetworkManager : MonoBehaviour
         GalaxyGen gen = new GalaxyGen();
         GalaxySector s = gen.GetSector(player.SectorPos, 1);
         ClientSolarSystem.SolarSystem = s.Systems[player.SystemIndex];
-        ClientSolarSystem.PlayerStartPos = Utility.UVector(player.PlayerPos);
+        SystemMovement.PlayerState = player;
         Application.LoadLevel("SolarSystem");
 
     }
 
     public void HandlePlayerStateMessage(PlayerStateMessage p)
     {
-        Camera.main.transform.rotation = Utility.UQuaternion(p.Rotation);
-        Camera.main.transform.position = Utility.UVector(p.PlayerPos);
-        Debug.Log(p.PlayerPos);
-        SystemMovement.throttle = p.Throttle;
+        if (SystemMovement.BufferedInputs != null)
+        {
+            lock (SystemMovement.BufferedInputs)
+            {
+                SystemMovement.BufferedInputs.RemoveAll(input => input.Seq <= p.Seq);
+
+                SystemMovement.PlayerState.PlayerPos = p.PlayerPos;
+                SystemMovement.PlayerState.Rotation = p.Rotation;
+                foreach (InputMessage input in SystemMovement.BufferedInputs)
+                {
+                    Simulator.ProcessInput(SystemMovement.PlayerState, input);
+                    Simulator.ContinuedPhysics(SystemMovement.PlayerState);
+                }
+            }
+        }
+
+
     }
 }
