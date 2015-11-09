@@ -11,7 +11,7 @@ public class PlanetTextureGenerator
     float[] floatColors;
 
     public string NormalMap;
-    System.Random rand;
+    FastRandom rand;
     Color[] colors;
     
     ColorRamp colorRamp;
@@ -32,8 +32,8 @@ public class PlanetTextureGenerator
 
     public PlanetTextureGenerator(Planet p,int width, int height)
     {
-        
-        rand = new System.Random(p.Hash);
+
+        rand = new FastRandom(p.Pos.X, p.Pos.Y, p.Pos.Z);            
         floatColors = new float[width * height];
         noise = new Noise();
         this.width = width;
@@ -93,13 +93,13 @@ public class PlanetTextureGenerator
     private void RandomInfo()
     {
        
-        NormalMap = planetNormals[GalaxyGen.RandomRange(rand, 0, planetNormals.Length)];
-        octaves =GalaxyGen.RandomRange(rand, 1, 6);
-        gain =GalaxyGen.RandomRange(rand, 2f, 7.0f);
-        lacunarity =GalaxyGen.RandomRange(rand, 2f, 7.0f);        
-        stretch =GalaxyGen.RandomRange(rand, 0f, 10f);        
+        NormalMap = planetNormals[rand.Next( 0, planetNormals.Length)];
+        octaves =rand.Next( 1, 6);
+        gain =rand.Next( 2f, 7.0f);
+        lacunarity =rand.Next( 2f, 7.0f);        
+        stretch =rand.Next( 0f, 10f);        
 
-        int numColors =GalaxyGen.RandomRange(rand,3, 15);
+        int numColors =rand.Next(3, 15);
         Color[] colors = new Color[numColors];
         float[] ranges = new float[numColors - 1];
         float percentRemaining = 1f;
@@ -108,7 +108,7 @@ public class PlanetTextureGenerator
 
         for (int i = 0; i < colors.Length; i++)
         {
-            colors[i] = new Color(GalaxyGen.RandomRange(rand,0f, 1f), GalaxyGen.RandomRange(rand,0f, 1f), GalaxyGen.RandomRange(rand,0f, 1f), alpha);
+            colors[i] = new Color(rand.Next(0f, 1f), rand.Next(0f, 1f), rand.Next(0f, 1f), alpha);
             alpha = 1;
         }
 
@@ -117,7 +117,7 @@ public class PlanetTextureGenerator
 
             if (i == 0) // water
             {
-                float percent =GalaxyGen.RandomRange(rand,minPercent, .7f);
+                float percent =rand.Next(minPercent, .7f);
                 ranges[i] = percent;
                 percentRemaining -= percent;
             }
@@ -126,7 +126,7 @@ public class PlanetTextureGenerator
 
                 int remainingColorsCount = ranges.Length - i - 1;
                 float maxPercent = percentRemaining - (minPercent * remainingColorsCount);
-                float percent =GalaxyGen.RandomRange(rand,minPercent, maxPercent);
+                float percent =rand.Next(minPercent, maxPercent);
                 ranges[i] = percent;
                 percentRemaining -= percent;
             }
@@ -155,8 +155,8 @@ public class PlanetTextureGenerator
         float pi = 3.14159265359f;
         float twopi = pi * 2.0f;
 
-        float offsetx = (float)GalaxyGen.RandomRange(rand,-200f, 200f);
-        float offsety = (float)GalaxyGen.RandomRange(rand,-200f, 200f);
+        float offsetx = (float)rand.Next(-200f, 200f);
+        float offsety = (float)rand.Next(-200f, 200f);
 
         float min = 999;
         float max = -999;

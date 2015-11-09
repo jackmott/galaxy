@@ -22,14 +22,13 @@ namespace GalaxyShared
         public GalaxyPlayer(string userName)
         {
             UserName = userName;
-            Location.SectorCoord = new SectorCoord(100, 2500, 2500);
-            GalaxyGen gen = new GalaxyGen();
-            GalaxySector sector = gen.GetSector(Location.SectorCoord, 1);
-            Location.SystemIndex = 0;
-            Location.Pos = new Vector3(0, 0, -5000);
+            Location.SectorCoord = new SectorCoord(0, 0, 0);
+            GalaxySector s = new GalaxySector(Location.SectorCoord);
+            Location.SystemPos = s.GenerateSystems(1)[0].Pos;                             
             Rotation = Quaternion.Identity;
+            Location.Pos = (Location.SystemPos * GalaxySector.EXPAND_FACTOR) + Vector3.Transform(Vector3.Forward * .3d, Rotation);
             Throttle = 0;
-
+            Location.InWarp = true;
             Ship = new BustedHeap(this);
             Ship.Location = Location;
         }

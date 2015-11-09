@@ -5,36 +5,35 @@ using XnaGeometry;
 
 namespace GalaxyShared
 {
+    
     public class SolarSystem
     {
-        public GalaxySector ParentSector;
-        public Vector3 Coord;
-        public Vector3 ClientCoord;
-        public float ClientDistance = float.MaxValue;
+        
+        public SectorCoord ParentSectorCoord;
+
+        public Vector3 Pos;                
         public Star Star;
-        public int Size;
+        
         public List<Planet> Planets;
         public List<Asteroid> Asteroids;
-        public int Hash = 0;
+
+        FastRandom rand;
                 
         int[] PlanetCountDistribution = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
-        public int index;
+        
 
 
-        public SolarSystem(Vector3 coord, GalaxySector parentSector, int size, int index, System.Random r)
+        public SolarSystem(Vector3 pos)
         {
-            Hash = Convert.ToInt32(coord.X + coord.Y * GalaxySector.SECTOR_SIZE + coord.Z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE);
-            Hash = Hash ^ parentSector.Hash;
-            Coord = coord;
-            ParentSector = parentSector;
-            Size = size;
-            Star = new Star(this, r);
+            rand = new FastRandom(Convert.ToInt32(pos.X), Convert.ToInt32(pos.Y), Convert.ToInt32(pos.Z));
+            Pos = pos;                    
+            Star = new Star(this);
         }
 
         public void Generate()
         {
             
-            Random r = new Random(Hash ^ ParentSector.Hash);
+           
 
             List<int> availableOrbits = new List<int>();
             int numOrbits = 50;
@@ -43,29 +42,29 @@ namespace GalaxyShared
                 availableOrbits.Add(i);
             }
             
-            int numPlanets = PlanetCountDistribution[GalaxyGen.RandomRange(r,0, PlanetCountDistribution.Length)];
+            int numPlanets = PlanetCountDistribution[rand.Next(0, PlanetCountDistribution.Length)];
 
             Planets = new List<Planet>();
             Asteroids = new List<Asteroid>();
             for (int i = 0; i < numPlanets; i++)
             {
-                int orbitIndex = GalaxyGen.RandomRange(r,0, availableOrbits.Count); 
+                int orbitIndex = rand.Next(0, availableOrbits.Count); 
                 int orbit = availableOrbits[orbitIndex];
                 availableOrbits.RemoveAt(orbitIndex);
-                Planet p = new Planet(this, orbit,r);
+                Planet p = new Planet(this, orbit);
                 Planets.Add(p);
 
             }
 
             foreach (int orbit in availableOrbits)
             {
-                int asteroidChance = GalaxyGen.RandomRange(r, 0, 100);
+                int asteroidChance = rand.Next(0, 100);
                 if (asteroidChance == 0)
                 {
-                    int numAsteroids = GalaxyGen.RandomRange(r,20 * orbit, 100 * orbit);
+                    int numAsteroids = rand.Next(20 * orbit, 100 * orbit);
                     for (int i = 0; i < numAsteroids;i++)
                     {
-                        Asteroids.Add(new Asteroid(this, orbit, r));
+                        Asteroids.Add(new Asteroid(this, orbit));
                     }
 
                 }

@@ -10,7 +10,7 @@ public class ClientSector  {
     public int Hash;
     public GalaxySector Sector;
 
-    public float UnityX, UnityY, UnityZ;
+    public double UnityX, UnityY, UnityZ;
 
     public void Activate(GalaxySector galaxySector)
     {
@@ -25,9 +25,9 @@ public class ClientSector  {
         
         Active = true;
 
-        UnityX = x * GalaxySector.SECTOR_SIZE * Warp.ExpandFactor;
-        UnityY = y * GalaxySector.SECTOR_SIZE * Warp.ExpandFactor;
-        UnityZ = z * GalaxySector.SECTOR_SIZE * Warp.ExpandFactor;
+        UnityX = x * GalaxySector.SECTOR_SIZE * GalaxySector.EXPAND_FACTOR;
+        UnityY = y * GalaxySector.SECTOR_SIZE * GalaxySector.EXPAND_FACTOR;
+        UnityZ = z * GalaxySector.SECTOR_SIZE * GalaxySector.EXPAND_FACTOR;
 
 
         ParticleSystem.Particle[] particles = GenStars();
@@ -35,25 +35,7 @@ public class ClientSector  {
         
     }
 
-    public SolarSystem GetClosestSystem()
-    {
-        Vector3 cameraPos = Camera.main.transform.position;
-        float minDistance = float.MaxValue;
-        SolarSystem closestSystem = null;
-        foreach (SolarSystem system in Sector.Systems)
-        {
-            Vector3 systemPos = Utility.UVector(system.ClientCoord);
-            float distance = Vector3.Distance(cameraPos, systemPos);
-            if (distance < minDistance)
-            {
-                minDistance = distance;
-                closestSystem = system;
-            }
-
-        }
-        closestSystem.ClientDistance = minDistance;
-        return closestSystem;
-    }
+    
 
     public ParticleSystem.Particle[] GenStars()
     {
@@ -63,11 +45,7 @@ public class ClientSector  {
         
         foreach (SolarSystem system in Sector.Systems)
         {
-            Vector3 systemCoord = Utility.UVector(system.Coord);
-
-            Vector3 clientPos = new Vector3(systemCoord.x * Warp.ExpandFactor + UnityX, systemCoord.y * Warp.ExpandFactor + UnityY, systemCoord.z * Warp.ExpandFactor + UnityZ);
-            system.ClientCoord = Utility.XVector(clientPos);
-            particles[i].position = clientPos;
+            particles[i].position = Utility.UVector(system.Pos*GalaxySector.EXPAND_FACTOR);
             particles[i].size = system.Star.Size / 37.5f;
             particles[i].color = new Color(system.Star.Color.R / 255f, system.Star.Color.G / 255f, system.Star.Color.B / 255f);                  
             i++;

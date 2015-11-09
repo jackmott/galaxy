@@ -24,7 +24,7 @@ public class ClientPlanet : MonoBehaviour {
 	void Update () {
         if (Planet != null)
         {
-           transform.Rotate(Vector3.up, ROTATION_RATE* Planet.RotationRate * Time.deltaTime);
+           transform.Rotate(Vector3.up, (float)(ROTATION_RATE* Planet.RotationRate * Time.deltaTime));
         }
         if (pg.IsReady())
         {

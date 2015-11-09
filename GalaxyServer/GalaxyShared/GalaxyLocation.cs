@@ -7,7 +7,7 @@ namespace GalaxyShared
     {
         public SectorCoord SectorCoord;
         public bool InWarp;
-        public int SystemIndex;
+        public Vector3 SystemPos;
         public Vector3 Pos;
 
     }

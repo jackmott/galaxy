@@ -7,20 +7,13 @@ public class ClientSolarSystem : MonoBehaviour
 
     public static SolarSystem SolarSystem;
     public static Cubemap Cubemap;
-    public static Quaternion CameraRotation;
-    
-
+        
 
     // Use this for initialization
     void Start()
     {
-        if (SolarSystem == null)
-        {
-            GalaxyGen gen = new GalaxyGen();
-            GalaxySector sector = gen.GetSector(new SectorCoord(0, 0, 0), 1);
-            SolarSystem = sector.Systems[0];
-        }
-
+        SolarSystem = new SolarSystem(NetworkManager.PlayerState.Location.SystemPos);
+        
         GameObject star = (GameObject)Instantiate(Resources.Load<GameObject>("Star"), Vector3.zero, Quaternion.identity);
         star.transform.position = Vector3.zero;
         star.transform.localScale *= SolarSystem.Star.Size * Planet.EARTH_CONSTANT * 30;
@@ -41,8 +34,9 @@ public class ClientSolarSystem : MonoBehaviour
         if (Cubemap != null)
         {         
            Camera.main.GetComponent<Skybox>().material.SetTexture("_Tex", Cubemap);
-           Camera.main.transform.rotation = CameraRotation;
-        }       
+           
+        }
+        
 
         
 
@@ -54,6 +48,7 @@ public class ClientSolarSystem : MonoBehaviour
         else
         {
             Camera.main.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
+            Camera.main.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
         }
 
         
@@ -67,7 +62,7 @@ public class ClientSolarSystem : MonoBehaviour
         foreach (Planet p in SolarSystem.Planets)
         {
             GameObject planetGO = (GameObject)Instantiate(resourcePlanet, Utility.UVector(p.Pos), Quaternion.identity);       
-            planetGO.transform.localScale *= p.Size * Planet.EARTH_CONSTANT;
+            planetGO.transform.localScale *= (float)p.Size * Planet.EARTH_CONSTANT;
             ClientPlanet cp = planetGO.GetComponent<ClientPlanet>();
             cp.Planet = p;
            
@@ -98,7 +93,7 @@ public class ClientSolarSystem : MonoBehaviour
         foreach (Asteroid a in SolarSystem.Asteroids)
         {
             GameObject asteroidGO = (GameObject)Instantiate(resourceAsteroid, Utility.UVector(a.Pos), Random.rotation);            
-            asteroidGO.transform.localScale *= a.Size * Planet.EARTH_CONSTANT;          
+            asteroidGO.transform.localScale *= (float)a.Size * Planet.EARTH_CONSTANT;          
         }
 
     }

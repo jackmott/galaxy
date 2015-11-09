@@ -14,5 +14,6 @@ namespace GalaxyShared
         public float YTurn;
         public float RollTurn;
         public float Throttle;
+        public bool GoToWarp;
     }
 }

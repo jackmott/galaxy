@@ -8,14 +8,13 @@ namespace GalaxyShared
     class Moon
     {
         Planet ParentPlanet;
-        int Hash;
+        
         int Orbit;
         int Size;
         
         public Moon(Planet parentPlanet, int orbit)
         {
-            ParentPlanet = parentPlanet;
-            Hash = ParentPlanet.Hash ^ orbit;
+            ParentPlanet = parentPlanet;            
             Orbit = orbit;
             //Size = (float)r.NextDouble() * 10f + 1f;
         }

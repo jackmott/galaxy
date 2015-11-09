@@ -8,33 +8,32 @@ namespace GalaxyShared
         public SolarSystem ParentSystem;
         public int Orbit;
         public double OrbitAngle;
-        public float RotationRate;
-        public int Hash;
-        public float Size;
-        public Random R;
+        public double RotationRate;        
+        public double Size;        
         public Vector3 Pos;
-        
 
+        public FastRandom rand;
 
-        public Asteroid(SolarSystem parentSystem, int orbit, System.Random r)
-        {            
-            R = r;
-            Hash = orbit ^ parentSystem.Hash;
+        public Asteroid(SolarSystem parentSystem, int orbit)
+        {
+
+            rand = new FastRandom(Convert.ToInt32(parentSystem.Pos.X), Convert.ToInt32(parentSystem.Pos.Y), Convert.ToInt32(parentSystem.Pos.Z), orbit);
+
             ParentSystem = parentSystem;
             Orbit = orbit;
-            RotationRate = GalaxyGen.RandomRange(r, .01f, .1f);
-            OrbitAngle = GalaxyGen.RandomRange(r, 0f, MathHelper.TwoPi);
-            Size = GalaxyGen.RandomRange(r, 1f, 3.5f);
+            RotationRate = rand.Next( .01f, .1f);
+            OrbitAngle = rand.Next( 0f, MathHelper.TwoPi);
+            Size = rand.Next( 1f, 3.5f);
 
 
             Vector3 start = Vector3.Zero;                                    
             Matrix rotation = Matrix.CreateFromYawPitchRoll(OrbitAngle,0,0);
             Pos = start + Vector3.Transform(Vector3.Forward * (Orbit+1)*Planet.EARTH_CONSTANT*40, rotation);
 
-            float magnitude = 25000;
-            float xAdjust = GalaxyGen.RandomRange(R, -magnitude, magnitude);
-            float yAdjust = GalaxyGen.RandomRange(R, -magnitude, magnitude);
-            float zAdjust = GalaxyGen.RandomRange(R, -magnitude, magnitude);
+            double magnitude = 25000;
+            double xAdjust = rand.Next( -magnitude, magnitude);
+            double yAdjust = rand.Next( -magnitude, magnitude);
+            double zAdjust = rand.Next( -magnitude, magnitude);
 
             Pos.X += xAdjust;
             Pos.Y += yAdjust;

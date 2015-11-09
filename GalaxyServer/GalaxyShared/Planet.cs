@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 using XnaGeometry;
 
 namespace GalaxyShared
@@ -10,20 +10,20 @@ namespace GalaxyShared
         public SolarSystem ParentSystem;
         public int Orbit;
         public double OrbitAngle;
-        public float RotationRate;
-        public int Hash;
-        public float Size;
+        public double RotationRate;        
+        public double Size;
         public Vector3 Pos;
+        FastRandom rand;
 
-        public Planet(SolarSystem parentSystem, int orbit, System.Random r)
+        public Planet(SolarSystem parentSystem, int orbit)
         {
-                        
-            Hash = orbit ^ parentSystem.Hash;            
+            rand = new FastRandom(Convert.ToInt32(parentSystem.Pos.X), Convert.ToInt32(parentSystem.Pos.Y), Convert.ToInt32(parentSystem.Pos.Z), orbit);
+            
             ParentSystem = parentSystem;
             Orbit = orbit;
-            RotationRate = GalaxyGen.RandomRange(r, .01f, .1f);
-            OrbitAngle = GalaxyGen.RandomRange(r, 0f, MathHelper.TwoPi);
-            Size = GalaxyGen.RandomRange(r, 2.5f, 14f);
+            RotationRate = rand.Next(.01d, .1d);
+            OrbitAngle = rand.Next(0d, MathHelper.TwoPi);
+            Size = rand.Next(2.5d, 14d);
             
             Vector3 start = Vector3.Zero;
             Matrix rotation = Matrix.CreateFromYawPitchRoll(OrbitAngle, 0, 0);

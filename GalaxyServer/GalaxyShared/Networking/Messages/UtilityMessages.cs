@@ -40,7 +40,7 @@ namespace GalaxyShared
 
     [Serializable]
     public struct NewUserResultMessage
-    { 
+    {
         public bool success;
     }
 
@@ -51,5 +51,19 @@ namespace GalaxyShared
         public Vector3 PlayerPos;
         public Quaternion Rotation;
         public float Throttle;
+    }
+
+    [Serializable]
+    public struct GoToWarpMessage
+    {
+        public Quaternion Rotation;
+        public GalaxyLocation Location;
+    }
+
+    [Serializable]
+    public struct DropOutOfWarpMessage
+    {
+        public Quaternion Rotation;
+        public GalaxyLocation Location;
     }
 }

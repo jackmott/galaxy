@@ -18,6 +18,8 @@ namespace GalaxyShared
         public float Size;
 
         public GalaxyColor Color;
+
+        public FastRandom rand;
         
 
 
@@ -65,11 +67,13 @@ namespace GalaxyShared
         
 
 
-        public Star(SolarSystem parentSystem,  Random r)
+        public Star(SolarSystem parentSystem)
         {
+            rand = new FastRandom(Convert.ToInt32(parentSystem.Pos.X), Convert.ToInt32(parentSystem.Pos.Y), Convert.ToInt32(parentSystem.Pos.Z));
             ParentSystem = parentSystem;
-            Type = typeToTypeDistribution[parentSystem.ParentSector.DominantStarType][r.Next(0, 10)];
-            Size = typeToSizeDistribution[Type][r.Next(0, 10)];
+            GalaxySector s = new GalaxySector(parentSystem.ParentSectorCoord);
+            Type = typeToTypeDistribution[s.DominantStarType][rand.Next(0, 10)];
+            Size = typeToSizeDistribution[Type][rand.Next(0, 10)];
 
             
             switch (Type)

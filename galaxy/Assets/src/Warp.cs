@@ -6,21 +6,18 @@ using GalaxyShared;
 
 
 
+
 [AddComponentMenu("Camera/Warp ")]
 public class Warp : MonoBehaviour {
     
     
     int SectorCount = 9; //must be odd
-    public static float ExpandFactor = 1f/2.5f; //multiplied by galaxy coordinates to get unity coordinates
+    
     public static ClientSector ClosestSector = null;
 
-    //stuff that solarsystem scene will look up    
-    
-
-    Dictionary<int,ClientSector> LoadedSectors;
-    
         
-    GalaxyGen GalaxyGenerator;
+    Dictionary<int,ClientSector> LoadedSectors;            
+    
     
 
     // Use this for initialization
@@ -29,13 +26,16 @@ public class Warp : MonoBehaviour {
 
         // Thread thread = new Thread(new ThreadStart(NetworkLoop));
         // thread.Start();
-        Debug.Log("PreGen");
-        GalaxyGenerator = new GalaxyGen();
-        Debug.Log("PostGen");
+    
         GameObject OriginalParticlePrefab = Resources.Load<GameObject>("StarParticles");
 
 
-        Camera.main.farClipPlane = GalaxySector.SECTOR_SIZE * ExpandFactor * (SectorCount / 2f);
+        Camera.main.farClipPlane = (float)(GalaxySector.SECTOR_SIZE * GalaxySector.EXPAND_FACTOR * (SectorCount / 2f));
+        Camera.main.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
+        Camera.main.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
+        Camera.main.transform.Translate(Vector3.forward * .2f);
+       
+
         //warm up clientsectors
         LoadedSectors = new Dictionary<int, ClientSector>();        
         for (int i = 0; i < SectorCount*SectorCount*SectorCount; i++)
@@ -59,7 +59,6 @@ public class Warp : MonoBehaviour {
         
         UpdateSectors();
 
-
     }
 
     void UpdateSectors()
@@ -69,9 +68,9 @@ public class Warp : MonoBehaviour {
         
         Vector3 cameraPos = Camera.main.transform.position;
         
-        int x = Convert.ToInt32(cameraPos.x / ExpandFactor / GalaxySector.SECTOR_SIZE);
-        int y = Convert.ToInt32(cameraPos.y / ExpandFactor / GalaxySector.SECTOR_SIZE);
-        int z = Convert.ToInt32(cameraPos.z / ExpandFactor / GalaxySector.SECTOR_SIZE);
+        int x = Convert.ToInt32(cameraPos.x / GalaxySector.EXPAND_FACTOR / GalaxySector.SECTOR_SIZE);
+        int y = Convert.ToInt32(cameraPos.y / GalaxySector.EXPAND_FACTOR / GalaxySector.SECTOR_SIZE);
+        int z = Convert.ToInt32(cameraPos.z / GalaxySector.EXPAND_FACTOR / GalaxySector.SECTOR_SIZE);
 
 
         
@@ -89,7 +88,7 @@ public class Warp : MonoBehaviour {
             y = cSector.Coord.Y;
             z = cSector.Coord.Z;
 
-            Vector3 sectorPos = new Vector3(x * ExpandFactor * GalaxySector.SECTOR_SIZE, y * ExpandFactor * GalaxySector.SECTOR_SIZE, z * ExpandFactor * GalaxySector.SECTOR_SIZE);
+            Vector3 sectorPos = new Vector3((float)(x * GalaxySector.EXPAND_FACTOR * GalaxySector.SECTOR_SIZE),(float)( y * GalaxySector.EXPAND_FACTOR * GalaxySector.SECTOR_SIZE),(float)( z * GalaxySector.EXPAND_FACTOR * GalaxySector.SECTOR_SIZE));
 
             float distance = Vector3.Distance(cameraPos, sectorPos);
 
@@ -104,14 +103,14 @@ public class Warp : MonoBehaviour {
 
         if (ClosestSector != null && ClosestSector.Active)
         {
-            ClientSolarSystem.SolarSystem = ClosestSector.GetClosestSystem();
+            SolarSystem system = Simulator.GetClosestSystem(ClosestSector.Sector, NetworkManager.PlayerState.Location.Pos);
             
-            if (ClientSolarSystem.SolarSystem.ClientDistance < .1)
+            if (XnaGeometry.Vector3.Distance(system.Pos*GalaxySector.EXPAND_FACTOR,NetworkManager.PlayerState.Location.Pos) < Simulator.WARP_DISTANCE_THRESHOLD)
             {
-                GenSkybox();
-                Application.LoadLevel("SolarSystem");
+                DropOutOfWarp();                
             }
-            
+     //       Debug.Log(XnaGeometry.Vector3.Distance(system.Pos * GalaxySector.EXPAND_FACTOR, NetworkManager.PlayerState.Location.Pos));
+
         }
 
         for ( x = minX; x < minX + SectorCount; x++)
@@ -125,7 +124,7 @@ public class Warp : MonoBehaviour {
                     int hash = x + y * GalaxySector.SECTOR_SIZE + z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE;
                     if (!LoadedSectors.ContainsKey(hash))
                     {
-                        Vector3 sectorPos = new Vector3(x * ExpandFactor * GalaxySector.SECTOR_SIZE, y * ExpandFactor * GalaxySector.SECTOR_SIZE, z * ExpandFactor * GalaxySector.SECTOR_SIZE);
+                        Vector3 sectorPos = new Vector3((float)(x * GalaxySector.EXPAND_FACTOR * GalaxySector.SECTOR_SIZE),(float)( y * GalaxySector.EXPAND_FACTOR * GalaxySector.SECTOR_SIZE),(float)( z * GalaxySector.EXPAND_FACTOR * GalaxySector.SECTOR_SIZE));
                         float distance = Vector3.Distance(cameraPos, sectorPos);
                         
                         if (distance <= distanceThreshold)
@@ -144,7 +143,8 @@ public class Warp : MonoBehaviour {
                             if (removeSector != null)
                             {
                                 LoadedSectors.Remove(removeSector.Hash);
-                                GalaxySector gSector = GalaxyGenerator.GetSector(new SectorCoord(x, y, z), 1);
+                                GalaxySector gSector = new GalaxySector(new SectorCoord(x, y, z));
+                                gSector.GenerateSystems(1);
                                 if (gSector != null)
                                 {
                                     removeSector.Activate(gSector);
@@ -169,13 +169,13 @@ public class Warp : MonoBehaviour {
     }//updatesectors
 
    
-    public void GenSkybox()
+    public void DropOutOfWarp()
     {
-        ClosestSector.ParticleSystem.Clear();
-        ClientSolarSystem.Cubemap = new Cubemap(2048, TextureFormat.ARGB32, false);
-        ClientSolarSystem.CameraRotation = Camera.main.transform.rotation;
-        bool work = Camera.main.RenderToCubemap(ClientSolarSystem.Cubemap);
         
+        
+        DropOutOfWarpMessage msg = new DropOutOfWarpMessage();        
+        NetworkManager.Send(msg);
+        //tell the server we want to drop out of warp
     }
 
    

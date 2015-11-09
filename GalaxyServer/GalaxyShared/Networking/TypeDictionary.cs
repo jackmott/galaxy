@@ -17,7 +17,9 @@ namespace GalaxyShared
             NewUserResultMessage,
             GalaxyPlayer,
             ListOfInputMessage,
-            PlayerStateMessage
+            PlayerStateMessage,
+            GoToWarpMessage,
+            DropOutOfWarpMessage
         }
 
         public TypeDictionary()
@@ -30,6 +32,8 @@ namespace GalaxyShared
             Dictionary.Add(typeof(GalaxyPlayer), 4);
             Dictionary.Add(typeof(List<InputMessage>), 5);
             Dictionary.Add(typeof(PlayerStateMessage), 6);
+            Dictionary.Add(typeof(GoToWarpMessage), 7);
+            Dictionary.Add(typeof(DropOutOfWarpMessage), 8);
         }
 
         public MsgType GetID(object o)

@@ -31,9 +31,11 @@ namespace GalaxyServer
 
         public static void Main(string[] args)
         {
+       
             
-                
             GalaxyServer server = new GalaxyServer();
+
+            
 
         }
 
@@ -181,12 +183,12 @@ namespace GalaxyServer
                 {
                     binaryFormatter.Serialize(m.c.GalaxyTcpStream, m.o);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     Console.WriteLine("Send Loop Exception");
                     CleanUpClient(m.c);
                 }
-                Console.WriteLine("Still Truckin");
+               
             }
         }
 
@@ -217,6 +219,12 @@ namespace GalaxyServer
                             break;
                         case TypeDictionary.MsgType.ListOfInputMessage:
                             LogicLayer.HandleInputs((List<InputMessage>)result, client);
+                            break;
+                        case TypeDictionary.MsgType.GoToWarpMessage:
+                            LogicLayer.HandleGotoWarpMessage((GoToWarpMessage)result, client);
+                            break;
+                        case TypeDictionary.MsgType.DropOutOfWarpMessage:
+                            LogicLayer.HandleDropOutOfWarpMessage((DropOutOfWarpMessage)result, client);
                             break;
                         default:
                             Console.WriteLine("unknown message");
