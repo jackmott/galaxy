@@ -7,21 +7,21 @@ namespace GalaxyServer
     class MessagePool
     {
 
-        private ConcurrentQueue<GalaxyMessage> messagePool;
+        private ConcurrentQueue<MessageWrapper> messagePool;
 
         public MessagePool()
         {
-            messagePool = new ConcurrentQueue<GalaxyMessage>();
+            messagePool = new ConcurrentQueue<MessageWrapper>();
             AddBuffers();
         }
 
-        public GalaxyMessage GetMessage()
+        public MessageWrapper GetMessage()
         {
             if (messagePool.Count == 0)
             {
                 AddBuffers();
             }
-            GalaxyMessage result;
+            MessageWrapper result;
             while (!messagePool.TryDequeue(out result))
             {
 
@@ -29,7 +29,7 @@ namespace GalaxyServer
             return result;
         }
 
-        public void ReplaceMessage(GalaxyMessage message)
+        public void ReplaceMessage(MessageWrapper message)
         {
             message.Size = 0;                        
             messagePool.Enqueue(message);
@@ -39,7 +39,7 @@ namespace GalaxyServer
         {
             for (int i = 0; i < 10; i++)
             {
-                GalaxyMessage message = new GalaxyMessage();
+                MessageWrapper message = new MessageWrapper();
                 messagePool.Enqueue(message);
             }
         }

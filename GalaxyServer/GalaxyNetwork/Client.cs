@@ -8,7 +8,7 @@ namespace GalaxyShared
     
     
 
-    public class GalaxyClient
+    public class Client
     {
 
         public int ClientSendRate = 50; //ms
@@ -25,7 +25,7 @@ namespace GalaxyShared
         
 
 
-        public GalaxyClient(TcpClient client)
+        public Client(TcpClient client)
         {
            GalaxyTcpClient = client;
            GalaxyTcpStream = client.GetStream();

@@ -15,9 +15,9 @@ namespace GalaxyShared
         public const int CLIENT_BUFFER_TIME = 100; //ms
         
 
-        public static GalaxyMessage PrepareForServerSend(object o)
+        public static MessageWrapper PrepareForServerSend(object o)
         {
-            GalaxyMessage m = new GalaxyMessage(false);
+            MessageWrapper m = new MessageWrapper(false);
             BinaryFormatter binaryFormatter = new BinaryFormatter();
             MemoryStream stream = new MemoryStream();
             binaryFormatter.Serialize(stream, o);

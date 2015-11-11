@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Net.Sockets;
 using System.Collections.Generic;
 using System;
 using GalaxyShared;
@@ -30,7 +29,7 @@ public class Warp : MonoBehaviour {
         GameObject OriginalParticlePrefab = Resources.Load<GameObject>("StarParticles");
 
 
-        Camera.main.farClipPlane = (float)(GalaxySector.SECTOR_SIZE * GalaxySector.EXPAND_FACTOR * (SectorCount / 2f));
+        Camera.main.farClipPlane = (float)(Sector.SECTOR_SIZE * Sector.EXPAND_FACTOR * (SectorCount / 2f));
         Camera.main.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
         Camera.main.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
         Camera.main.transform.Translate(Vector3.forward * .2f);
@@ -46,7 +45,7 @@ public class Warp : MonoBehaviour {
             ParticleSystem p = go.GetComponent<ParticleSystem>();                    
             c.ParticleSystem = p;            
             c.Active = false;
-            c.Hash = i+GalaxySector.GALAXY_SIZE_LIGHTYEARS+10;
+            c.Hash = i+Sector.GALAXY_SIZE_LIGHTYEARS+10;
             LoadedSectors.Add(c.Hash, c);
         }
         
@@ -68,9 +67,9 @@ public class Warp : MonoBehaviour {
         
         Vector3 cameraPos = Camera.main.transform.position;
         
-        int x = Convert.ToInt32(cameraPos.x / GalaxySector.EXPAND_FACTOR / GalaxySector.SECTOR_SIZE);
-        int y = Convert.ToInt32(cameraPos.y / GalaxySector.EXPAND_FACTOR / GalaxySector.SECTOR_SIZE);
-        int z = Convert.ToInt32(cameraPos.z / GalaxySector.EXPAND_FACTOR / GalaxySector.SECTOR_SIZE);
+        int x = Convert.ToInt32(cameraPos.x / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
+        int y = Convert.ToInt32(cameraPos.y / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
+        int z = Convert.ToInt32(cameraPos.z / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
 
 
         
@@ -88,7 +87,7 @@ public class Warp : MonoBehaviour {
             y = cSector.Coord.Y;
             z = cSector.Coord.Z;
 
-            Vector3 sectorPos = new Vector3((float)(x * GalaxySector.EXPAND_FACTOR * GalaxySector.SECTOR_SIZE),(float)( y * GalaxySector.EXPAND_FACTOR * GalaxySector.SECTOR_SIZE),(float)( z * GalaxySector.EXPAND_FACTOR * GalaxySector.SECTOR_SIZE));
+            Vector3 sectorPos = new Vector3((float)(x * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( y * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( z * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE));
 
             float distance = Vector3.Distance(cameraPos, sectorPos);
 
@@ -105,11 +104,11 @@ public class Warp : MonoBehaviour {
         {
             SolarSystem system = Simulator.GetClosestSystem(ClosestSector.Sector, NetworkManager.PlayerState.Location.Pos);
             
-            if (XnaGeometry.Vector3.Distance(system.Pos*GalaxySector.EXPAND_FACTOR,NetworkManager.PlayerState.Location.Pos) < Simulator.WARP_DISTANCE_THRESHOLD)
+            if (XnaGeometry.Vector3.Distance(system.Pos*Sector.EXPAND_FACTOR,NetworkManager.PlayerState.Location.Pos) < Simulator.WARP_DISTANCE_THRESHOLD)
             {
                 DropOutOfWarp();                
             }
-     //       Debug.Log(XnaGeometry.Vector3.Distance(system.Pos * GalaxySector.EXPAND_FACTOR, NetworkManager.PlayerState.Location.Pos));
+     //       Debug.Log(XnaGeometry.Vector3.Distance(system.Pos * Sector.EXPAND_FACTOR, NetworkManager.PlayerState.Location.Pos));
 
         }
 
@@ -121,10 +120,10 @@ public class Warp : MonoBehaviour {
                 {
 
       //              Debug.Log("build new sectors xyz: (" + x + "," + y + "," + z + ")");
-                    int hash = x + y * GalaxySector.SECTOR_SIZE + z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE;
+                    int hash = x + y * Sector.SECTOR_SIZE + z * Sector.SECTOR_SIZE * Sector.SECTOR_SIZE;
                     if (!LoadedSectors.ContainsKey(hash))
                     {
-                        Vector3 sectorPos = new Vector3((float)(x * GalaxySector.EXPAND_FACTOR * GalaxySector.SECTOR_SIZE),(float)( y * GalaxySector.EXPAND_FACTOR * GalaxySector.SECTOR_SIZE),(float)( z * GalaxySector.EXPAND_FACTOR * GalaxySector.SECTOR_SIZE));
+                        Vector3 sectorPos = new Vector3((float)(x * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( y * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( z * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE));
                         float distance = Vector3.Distance(cameraPos, sectorPos);
                         
                         if (distance <= distanceThreshold)
@@ -143,7 +142,7 @@ public class Warp : MonoBehaviour {
                             if (removeSector != null)
                             {
                                 LoadedSectors.Remove(removeSector.Hash);
-                                GalaxySector gSector = new GalaxySector(new SectorCoord(x, y, z));
+                                Sector gSector = new Sector(new SectorCoord(x, y, z));
                                 gSector.GenerateSystems(1);
                                 if (gSector != null)
                                 {
@@ -152,7 +151,7 @@ public class Warp : MonoBehaviour {
                                 {
                                     Debug.Log("no more sectors!");
                                 }
-                                Debug.Log("Sector created at:" + x + "," + y + "," + z);
+                                
                                 LoadedSectors.Add(removeSector.Hash, removeSector);
                             }
                             

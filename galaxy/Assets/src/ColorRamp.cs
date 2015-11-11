@@ -13,7 +13,7 @@ public class ColorRamp
         Colors = colors;
         Ranges = ranges;
         int colorIndex = 0;
-        Gradient[RAMP_SIZE - 1] = Color.red;
+       // Gradient[RAMP_SIZE - 1] = Color.red;
         for (int i = 0; i < colors.Length - 1; i++)
         {
             Color start = colors[i];  //start of gradient
@@ -22,22 +22,22 @@ public class ColorRamp
 
             for (int j = 0; j < indexSpan; j++)
             {
-                if (i == 0)
-                {
-                    float r = start.r;
-                    float g = start.g;
-                    float b = start.b;
-                    float a = start.a;
-                    Gradient[colorIndex] = new Color(r, g, b, a);
-                }
-                else
-                {
+               // if (i == 0)
+           //     {
+              //      float r = start.r;
+               //     float g = start.g;
+              //      float b = start.b;
+               //     float a = start.a;
+               //     Gradient[colorIndex] = new Color(r, g, b, a);
+              //  }
+              //  else
+              //  {
                     float r = Mathf.Lerp(start.r, end.r, (float)j / (float)indexSpan);
                     float g = Mathf.Lerp(start.g, end.g, (float)j / (float)indexSpan);
                     float b = Mathf.Lerp(start.b, end.b, (float)j / (float)indexSpan);
                     float a = Mathf.Lerp(start.a, end.a, (float)j / (float)indexSpan);
                     Gradient[colorIndex] = new Color(r, g, b, a);
-                }
+              //  }
 
                 colorIndex++;
             }

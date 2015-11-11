@@ -6,9 +6,9 @@ using System.Text;
 namespace GalaxyShared
 {
     [Serializable]
-    class BustedHeap : GalaxyShip
+    class BustedHeap : Ship
     {
-        public BustedHeap(GalaxyPlayer player)
+        public BustedHeap(Player player)
         {
             Owner = player;            
             Init();
@@ -26,7 +26,7 @@ namespace GalaxyShared
             TopSpeed = 100;
             CargoVolume = 100;
             Description = "A small, used personal craft that probably once served as a shuttle.";
-            Cargo = new List<GalaxyItem>();
+            Cargo = new List<Item>();
         }
     }
 }

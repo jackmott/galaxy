@@ -6,7 +6,7 @@ using XnaGeometry;
 
 namespace GalaxyShared
 {
-    public class GalaxySector
+    public class Sector
     {
         public static Bitmap Hoag;
 
@@ -26,7 +26,7 @@ namespace GalaxyShared
         FastRandom r;
 
 
-        public GalaxySector(SectorCoord coord)
+        public Sector(SectorCoord coord)
         {
             if (Hoag == null)
             {

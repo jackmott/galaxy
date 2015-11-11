@@ -5,35 +5,37 @@ using System.Collections.Generic;
 namespace GalaxyShared
 {
     [Serializable]
-    public class GalaxyPlayer
+    public class Player
     {
         public string UserName;
-        public GalaxyLocation Location;
+        public Location Location;
         public Quaternion Rotation;        
         public float Throttle;
         public long Seq;
 
         
-        public GalaxyShip Ship;
+        public Ship Ship;
 
+        [NonSerialized]
+        public SolarSystem SolarSystem;
 
 
         //new player
-        public GalaxyPlayer(string userName)
+        public Player(string userName)
         {
             UserName = userName;
             Location.SectorCoord = new SectorCoord(0, 0, 0);
-            GalaxySector s = new GalaxySector(Location.SectorCoord);
+            Sector s = new Sector(Location.SectorCoord);
             Location.SystemPos = s.GenerateSystems(1)[0].Pos;                             
             Rotation = Quaternion.Identity;
-            Location.Pos = (Location.SystemPos * GalaxySector.EXPAND_FACTOR) + Vector3.Transform(Vector3.Forward * .3d, Rotation);
+            Location.Pos = (Location.SystemPos * Sector.EXPAND_FACTOR) + Vector3.Transform(Vector3.Forward * .3d, Rotation);
             Throttle = 0;
             Location.InWarp = true;
             Ship = new BustedHeap(this);
             Ship.Location = Location;
         }
 
-        public GalaxyPlayer()
+        public Player()
         { }
 
     }

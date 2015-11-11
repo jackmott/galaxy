@@ -57,13 +57,13 @@ namespace GalaxyShared
     public struct GoToWarpMessage
     {
         public Quaternion Rotation;
-        public GalaxyLocation Location;
+        public Location Location;
     }
 
     [Serializable]
     public struct DropOutOfWarpMessage
     {
         public Quaternion Rotation;
-        public GalaxyLocation Location;
+        public Location Location;
     }
 }

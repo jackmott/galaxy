@@ -24,7 +24,7 @@ public class NetworkManager : MonoBehaviour
     Stopwatch SendStopwatch = new Stopwatch();
     Stopwatch InputSampleStopwatch = new Stopwatch();
 
-    public static GalaxyPlayer PlayerState = null;
+    public static Player PlayerState = null;
     
 
     public static int Seq = 0;
@@ -136,7 +136,7 @@ public class NetworkManager : MonoBehaviour
                         HandleNewUserResultMessage((NewUserResultMessage)o);
                         break;
                     case TypeDictionary.MsgType.GalaxyPlayer:
-                        HandleGalaxyPlayerMessage((GalaxyPlayer)o);
+                        HandleGalaxyPlayerMessage((Player)o);
                         break;
                     case TypeDictionary.MsgType.PlayerStateMessage:
                         HandlePlayerStateMessage((PlayerStateMessage)o);
@@ -157,7 +157,7 @@ public class NetworkManager : MonoBehaviour
 
     public static void Send(object msg)
     {
-        GalaxyMessage m = NetworkUtils.PrepareForServerSend(msg);
+        MessageWrapper m = NetworkUtils.PrepareForServerSend(msg);
         stream.Write(m.SizeBuffer, 0, m.SizeBuffer.Length);
         stream.Write(m.Buffer, 0, m.Size);
 
@@ -193,7 +193,11 @@ public class NetworkManager : MonoBehaviour
     public void HandleGotoWarpMessage(GoToWarpMessage msg)
     {
         PlayerState.Location = msg.Location;
-        PlayerState.Rotation = msg.Rotation;
+        PlayerState.Rotation = msg.Rotation;        
+        lock (BufferedInputs)
+        {
+            BufferedInputs.Clear();
+        }
         Application.LoadLevel((int)Level.Warp);        
 
     }
@@ -205,10 +209,14 @@ public class NetworkManager : MonoBehaviour
         bool work = Camera.main.RenderToCubemap(ClientSolarSystem.Cubemap);
         PlayerState.Location = msg.Location;
         PlayerState.Rotation = msg.Rotation;
-        Application.LoadLevel(2);
+        lock(BufferedInputs)
+        {
+            BufferedInputs.Clear();
+        }
+        Application.LoadLevel((int)Level.System);
     }
 
-    public void HandleGalaxyPlayerMessage(GalaxyPlayer player)
+    public void HandleGalaxyPlayerMessage(Player player)
     {
         UnityEngine.Debug.Log("handle galaxyplayer message");        
         PlayerState = player;
@@ -303,13 +311,13 @@ public class NetworkManager : MonoBehaviour
         if (Input.GetKey("q"))
         {
             //Camera.main.transforinput.Rotate(new Vector3(0, 0, -50*Time.deltaTime));
-            input.RollTurn = .001f;
+            input.RollTurn = .01f;
             anyInput = true;
         }
         else if (Input.GetKey("e"))
         {
             //Camera.main.transforinput.Rotate(new Vector3(0, 0, 50*Time.deltaTime));
-            input.RollTurn = -.001f;
+            input.RollTurn = -.01f;
             anyInput = true;
         }
 
@@ -401,13 +409,13 @@ public class NetworkManager : MonoBehaviour
         if (Input.GetKey("q"))
         {
             //Camera.main.transforinput.Rotate(new Vector3(0, 0, -50*Time.deltaTime));
-            input.RollTurn = .001f;
+            input.RollTurn = .01f;
             anyInput = true;
         }
         else if (Input.GetKey("e"))
         {
             //Camera.main.transforinput.Rotate(new Vector3(0, 0, 50*Time.deltaTime));
-            input.RollTurn = -.001f;
+            input.RollTurn = -.01f;
             anyInput = true;
         }
 

@@ -11,17 +11,17 @@ namespace GalaxyServer
     class LogicLayer
     {
 
-        public static ConcurrentDictionary<GalaxyClient, GalaxyPlayer> PlayerTable = new ConcurrentDictionary<GalaxyClient, GalaxyPlayer>();
+        public static ConcurrentDictionary<Client, Player> PlayerTable = new ConcurrentDictionary<Client, Player>();
         
         
         public static readonly Vector3 SYSTEM_START_POS = new Vector3(0, 0, -5000);
 
 
-        public static void HandleLoginMessage(LoginMessage msg, GalaxyClient client)
+        public static void HandleLoginMessage(LoginMessage msg, Client client)
         {
             Console.WriteLine("HandleLoginMessage");
 
-            GalaxyPlayerLogin login = DataLayer.GetLogin(msg.UserName);
+            PlayerLoginMessage login = DataLayer.GetLogin(msg.UserName);
             if (login != null && login.Password == msg.Password)
             {
                 Console.WriteLine("User " + login.UserName + " logged in");
@@ -36,15 +36,15 @@ namespace GalaxyServer
 
         }
 
-        public static void InitiateLogin(string username, GalaxyClient client)
+        public static void InitiateLogin(string username, Client client)
         {
             Console.WriteLine("InitiateLogin");
-            GalaxyPlayer player = DataLayer.GetGalaxyPlayer(username);
+            Player player = DataLayer.GetGalaxyPlayer(username);
             Console.WriteLine("Attempted to get GalaxyPlayer");
             //new player case
             if (player == null)
             {
-                player = new GalaxyPlayer(username);
+                player = new Player(username);
                 DataLayer.UpdateGalaxyPlayer(player);
                 Console.WriteLine("New player created and saved to db");
             }
@@ -57,11 +57,11 @@ namespace GalaxyServer
         }
 
 
-        public static void HandleNewUserMessage(NewUserMessage msg, GalaxyClient client)
+        public static void HandleNewUserMessage(NewUserMessage msg, Client client)
         {
             Console.WriteLine("HandleNewUserMessage");
             NewUserResultMessage m;
-            GalaxyPlayerLogin login = new GalaxyPlayerLogin(msg.UserName, msg.Password);
+            PlayerLoginMessage login = new PlayerLoginMessage(msg.UserName, msg.Password);
             if (DataLayer.CreateNewLogin(msg.UserName, msg.Password))
             {
                 InitiateLogin(msg.UserName, client);
@@ -74,16 +74,16 @@ namespace GalaxyServer
 
         }
 
-        public static void HandleGotoWarpMessage(GoToWarpMessage msg, GalaxyClient client)
+        public static void HandleGotoWarpMessage(GoToWarpMessage msg, Client client)
         {
 
-            GalaxyPlayer player;
+            Player player;
             while (!PlayerTable.TryGetValue(client, out player)) { }
 
             msg.Rotation = player.Rotation;
 
             SolarSystem system = new SolarSystem(player.Location.SystemPos);
-            Vector3 startPos = new Vector3(system.Pos.X * GalaxySector.EXPAND_FACTOR, system.Pos.Y * GalaxySector.EXPAND_FACTOR, system.Pos.Z * GalaxySector.EXPAND_FACTOR);
+            Vector3 startPos = new Vector3(system.Pos.X * Sector.EXPAND_FACTOR, system.Pos.Y * Sector.EXPAND_FACTOR, system.Pos.Z * Sector.EXPAND_FACTOR);
             startPos += Vector3.Transform(Vector3.Forward * .3d, player.Rotation);
             player.Location.Pos = startPos;
 
@@ -94,25 +94,26 @@ namespace GalaxyServer
 
         }
 
-        public static void HandleDropOutOfWarpMessage(DropOutOfWarpMessage msg, GalaxyClient client)
+        public static void HandleDropOutOfWarpMessage(DropOutOfWarpMessage msg, Client client)
         {
-            GalaxyPlayer player = GetPlayer(client);
-            int x = Convert.ToInt32(player.Location.Pos.X / GalaxySector.EXPAND_FACTOR / GalaxySector.SECTOR_SIZE);
-            int y = Convert.ToInt32(player.Location.Pos.Y / GalaxySector.EXPAND_FACTOR / GalaxySector.SECTOR_SIZE);
-            int z = Convert.ToInt32(player.Location.Pos.Z / GalaxySector.EXPAND_FACTOR / GalaxySector.SECTOR_SIZE);
+            Player player = GetPlayer(client);
+            int x = Convert.ToInt32(player.Location.Pos.X / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
+            int y = Convert.ToInt32(player.Location.Pos.Y / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
+            int z = Convert.ToInt32(player.Location.Pos.Z / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
 
             
-            GalaxySector sector = new GalaxySector(new SectorCoord(x,y, z));
+            Sector sector = new Sector(new SectorCoord(x,y, z));
             sector.GenerateSystems(1);
             SolarSystem closeSystem = Simulator.GetClosestSystem(sector, player.Location.Pos);
-           
+            closeSystem.Generate();
 
-            if (closeSystem != null && Vector3.Distance(player.Location.Pos,closeSystem.Pos* GalaxySector.EXPAND_FACTOR) <= Simulator.WARP_DISTANCE_THRESHOLD)
+            if (closeSystem != null && Vector3.Distance(player.Location.Pos,closeSystem.Pos* Sector.EXPAND_FACTOR) <= Simulator.WARP_DISTANCE_THRESHOLD)
             {
                 player.Location.InWarp = false;
                 player.Location.Pos = SYSTEM_START_POS;
                 player.Location.SystemPos = closeSystem.Pos;
-                player.Location.SectorCoord = sector.Coord;                
+                player.Location.SectorCoord = sector.Coord;
+                player.SolarSystem = closeSystem;
                 msg.Location = player.Location;
                 msg.Rotation = player.Rotation;
                 GalaxyServer.AddToSendQueue(client,msg);
@@ -123,14 +124,14 @@ namespace GalaxyServer
 
         }
 
-        public static GalaxyPlayer GetPlayer(GalaxyClient client)
+        public static Player GetPlayer(Client client)
         {
-            GalaxyPlayer player;
+            Player player;
             while (!PlayerTable.TryGetValue(client, out player)) { }
             return player;
         }
 
-        public static void HandleInputs(List<InputMessage> inputs, GalaxyClient client)
+        public static void HandleInputs(List<InputMessage> inputs, Client client)
         {
             lock (inputs)
             {
@@ -152,9 +153,9 @@ namespace GalaxyServer
             while (true)
             {
                 sw.Restart();
-                foreach (GalaxyClient client in LogicLayer.PlayerTable.Keys)
+                foreach (Client client in LogicLayer.PlayerTable.Keys)
                 {
-                    GalaxyPlayer player;
+                    Player player;
                     while (!PlayerTable.TryGetValue(client, out player)) { }
                     if (player.Location.InWarp)
                     {

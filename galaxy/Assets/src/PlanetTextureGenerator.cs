@@ -103,7 +103,7 @@ public class PlanetTextureGenerator
         Color[] colors = new Color[numColors];
         float[] ranges = new float[numColors - 1];
         float percentRemaining = 1f;
-        float minPercent = .01f;
+        float minPercent = 0f;
         float alpha = 0;
 
         for (int i = 0; i < colors.Length; i++)
@@ -115,21 +115,21 @@ public class PlanetTextureGenerator
         for (int i = 0; i < ranges.Length - 1; i++)
         {
 
-            if (i == 0) // water
-            {
-                float percent =rand.Next(minPercent, .7f);
-                ranges[i] = percent;
-                percentRemaining -= percent;
-            }
-            else // else
-            {
+           // if (i == 0) // water
+           // {
+            //    float percent =rand.Next(minPercent, .7f);
+            //    ranges[i] = percent;
+            //    percentRemaining -= percent;
+          //  }
+           // else // else
+           // {
 
                 int remainingColorsCount = ranges.Length - i - 1;
                 float maxPercent = percentRemaining - (minPercent * remainingColorsCount);
                 float percent =rand.Next(minPercent, maxPercent);
                 ranges[i] = percent;
                 percentRemaining -= percent;
-            }
+           // }
 
         }
         ranges[ranges.Length - 1] = percentRemaining;

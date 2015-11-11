@@ -2,9 +2,9 @@
 
 namespace GalaxyServer
 {
-    public struct GalaxyOutgoingMessage
+    public struct OutgoingMessage
     {
-        public GalaxyClient c;
+        public Client c;
         public object o;
     }
 }

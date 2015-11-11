@@ -3,7 +3,8 @@ using System;
 
 namespace GalaxyShared
 {
-    public class GalaxyMessage
+    //Used to wrap all messages going to the server as asynch networking can't directly deserialize objects
+    public class MessageWrapper
     {
         public object Client = null;
         public const int BUFFER_SIZE = 1024*8;
@@ -23,7 +24,7 @@ namespace GalaxyShared
             }
         }
 
-        public GalaxyMessage(bool initBuffer = true)
+        public MessageWrapper(bool initBuffer = true)
         {
             if (initBuffer) {
                 Buffer = new byte[BUFFER_SIZE];

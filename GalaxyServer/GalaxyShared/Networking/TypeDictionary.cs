@@ -29,7 +29,7 @@ namespace GalaxyShared
             Dictionary.Add(typeof(NewUserMessage), 1);
             Dictionary.Add(typeof(LoginResultMessage), 2);
             Dictionary.Add(typeof(NewUserResultMessage), 3);
-            Dictionary.Add(typeof(GalaxyPlayer), 4);
+            Dictionary.Add(typeof(Player), 4);
             Dictionary.Add(typeof(List<InputMessage>), 5);
             Dictionary.Add(typeof(PlayerStateMessage), 6);
             Dictionary.Add(typeof(GoToWarpMessage), 7);

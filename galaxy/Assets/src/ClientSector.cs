@@ -8,26 +8,26 @@ public class ClientSector  {
     public SectorCoord Coord = new SectorCoord();
     public bool Active = false;
     public int Hash;
-    public GalaxySector Sector;
+    public Sector Sector;
 
     public double UnityX, UnityY, UnityZ;
 
-    public void Activate(GalaxySector galaxySector)
+    public void Activate(Sector sector)
     {
         
-        Sector = galaxySector;
-        int x = galaxySector.Coord.X;
-        int y = galaxySector.Coord.Y;
-        int z = galaxySector.Coord.Z;
+        Sector = sector;
+        int x = Sector.Coord.X;
+        int y = Sector.Coord.Y;
+        int z = Sector.Coord.Z;
 
-        Hash = x + y * GalaxySector.SECTOR_SIZE + z * GalaxySector.SECTOR_SIZE * GalaxySector.SECTOR_SIZE;
+        Hash = x + y * Sector.SECTOR_SIZE + z * Sector.SECTOR_SIZE * Sector.SECTOR_SIZE;
         Coord = new SectorCoord(x, y, z);
         
         Active = true;
 
-        UnityX = x * GalaxySector.SECTOR_SIZE * GalaxySector.EXPAND_FACTOR;
-        UnityY = y * GalaxySector.SECTOR_SIZE * GalaxySector.EXPAND_FACTOR;
-        UnityZ = z * GalaxySector.SECTOR_SIZE * GalaxySector.EXPAND_FACTOR;
+        UnityX = x * Sector.SECTOR_SIZE * Sector.EXPAND_FACTOR;
+        UnityY = y * Sector.SECTOR_SIZE * Sector.EXPAND_FACTOR;
+        UnityZ = z * Sector.SECTOR_SIZE * Sector.EXPAND_FACTOR;
 
 
         ParticleSystem.Particle[] particles = GenStars();
@@ -45,7 +45,7 @@ public class ClientSector  {
         
         foreach (SolarSystem system in Sector.Systems)
         {
-            particles[i].position = Utility.UVector(system.Pos*GalaxySector.EXPAND_FACTOR);
+            particles[i].position = Utility.UVector(system.Pos*Sector.EXPAND_FACTOR);
             particles[i].size = system.Star.Size / 37.5f;
             particles[i].color = new Color(system.Star.Color.R / 255f, system.Star.Color.G / 255f, system.Star.Color.B / 255f);                  
             i++;

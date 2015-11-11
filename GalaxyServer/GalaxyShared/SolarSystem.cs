@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using XnaGeometry;
 
@@ -64,7 +63,9 @@ namespace GalaxyShared
                     int numAsteroids = rand.Next(20 * orbit, 100 * orbit);
                     for (int i = 0; i < numAsteroids;i++)
                     {
-                        Asteroids.Add(new Asteroid(this, orbit));
+                        double magnitude = rand.Next(5000d, 25000d);
+                        Vector3 posAdjust = new Vector3(rand.Next(-magnitude, magnitude), rand.Next(-magnitude, magnitude), rand.Next(-magnitude, magnitude));                        
+                        Asteroids.Add(new Asteroid(this, orbit,rand.Next(0.0d,MathHelper.TwoPi),rand.Next(1d,3.5d),posAdjust));
                     }
 
                 }

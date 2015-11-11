@@ -2,18 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using XnaGeometry;
 
 namespace GalaxyShared
 {
     [Serializable]
-    public class GalaxyEntity
+    public abstract class Item
     {
-        public GalaxyLocation Location;
-
-        public GalaxyEntity()
-        {
-
-        }
+        public string Name;
+        public int Count;       
     }
 }

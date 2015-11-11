@@ -6,9 +6,7 @@ using System.Text;
 namespace GalaxyShared
 {
     [Serializable]
-    public abstract class GalaxyItem
+    class Station : Entity
     {
-        public string Name;
-        public int Count;       
     }
 }

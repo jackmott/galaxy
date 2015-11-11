@@ -71,8 +71,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataLayer.cs" />
-    <Compile Include="GalaxyClient.cs" />
-    <Compile Include="GalaxyOutgoingMessage.cs" />
+    <Compile Include="Client.cs" />
+    <Compile Include="OutgoingMessage.cs" />
     <Compile Include="GalaxyServer.cs" />
     <Compile Include="LogicLayer.cs" />
     <Compile Include="MessagePool.cs" />

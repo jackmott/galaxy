@@ -6,12 +6,12 @@ using System.Text;
 namespace GalaxyShared
 {
     [Serializable]
-    public class GalaxyPlayerLogin
+    public class PlayerLoginMessage
     {
         public string UserName;
         public string Password;
 
-        public GalaxyPlayerLogin(string userName, string password)
+        public PlayerLoginMessage(string userName, string password)
         {
             UserName = userName;
             Password = password;

@@ -55,23 +55,23 @@ namespace GalaxyServer
             return DB.StringSet(key, bytes);
         }
 
-        public static GalaxyPlayerLogin GetLogin(string username)
+        public static PlayerLoginMessage GetLogin(string username)
         {
-            return Get<GalaxyPlayerLogin>(LOGIN+username);
+            return Get<PlayerLoginMessage>(LOGIN+username);
         }
 
         public static bool CreateNewLogin(string username,string password)
         {
-            GalaxyPlayerLogin login = new GalaxyPlayerLogin(username, password);
+            PlayerLoginMessage login = new PlayerLoginMessage(username, password);
             return Add(LOGIN+username,login);
         }
 
-        public static GalaxyPlayer GetGalaxyPlayer(string username)
+        public static Player GetGalaxyPlayer(string username)
         {
-            return Get<GalaxyPlayer>(GALAXY_PLAYER + username);
+            return Get<Player>(GALAXY_PLAYER + username);
         }
 
-        public static bool UpdateGalaxyPlayer(GalaxyPlayer player)
+        public static bool UpdateGalaxyPlayer(Player player)
         {            
             return Add(GALAXY_PLAYER + player.UserName, player);
         }

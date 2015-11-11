@@ -71,7 +71,7 @@ namespace GalaxyShared
         {
             rand = new FastRandom(Convert.ToInt32(parentSystem.Pos.X), Convert.ToInt32(parentSystem.Pos.Y), Convert.ToInt32(parentSystem.Pos.Z));
             ParentSystem = parentSystem;
-            GalaxySector s = new GalaxySector(parentSystem.ParentSectorCoord);
+            Sector s = new Sector(parentSystem.ParentSectorCoord);
             Type = typeToTypeDistribution[s.DominantStarType][rand.Next(0, 10)];
             Size = typeToSizeDistribution[Type][rand.Next(0, 10)];
 

@@ -14,11 +14,11 @@ namespace GalaxyServer
 {
     class GalaxyServer
     {
-        static ConcurrentQueue<GalaxyMessage> MessageQueue;
-        static BlockingCollection<GalaxyMessage> Messages;
+        static ConcurrentQueue<MessageWrapper> MessageQueue;
+        static BlockingCollection<MessageWrapper> Messages;
 
-        static ConcurrentQueue<GalaxyOutgoingMessage> OutgoingMessageQueue;
-        static BlockingCollection<GalaxyOutgoingMessage> OutgoingMessages;
+        static ConcurrentQueue<OutgoingMessage> OutgoingMessageQueue;
+        static BlockingCollection<OutgoingMessage> OutgoingMessages;
 
 
         static MessagePool MessagePool;
@@ -42,11 +42,11 @@ namespace GalaxyServer
         public GalaxyServer()
         {
 
-            MessageQueue = new ConcurrentQueue<GalaxyMessage>();
-            Messages = new BlockingCollection<GalaxyMessage>(MessageQueue);
+            MessageQueue = new ConcurrentQueue<MessageWrapper>();
+            Messages = new BlockingCollection<MessageWrapper>(MessageQueue);
 
-            OutgoingMessageQueue = new ConcurrentQueue<GalaxyOutgoingMessage>();
-            OutgoingMessages = new BlockingCollection<GalaxyOutgoingMessage>(OutgoingMessageQueue);
+            OutgoingMessageQueue = new ConcurrentQueue<OutgoingMessage>();
+            OutgoingMessages = new BlockingCollection<OutgoingMessage>(OutgoingMessageQueue);
 
 
             MessagePool = new MessagePool();
@@ -90,7 +90,7 @@ namespace GalaxyServer
                     TcpClient client = await listener.AcceptTcpClientAsync();
                     client.NoDelay = true;
                     Console.WriteLine("Client Connected");
-                    GalaxyClient gClient = new GalaxyClient(client);
+                    Client gClient = new Client(client);
                     Task.Factory.StartNew(() => HandleClientRead(gClient));
                 }
                 catch (Exception)
@@ -101,7 +101,7 @@ namespace GalaxyServer
         }
 
 
-        private async Task HandleClientRead(GalaxyClient client)
+        private async Task HandleClientRead(Client client)
         {
 
             Console.WriteLine("Being Read Loop On Client");
@@ -112,12 +112,12 @@ namespace GalaxyServer
                 {
 
 
-                    GalaxyMessage message = MessagePool.GetMessage();
+                    MessageWrapper message = MessagePool.GetMessage();
 
                     int pos = 0;
-                    while (pos < GalaxyMessage.SIZE_BUFFER_SIZE)
+                    while (pos < MessageWrapper.SIZE_BUFFER_SIZE)
                     {
-                        int bytesRead = await client.GalaxyTcpStream.ReadAsync(message.SizeBuffer, pos, GalaxyMessage.SIZE_BUFFER_SIZE);
+                        int bytesRead = await client.GalaxyTcpStream.ReadAsync(message.SizeBuffer, pos, MessageWrapper.SIZE_BUFFER_SIZE);
                         if (bytesRead == 0) { client.Cleanup(); return; }
                         pos += bytesRead;
                     }
@@ -149,10 +149,10 @@ namespace GalaxyServer
 
         }
 
-        public static void CleanUpClient(GalaxyClient client)
+        public static void CleanUpClient(Client client)
         {
             client.Cleanup();
-            GalaxyPlayer p;            
+            Player p;            
             while (!LogicLayer.PlayerTable.TryRemove(client, out p)){
                 if (!LogicLayer.PlayerTable.ContainsKey(client))
                 {
@@ -163,10 +163,10 @@ namespace GalaxyServer
 
 
 
-        public static void AddToSendQueue(GalaxyClient c, object o)
+        public static void AddToSendQueue(Client c, object o)
         {
 
-            GalaxyOutgoingMessage m;
+            OutgoingMessage m;
             m.c = c;
             m.o = o;
             OutgoingMessages.Add(m);
@@ -177,7 +177,7 @@ namespace GalaxyServer
             IFormatter binaryFormatter = new BinaryFormatter();
             while (true)
             {
-                GalaxyOutgoingMessage m = OutgoingMessages.Take();
+                OutgoingMessage m = OutgoingMessages.Take();
 
                 try
                 {
@@ -200,11 +200,11 @@ namespace GalaxyServer
 
             while (true)
             {
-                GalaxyMessage message = Messages.Take();
-                GalaxyClient client = null;
+                MessageWrapper message = Messages.Take();
+                Client client = null;
                 try
                 {
-                    client = (GalaxyClient)message.Client;
+                    client = (Client)message.Client;
                     MemoryStream m = new MemoryStream(message.Buffer, 0, message.Size);
                     object result = binaryFormatter.Deserialize(m);
                     TypeDictionary.MsgType type = TypeDictionary.GetID(result);

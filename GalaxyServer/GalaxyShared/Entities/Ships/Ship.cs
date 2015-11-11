@@ -6,7 +6,7 @@ using System.Text;
 namespace GalaxyShared
 {
     [Serializable]
-    public abstract class GalaxyShip : GalaxyEntity
+    public abstract class Ship : Entity
     {
         public int TopSpeed;
         public string Name;
@@ -15,9 +15,9 @@ namespace GalaxyShared
         public int CargoVolume;
 
         
-        public GalaxyPlayer Owner;
+        public Player Owner;
 
-        public List<GalaxyItem> Cargo;
+        public List<Item> Cargo;
 
     }
 }

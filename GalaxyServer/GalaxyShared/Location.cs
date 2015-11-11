@@ -3,7 +3,7 @@ using System;
 namespace GalaxyShared
 {
     [Serializable]
-    public struct GalaxyLocation
+    public struct Location
     {
         public SectorCoord SectorCoord;
         public bool InWarp;
