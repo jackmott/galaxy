@@ -1,7 +1,7 @@
 ﻿using System;
 namespace GalaxyShared
 {
-
+    [Serializable]
     public class Star
     {
         SolarSystem ParentSystem;
@@ -19,13 +19,14 @@ namespace GalaxyShared
 
         public GalaxyColor Color;
 
+        [NonSerialized]
         public FastRandom rand;
         
 
 
         //360/30 = 12 buckets
         //saturation value will map to StarTypeF
-        public static int[] hueToType =
+        public readonly static int[] hueToType =
         {
             M,  // red   0
             K,  // orange  30
@@ -42,7 +43,7 @@ namespace GalaxyShared
         };
 
 
-        public static int[][] typeToTypeDistribution =
+        public readonly static int[][] typeToTypeDistribution =
         {
             new int[] {O,B,B,A,A,F,F,F,F,G},   //O
             new int[] {B,B,B,A,A,F,F,F,G,K},   //B
@@ -53,7 +54,7 @@ namespace GalaxyShared
             new int[] {G,G,K,K,K,M,M,M,M,M}   //M            
         };
 
-        public static int[][] typeToSizeDistribution =
+        public readonly static int[][] typeToSizeDistribution =
         {
             new int[] {8,8,8,8,8,8,9,9,9,10}, //O
             new int[] {6,6,6,6,6,6,7,7,7,8 }, //B

@@ -82,8 +82,8 @@ namespace GalaxyServer
 
             msg.Rotation = player.Rotation;
 
-            SolarSystem system = new SolarSystem(player.Location.SystemPos);
-            Vector3 startPos = new Vector3(system.Pos.X * Sector.EXPAND_FACTOR, system.Pos.Y * Sector.EXPAND_FACTOR, system.Pos.Z * Sector.EXPAND_FACTOR);
+            Vector3 systemPos = player.Location.SystemPos;
+            Vector3 startPos = new Vector3(systemPos.X * Sector.EXPAND_FACTOR, systemPos.Y * Sector.EXPAND_FACTOR, systemPos.Z * Sector.EXPAND_FACTOR);
             startPos += Vector3.Transform(Vector3.Forward * .3d, player.Rotation);
             player.Location.Pos = startPos;
 
@@ -105,10 +105,22 @@ namespace GalaxyServer
             Sector sector = new Sector(new SectorCoord(x,y, z));
             sector.GenerateSystems(1);
             SolarSystem closeSystem = Simulator.GetClosestSystem(sector, player.Location.Pos);
-            closeSystem.Generate();
+
+           
 
             if (closeSystem != null && Vector3.Distance(player.Location.Pos,closeSystem.Pos* Sector.EXPAND_FACTOR) <= Simulator.WARP_DISTANCE_THRESHOLD)
             {
+                SolarSystem system = DataLayer.GetSystem(closeSystem.Pos);
+                if (system != null)
+                {
+                    closeSystem = system;
+                }
+                else
+                {
+                    closeSystem.Generate();
+                    DataLayer.AddSystem(closeSystem);
+                }
+
                 player.Location.InWarp = false;
                 player.Location.Pos = SYSTEM_START_POS;
                 player.Location.SystemPos = closeSystem.Pos;
@@ -116,6 +128,7 @@ namespace GalaxyServer
                 player.SolarSystem = closeSystem;
                 msg.Location = player.Location;
                 msg.Rotation = player.Rotation;
+                msg.System = closeSystem;
                 GalaxyServer.AddToSendQueue(client,msg);
                 return;
             }

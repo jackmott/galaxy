@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using GalaxyShared;
-
+using XnaGeometry;
 
 namespace GalaxyServer
 {
@@ -16,6 +16,7 @@ namespace GalaxyServer
 
         private const string LOGIN = "login:";
         private const string GALAXY_PLAYER = "galaxyplayer:";
+        private const string SYSTEM = "system:";
 
         public const long PLAYER_STATE_PERSIST_RATE = 10000;//ms
 
@@ -58,6 +59,18 @@ namespace GalaxyServer
         public static PlayerLoginMessage GetLogin(string username)
         {
             return Get<PlayerLoginMessage>(LOGIN+username);
+        }
+
+
+
+        public static SolarSystem GetSystem(Vector3 pos)
+        {
+             return Get<SolarSystem>(SYSTEM+pos.ToString());
+        }
+
+        public static void AddSystem(SolarSystem system)
+        {
+            Add(SYSTEM + system.key(), system);
         }
 
         public static bool CreateNewLogin(string username,string password)

@@ -1,32 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using XnaGeometry;
 
 namespace GalaxyShared
 {
-    
+    [Serializable]
     public class SolarSystem
     {
         
-        public SectorCoord ParentSectorCoord;
-
+        public SectorCoord ParentSectorCoord;        
+        public int Index;
         public Vector3 Pos;                
+
+
         public Star Star;
         
         public List<Planet> Planets;
         public List<Asteroid> Asteroids;
 
+        [NonSerialized]
         FastRandom rand;
                 
-        int[] PlanetCountDistribution = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+        static readonly int[] PlanetCountDistribution = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
         
 
 
-        public SolarSystem(Vector3 pos)
+        public SolarSystem(int index, SectorCoord parentSectorCoord, Vector3 pos)
         {
             rand = new FastRandom(Convert.ToInt32(pos.X), Convert.ToInt32(pos.Y), Convert.ToInt32(pos.Z));
+            ParentSectorCoord = parentSectorCoord;
+            Index = index;
             Pos = pos;                    
             Star = new Star(this);
+        }
+
+        public string key()
+        {
+            StringBuilder sb = new StringBuilder(32);
+            sb.Append("S");
+            sb.Append(ParentSectorCoord.X);
+            sb.Append(",");
+            sb.Append(ParentSectorCoord.Y);
+            sb.Append(",");
+            sb.Append(ParentSectorCoord.Z);
+            sb.Append("I");
+            sb.Append(Index);
+            return sb.ToString();
         }
 
         public void Generate()

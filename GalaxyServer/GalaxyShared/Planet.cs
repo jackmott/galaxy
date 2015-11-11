@@ -3,6 +3,7 @@ using XnaGeometry;
 
 namespace GalaxyShared
 {
+    [Serializable]
     public class Planet
     {
         public const float EARTH_CONSTANT = 50;
@@ -14,6 +15,8 @@ namespace GalaxyShared
         public double RotationRate;        
         public double Size;
         public Vector3 Pos;
+
+        [NonSerialized]
         FastRandom rand;
 
         public string DiscoveredBy = "Undisocvered";

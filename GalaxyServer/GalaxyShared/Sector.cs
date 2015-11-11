@@ -105,7 +105,7 @@ namespace GalaxyShared
                 z += index - HALF_SECTOR_SIZE;
 
 
-                SolarSystem system = new SolarSystem(new Vector3(x + Coord.X * SECTOR_SIZE, y + Coord.Y * SECTOR_SIZE, z + Coord.Z * SECTOR_SIZE));
+                SolarSystem system = new SolarSystem(index,Coord,new Vector3(x + Coord.X * SECTOR_SIZE, y + Coord.Y * SECTOR_SIZE, z + Coord.Z * SECTOR_SIZE));
                 Systems.Add(system);
               
             }

@@ -3,8 +3,10 @@ using XnaGeometry;
 
 namespace GalaxyShared
 {
+    [Serializable]
     public class Asteroid
     {
+
         public SolarSystem ParentSystem;
         public int Orbit;
         public double OrbitAngle;

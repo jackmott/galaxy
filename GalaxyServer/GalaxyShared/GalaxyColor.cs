@@ -1,7 +1,8 @@
-﻿
+﻿using System;
 
 namespace GalaxyShared
 {
+    [Serializable]
     public struct GalaxyColor
     {
         public int R;

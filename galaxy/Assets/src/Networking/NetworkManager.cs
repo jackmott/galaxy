@@ -205,10 +205,11 @@ public class NetworkManager : MonoBehaviour
     public void HandleDropOutOfWarpMessage(DropOutOfWarpMessage msg)
     {
         Warp.ClosestSector.ParticleSystem.Clear();
-        ClientSolarSystem.Cubemap = new Cubemap(2048, TextureFormat.ARGB32, false);
+        ClientSolarSystem.Cubemap = new Cubemap(2048, TextureFormat.ARGB32, false);        
         bool work = Camera.main.RenderToCubemap(ClientSolarSystem.Cubemap);
         PlayerState.Location = msg.Location;
         PlayerState.Rotation = msg.Rotation;
+        PlayerState.SolarSystem = msg.System;
         lock(BufferedInputs)
         {
             BufferedInputs.Clear();

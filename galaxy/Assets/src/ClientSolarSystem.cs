@@ -5,7 +5,7 @@ using System;
 public class ClientSolarSystem : MonoBehaviour
 {
 
-    public static SolarSystem SolarSystem;
+    public static SolarSystem SolarSystem;  
     public static Cubemap Cubemap;
     public static GameObject Recticle;
     
@@ -18,8 +18,8 @@ public class ClientSolarSystem : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        SolarSystem = new SolarSystem(NetworkManager.PlayerState.Location.SystemPos);
-        
+        //SolarSystem = new SolarSystem(NetworkManager.PlayerState.Location.SystemPos);
+        SolarSystem = NetworkManager.PlayerState.SolarSystem;
         GameObject star = (GameObject)Instantiate(Resources.Load<GameObject>("Star"), Vector3.zero, Quaternion.identity);
         star.transform.position = Vector3.zero;
         star.transform.localScale *= SolarSystem.Star.Size * Planet.EARTH_CONSTANT * 30;
@@ -32,8 +32,8 @@ public class ClientSolarSystem : MonoBehaviour
         
         l.color = c;
         star.GetComponent<Renderer>().material.SetColor("_EmissionColor",c);
-        SolarSystem.Generate();
-        NetworkManager.PlayerState.SolarSystem = SolarSystem;
+        
+        
         GeneratePlanets();
         GenerateAsteroids();
 

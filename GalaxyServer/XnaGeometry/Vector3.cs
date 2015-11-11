@@ -512,14 +512,29 @@ namespace XnaGeometry
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder(32);
-            sb.Append("{X:");
+            StringBuilder sb = new StringBuilder(24);
+            sb.Append("(");
             sb.Append(this.X);
-            sb.Append(" Y:");
+            sb.Append(",");
             sb.Append(this.Y);
-            sb.Append(" Z:");
+            sb.Append(",");
             sb.Append(this.Z);
-            sb.Append("}");
+            sb.Append(")");
+            return sb.ToString();
+        }
+
+        public string ToTruncatedString()
+        {
+            int x = Convert.ToInt32(Math.Floor(X));
+            int y = Convert.ToInt32(Math.Floor(Y));
+            int z = Convert.ToInt32(Math.Floor(Z));
+            StringBuilder sb = new StringBuilder(24);            
+            sb.Append(x);
+            sb.Append(",");
+            sb.Append(y);
+            sb.Append(",");
+            sb.Append(z);
+            
             return sb.ToString();
         }
 

@@ -65,5 +65,6 @@ namespace GalaxyShared
     {
         public Quaternion Rotation;
         public Location Location;
+        public SolarSystem System;
     }
 }
