@@ -6,10 +6,12 @@ namespace GalaxyShared
     [Serializable]
     public class Planet
     {
-        public const float EARTH_CONSTANT = 50;
-        public const float ORBIT_MULTIPLIER = 40;
+        public const float EARTH_CONSTANT = 25;
+        public const float ORBIT_MULTIPLIER = 20;
 
+        [NonSerialized]
         public SolarSystem ParentSystem;
+
         public int Orbit;
         public double OrbitAngle;
         public double RotationRate;        

@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using GalaxyShared;
 using System;
+using Vectrosity;
+using System.Collections.Generic;
 
 public class ClientSolarSystem : MonoBehaviour
 {
@@ -8,7 +10,9 @@ public class ClientSolarSystem : MonoBehaviour
     public static SolarSystem SolarSystem;  
     public static Cubemap Cubemap;
     public static GameObject Recticle;
-    
+
+    public Material LineMaterial;
+    public Material MiningLaserMaterial;
 
 
     //private GameObject[] Planets;
@@ -81,20 +85,19 @@ public class ClientSolarSystem : MonoBehaviour
             cp.Planet = p;
            
 
+            /*
+
             LineRenderer lr = planetGO.GetComponent<LineRenderer>();
             Color c = new Color(1, 1, 1);
             lr.material = new Material(Shader.Find("Unlit/Color"));
             lr.SetColors(c, c);
-            lr.SetWidth(20f, 20f);
-            int vertexCount = Convert.ToInt32(100f * (p.Orbit/5f));
-            lr.SetVertexCount(vertexCount + 1);
+            lr.SetWidth(20f, 20f);*/
 
-            for (int i = 0; i < vertexCount + 1; i++)
-            {
-                float angle = ((float)i / (float)vertexCount) * Mathf.PI * 2f;
-                Vector3 pos = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * (p.Orbit + 1) * Planet.EARTH_CONSTANT * Planet.ORBIT_MULTIPLIER;                
-                lr.SetPosition(i, pos);
-            }            
+            int vertexCount = Convert.ToInt32(100f * (p.Orbit/5f));
+            VectorLine orbitLine = new VectorLine("OrbitLine", new List<Vector3>(vertexCount), 1.0f, LineType.Continuous);
+            orbitLine.material = LineMaterial;
+            orbitLine.MakeCircle(Vector3.zero, Vector3.up, Vector3.Distance(Vector3.zero, Utility.UVector(p.Pos)));
+            orbitLine.Draw3DAuto();
 
         }
         
@@ -116,6 +119,26 @@ public class ClientSolarSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            List<Vector3> laserLine = new List<Vector3>();
+
+            
+            Player p = NetworkManager.PlayerState;
+            XnaGeometry.Vector3 pos = p.Location.Pos;
+            XnaGeometry.Quaternion q = p.Rotation;
+            XnaGeometry.Vector3 endPoint = pos + XnaGeometry.Vector3.Transform(XnaGeometry.Vector3.Forward * p.Ship.MiningLaserRange*100, q);
+
+
+            laserLine.Add(Utility.UVector(pos));
+            laserLine.Add(Utility.UVector(endPoint));
+
+            VectorLine laser = new VectorLine("Mining Laser", laserLine, 5.0f, LineType.Continuous);
+            laser.material = this.MiningLaserMaterial;
+            laser.Draw3D();
+
+        }
+
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
         RaycastHit hit;
         Recticle.SetActive(false);

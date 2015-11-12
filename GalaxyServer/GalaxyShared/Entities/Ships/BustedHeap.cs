@@ -26,6 +26,7 @@ namespace GalaxyShared
             TopSpeed = 100;
             CargoVolume = 100;
             Description = "A small, used personal craft that probably once served as a shuttle.";
+            MiningLaserRange = 10;
             Cargo = new List<Item>();
         }
     }

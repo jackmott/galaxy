@@ -75,6 +75,15 @@
     <Reference Include="XnaGeometry">
       <HintPath>Assets\GalaxyShared\XnaGeometry.dll</HintPath>
     </Reference>
+    <Reference Include="Vectrosity">
+      <HintPath>Assets\Plugins\Vectrosity\Vectrosity.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="galaxy.CSharp.Plugins.csproj">
+      <Project>{0F93E89D-D197-492B-EE5C-FA132A0D9E85}</Project>
+      <Name>galaxy.CSharp.Plugins</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\ShaderForge\Example Assets\Scripts\EditorLabel.cs" />
@@ -98,6 +107,7 @@
     <Compile Include="Assets\src\Warp.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Plugins\VectrosityDemos\ImageEffects\Shaders\_BloomAndFlares\MobileBloom.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\Common\ExtractChannel.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\Common\FillColor.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\Common\ReadPackedData.shader" />
@@ -292,6 +302,8 @@
     <None Include="Assets\ShaderForge\Readme.txt" />
     <None Include="Assets\Shaders\Billboard.shader" />
     <None Include="Assets\Shaders\Outline.shader" />
+    <None Include="Assets\VectrosityDemos\Scripts\Shaders\DepthMask.shader" />
+    <None Include="Assets\VectrosityDemos\Scripts\Shaders\SolidColor.shader" />
     <None Include="Assets\primitives.v1\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />

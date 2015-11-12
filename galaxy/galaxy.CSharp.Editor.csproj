@@ -120,14 +120,27 @@
     <Reference Include="XnaGeometry">
       <HintPath>Assets\GalaxyShared\XnaGeometry.dll</HintPath>
     </Reference>
+    <Reference Include="Vectrosity">
+      <HintPath>Assets\Plugins\Vectrosity\Vectrosity.dll</HintPath>
+    </Reference>
+    <Reference Include="VectrosityEditor">
+      <HintPath>Assets\Plugins\Vectrosity\Editor\VectrosityEditor.dll</HintPath>
+    </Reference>
     <Reference Include="ShaderForge 1">
       <HintPath>Assets\ShaderForge\Editor\ShaderForge 1.dll</HintPath>
     </Reference>
     <Reference Include="ShaderForge">
       <HintPath>Assets\ShaderForge\Editor\ShaderForge.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-UnityScript">
+      <HintPath>Library\ScriptAssemblies\Assembly-UnityScript.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="galaxy.CSharp.Plugins.csproj">
+      <Project>{0F93E89D-D197-492B-EE5C-FA132A0D9E85}</Project>
+      <Name>galaxy.CSharp.Plugins</Name>
+    </ProjectReference>
     <ProjectReference Include="galaxy.CSharp.csproj">
       <Project>{3F2C7102-3953-E63A-F5FC-44E6C86F812A}</Project>
       <Name>galaxy.CSharp</Name>
@@ -138,6 +151,7 @@
     <Compile Include="Assets\ShaderForge\Editor\InternalResources\Inspectors\ShaderForgeMaterialInspector.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Plugins\VectrosityDemos\ImageEffects\Shaders\_BloomAndFlares\MobileBloom.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\Common\ExtractChannel.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\Common\FillColor.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\Common\ReadPackedData.shader" />
@@ -332,6 +346,8 @@
     <None Include="Assets\ShaderForge\Readme.txt" />
     <None Include="Assets\Shaders\Billboard.shader" />
     <None Include="Assets\Shaders\Outline.shader" />
+    <None Include="Assets\VectrosityDemos\Scripts\Shaders\DepthMask.shader" />
+    <None Include="Assets\VectrosityDemos\Scripts\Shaders\SolidColor.shader" />
     <None Include="Assets\primitives.v1\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />

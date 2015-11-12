@@ -13,7 +13,7 @@ namespace GalaxyShared
         public string TypeName;
         public string Description;
         public int CargoVolume;
-
+        public int MiningLaserRange;
         
         public Player Owner;
 

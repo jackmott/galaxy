@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "galaxy.CSharp.Plugins", "galaxy.CSharp.Plugins.csproj", "{0F93E89D-D197-492B-EE5C-FA132A0D9E85}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "galaxy.CSharp", "galaxy.CSharp.csproj", "{3F2C7102-3953-E63A-F5FC-44E6C86F812A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "galaxy.CSharp.Editor", "galaxy.CSharp.Editor.csproj", "{44B52AA3-AF0B-5E97-C504-B8FC64AE4AFC}"
@@ -11,6 +13,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0F93E89D-D197-492B-EE5C-FA132A0D9E85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F93E89D-D197-492B-EE5C-FA132A0D9E85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F93E89D-D197-492B-EE5C-FA132A0D9E85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F93E89D-D197-492B-EE5C-FA132A0D9E85}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3F2C7102-3953-E63A-F5FC-44E6C86F812A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3F2C7102-3953-E63A-F5FC-44E6C86F812A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F2C7102-3953-E63A-F5FC-44E6C86F812A}.Release|Any CPU.ActiveCfg = Release|Any CPU
