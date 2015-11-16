@@ -21,23 +21,25 @@ public class NetworkManager : MonoBehaviour
     public static List<InputMessage> InputsToSend;
     public static List<InputMessage> BufferedInputs;
 
+    private GameObject Ship;
+
     Stopwatch SendStopwatch = new Stopwatch();
     Stopwatch InputSampleStopwatch = new Stopwatch();
 
     public static Player PlayerState = null;
-    
+
 
     public static int Seq = 0;
 
     bool GoingToWarp = false;
 
-    enum Level { MainMenu, Warp, System};
+    enum Level { MainMenu, Warp, System };
     Level CurrentLevel;
 
 
     void Awake()
     {
-    
+
         messageQueue = new Queue();
 
         DontDestroyOnLoad(this);
@@ -52,7 +54,7 @@ public class NetworkManager : MonoBehaviour
 
         InputSampleStopwatch.Start();
         SendStopwatch.Start();
-       
+
     }
     // Use this for initialization
     void Start()
@@ -70,6 +72,11 @@ public class NetworkManager : MonoBehaviour
     {
         CurrentLevel = (Level)level;
         GoingToWarp = false;
+        if (level == 2 || level == 1)
+        {
+            Ship = GameObject.FindGameObjectWithTag("Ship");
+
+        }
     }
 
     // Update is called once per frame
@@ -113,7 +120,7 @@ public class NetworkManager : MonoBehaviour
 
     }
 
-   
+
 
     private void processMessages()
     {
@@ -147,6 +154,15 @@ public class NetworkManager : MonoBehaviour
                     case TypeDictionary.MsgType.DropOutOfWarpMessage:
                         HandleDropOutOfWarpMessage((DropOutOfWarpMessage)o);
                         break;
+                    case TypeDictionary.MsgType.Asteroid:
+                        HandleAsteroidState((Asteroid)o);
+                        break;
+                    case TypeDictionary.MsgType.Ship:
+                        HandleShipState((Ship)o);
+                        break;
+                    case TypeDictionary.MsgType.CargoStateMessage:
+                        HandleCargoMessage((CargoStateMessage)o);
+                        break;
                     default:
                         Console.WriteLine("unknown message");
                         break;
@@ -163,7 +179,7 @@ public class NetworkManager : MonoBehaviour
 
     }
 
-   
+
     public void NetworkReadLoop()
     {
         IFormatter binaryFormatter = new BinaryFormatter();
@@ -193,24 +209,24 @@ public class NetworkManager : MonoBehaviour
     public void HandleGotoWarpMessage(GoToWarpMessage msg)
     {
         PlayerState.Location = msg.Location;
-        PlayerState.Rotation = msg.Rotation;        
+        PlayerState.Rotation = msg.Rotation;
         lock (BufferedInputs)
         {
             BufferedInputs.Clear();
         }
-        Application.LoadLevel((int)Level.Warp);        
+        Application.LoadLevel((int)Level.Warp);
 
     }
 
     public void HandleDropOutOfWarpMessage(DropOutOfWarpMessage msg)
     {
         Warp.ClosestSector.ParticleSystem.Clear();
-        ClientSolarSystem.Cubemap = new Cubemap(2048, TextureFormat.ARGB32, false);        
+        ClientSolarSystem.Cubemap = new Cubemap(2048, TextureFormat.ARGB32, false);
         bool work = Camera.main.RenderToCubemap(ClientSolarSystem.Cubemap);
         PlayerState.Location = msg.Location;
         PlayerState.Rotation = msg.Rotation;
         PlayerState.SolarSystem = msg.System;
-        lock(BufferedInputs)
+        lock (BufferedInputs)
         {
             BufferedInputs.Clear();
         }
@@ -219,9 +235,51 @@ public class NetworkManager : MonoBehaviour
 
     public void HandleGalaxyPlayerMessage(Player player)
     {
-        UnityEngine.Debug.Log("handle galaxyplayer message");        
+        UnityEngine.Debug.Log("handle galaxyplayer message");
         PlayerState = player;
         Application.LoadLevel("Warp");
+    }
+
+    public void HandleShipState(Ship ship)
+    {
+
+    }
+
+    public void HandleCargoMessage(CargoStateMessage msg)
+    {
+        if (msg.add)
+        {
+            PlayerState.Ship.AddCargo(msg.item);
+        }
+        GameObject shipGO = GameObject.FindGameObjectWithTag("Ship");
+        shipGO.GetComponent<ClientSolarSystem>().UpdateInventory();
+    }
+
+    public void HandleAsteroidState(Asteroid serverAsteroid)
+    {
+        Asteroid clientAsteroid = null;
+        foreach (Asteroid a in PlayerState.SolarSystem.Asteroids)
+        {
+            if (a.Pos == serverAsteroid.Pos)
+            {
+                clientAsteroid = a;
+                break;
+            }
+        }
+        if (clientAsteroid != null)
+        {
+            clientAsteroid.Remaining = serverAsteroid.Remaining;
+            if (clientAsteroid.Remaining <= 0)
+            {
+                PlayerState.SolarSystem.Asteroids.Remove(clientAsteroid);
+                GameObject goAsteroid = (GameObject)clientAsteroid.GameObject;
+                GameObject.Destroy(goAsteroid);
+            }
+        }
+        else
+        {
+            UnityEngine.Debug.Log("Asteroid messages received for asteroid that does not exist");
+        }
     }
 
     public void HandlePlayerStateMessage(PlayerStateMessage p)
@@ -240,7 +298,8 @@ public class NetworkManager : MonoBehaviour
                     if (PlayerState.Location.InWarp)
                     {
                         Simulator.ContinuedPhysicsWarp(PlayerState);
-                    } else
+                    }
+                    else
                     {
                         Simulator.ContinuedPhysics(PlayerState);
                     }
@@ -304,7 +363,7 @@ public class NetworkManager : MonoBehaviour
         else if (Input.GetKey("space"))
         {
             throttle = 0;
-           
+
         }
 
 
@@ -339,8 +398,8 @@ public class NetworkManager : MonoBehaviour
         }
 
         Simulator.ContinuedPhysicsWarp(PlayerState);
-        Camera.main.transform.position = Utility.UVector(PlayerState.Location.Pos);
-        Camera.main.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
+        Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
+        Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
 
 
     }
@@ -395,14 +454,22 @@ public class NetworkManager : MonoBehaviour
                 anyInput = true;
             }
         }
-        else if (Input.GetKey("space"))
+        else if (Input.GetKey("j"))
         {
             GoingToWarp = true;
             GoToWarpMessage msg;
             msg.Location = PlayerState.Location;
             msg.Rotation = PlayerState.Rotation;
-            Send(msg);            
+            Send(msg);
             //todo some sort of animation/sounds            
+        }
+        else if (Input.GetKey("space"))
+        {
+            if (throttle != 0)
+            {
+                throttle = 0;
+                anyInput = true;
+            }
         }
 
 
@@ -422,6 +489,13 @@ public class NetworkManager : MonoBehaviour
 
         // Camera.main.transform.Translate(Vector3.forward * throttle * 40 *  Time.deltaTime);
 
+        if (Input.GetMouseButton(1))
+        {
+            UnityEngine.Debug.Log("MouseButton1");
+            anyInput = true;
+            input.SecondaryButton = true;
+        }
+
         if (anyInput)
         {
             input.Seq = Seq;
@@ -437,11 +511,11 @@ public class NetworkManager : MonoBehaviour
         }
 
         Simulator.ContinuedPhysics(PlayerState);
-        Camera.main.transform.position = Utility.UVector(PlayerState.Location.Pos);
-        Camera.main.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
+        Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
+        Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
 
 
-       
+
 
     }
 }

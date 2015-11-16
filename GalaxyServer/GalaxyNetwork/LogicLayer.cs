@@ -158,6 +158,58 @@ namespace GalaxyServer
         }
 
 
+        public class AsteroidComparer : IComparer<Asteroid>
+        {
+            Vector3 Pos;
+            public AsteroidComparer(Vector3 pos)
+            {
+                Pos = pos;
+            }
+            public int Compare(Asteroid x, Asteroid y)
+            {
+                double distanceX = Vector3.Distance(x.Pos, Pos);
+                double distanceY = Vector3.Distance(y.Pos, Pos);
+                if (distanceX > distanceY) return 1;
+                return -1;
+            }
+        }
+
+        public static void AsteroidMining(Client client, Player player)
+        {
+            List<Asteroid> asteroids = player.SolarSystem.Asteroids;
+            Asteroid hit = null;
+            Vector3 pos = player.Location.Pos;
+            asteroids.Sort(new AsteroidComparer(pos));
+            int count = 0;
+            foreach (Asteroid a in asteroids)
+            {
+                Ray ray = new Ray(pos, Vector3.Transform(Vector3.Forward, player.Rotation));
+                BoundingSphere sphere = new BoundingSphere(a.Pos, a.Size*Planet.EARTH_CONSTANT);
+                double? result = ray.Intersects(sphere);
+                if (result != null)
+                {
+                    hit = a;
+                    break;
+                }
+                count++;
+            }
+            Console.WriteLine("Count:" + count);
+            if (hit != null)
+            {
+                hit.Remaining -= player.Ship.MiningLaserPower;
+                player.Ship.AddCargo(new IronOre(player.Ship.MiningLaserPower));
+                Console.WriteLine("hit!:" + hit.Remaining);
+                GalaxyServer.AddToSendQueue(client, hit);
+                CargoStateMessage cargoState = new CargoStateMessage();
+                cargoState.add = true;
+                cargoState.item = new IronOre(player.Ship.MiningLaserPower);
+                GalaxyServer.AddToSendQueue(client, cargoState);
+                if (hit.Remaining <= 0) asteroids.Remove(hit);
+                DataLayer.AddSystem(player.SolarSystem);
+            }
+        }
+
+
         public static Stopwatch sw = new Stopwatch();
 
         public static void DoPhysics()
@@ -172,11 +224,11 @@ namespace GalaxyServer
                     while (!PlayerTable.TryGetValue(client, out player)) { }
                     if (player.Location.InWarp)
                     {
-                        Simulator.ProcessTickForPlayerWarp(client.Inputs, player);
+                        ProcessTickForPlayerWarp(client, player);
                     }
                     else
                     {
-                        Simulator.ProcessTickForPlayer(client.Inputs, player);
+                        ProcessTickForPlayer(client, player);
                     }
 
                     long deltaT = DateTime.Now.Subtract(client.LastSend).Milliseconds;
@@ -208,7 +260,31 @@ namespace GalaxyServer
 
         }
 
+        public static void ProcessTickForPlayer(Client client, Player player)
+        {
+            lock (client.Inputs)
+            {
+                if (client.Inputs.Count > 0)
+                {
+                    InputMessage input = client.Inputs.Dequeue();
+                    Simulator.ProcessInput(player, input);
+                    if (input.SecondaryButton) AsteroidMining(client, player);
+                }
+            }
+            Simulator.ContinuedPhysics(player);
+        }
 
-
+        public static void ProcessTickForPlayerWarp(Client client, Player player)
+        {
+            lock (client.Inputs)
+            {
+                if (client.Inputs.Count > 0)
+                {
+                    InputMessage input = client.Inputs.Dequeue();
+                    Simulator.ProcessInputWarp(player, input);
+                }
+            }
+            Simulator.ContinuedPhysicsWarp(player);
+        }
     }
 }

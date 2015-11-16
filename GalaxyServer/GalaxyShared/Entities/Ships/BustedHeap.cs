@@ -28,6 +28,7 @@ namespace GalaxyShared
             Description = "A small, used personal craft that probably once served as a shuttle.";
             MiningLaserRange = 10;
             Cargo = new List<Item>();
+            MiningLaserPower = 10;
         }
     }
 }

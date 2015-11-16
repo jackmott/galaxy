@@ -19,7 +19,10 @@ namespace GalaxyShared
             ListOfInputMessage,
             PlayerStateMessage,
             GoToWarpMessage,
-            DropOutOfWarpMessage
+            DropOutOfWarpMessage,
+            Asteroid,
+            Ship,
+            CargoStateMessage
         }
 
         public TypeDictionary()
@@ -34,6 +37,9 @@ namespace GalaxyShared
             Dictionary.Add(typeof(PlayerStateMessage), 6);
             Dictionary.Add(typeof(GoToWarpMessage), 7);
             Dictionary.Add(typeof(DropOutOfWarpMessage), 8);
+            Dictionary.Add(typeof(Asteroid), 9);
+            Dictionary.Add(typeof(Ship), 10);
+            Dictionary.Add(typeof(CargoStateMessage), 11);
         }
 
         public MsgType GetID(object o)

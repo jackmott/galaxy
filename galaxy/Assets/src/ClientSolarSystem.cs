@@ -3,16 +3,26 @@ using GalaxyShared;
 using System;
 using Vectrosity;
 using System.Collections.Generic;
+using System.Text;
+using UnityEngine.UI;
 
 public class ClientSolarSystem : MonoBehaviour
 {
 
-    public static SolarSystem SolarSystem;  
+    private static SolarSystem SolarSystem;
     public static Cubemap Cubemap;
-    public static GameObject Recticle;
+
+    public GameObject Recticle;
+
+    public GameObject ShipMenu;
+    public GameObject Inventory;
 
     public Material LineMaterial;
-    public Material MiningLaserMaterial;
+
+
+    public GameObject Ship;
+
+    public VectorLine MiningLaser;
 
 
     //private GameObject[] Planets;
@@ -30,60 +40,57 @@ public class ClientSolarSystem : MonoBehaviour
         GameObject light = (GameObject)Instantiate(Resources.Load<GameObject>("StarLight"), Vector3.zero, Quaternion.identity);
         light.transform.position = Vector3.zero;
         Light l = light.GetComponent<Light>();
-        LensFlare flare = star.GetComponent<LensFlare>();        
+        LensFlare flare = star.GetComponent<LensFlare>();
         Color c = new Color(SolarSystem.Star.Color.R / 255f, SolarSystem.Star.Color.G / 255f, SolarSystem.Star.Color.B / 255f);
         flare.color = c;
-        
+
         l.color = c;
-        star.GetComponent<Renderer>().material.SetColor("_EmissionColor",c);
-        
-        
+        star.GetComponent<Renderer>().material.SetColor("_EmissionColor", c);
+
+
         GeneratePlanets();
         GenerateAsteroids();
 
-        Recticle = GameObject.FindGameObjectWithTag("Recticle").gameObject;
-        
 
-      //  Planets = GameObject.FindGameObjectsWithTag("Planet");
-//        Asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
+
+
+        //  Planets = GameObject.FindGameObjectsWithTag("Planet");
+        //        Asteroids = GameObject.FindGameObjectsWithTag("Asteroid");
 
         //load stars if we have em
         if (Cubemap != null)
-        {         
-           Camera.main.GetComponent<Skybox>().material.SetTexture("_Tex", Cubemap);
-           
-        }
-        
+        {
+            Camera.main.GetComponent<Skybox>().material.SetTexture("_Tex", Cubemap);
 
-        
+        }
+
+
+
 
         //if the server said we start here, we start here, otherwise back away from the sun
         if (NetworkManager.PlayerState == null)
         {
-            Camera.main.transform.Translate(Vector3.back * Planet.EARTH_CONSTANT * 60);
+            Ship.transform.Translate(Vector3.back * Planet.EARTH_CONSTANT * 60);
         }
         else
         {
-            Camera.main.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
-            Camera.main.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
+            Ship.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
+            Ship.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
         }
 
-        
-        
     }
 
-   
 
     public void GeneratePlanets()
     {
         GameObject resourcePlanet = Resources.Load<GameObject>("Planet");
         foreach (Planet p in SolarSystem.Planets)
         {
-            GameObject planetGO = (GameObject)Instantiate(resourcePlanet, Utility.UVector(p.Pos), Quaternion.identity);       
+            GameObject planetGO = (GameObject)Instantiate(resourcePlanet, Utility.UVector(p.Pos), Quaternion.identity);
             planetGO.transform.localScale *= (float)p.Size * Planet.EARTH_CONSTANT;
             ClientPlanet cp = planetGO.GetComponent<ClientPlanet>();
             cp.Planet = p;
-           
+
 
             /*
 
@@ -93,14 +100,14 @@ public class ClientSolarSystem : MonoBehaviour
             lr.SetColors(c, c);
             lr.SetWidth(20f, 20f);*/
 
-            int vertexCount = Convert.ToInt32(100f * (p.Orbit/5f));
+            int vertexCount = Convert.ToInt32(100f * (p.Orbit / 5f));
             VectorLine orbitLine = new VectorLine("OrbitLine", new List<Vector3>(vertexCount), 1.0f, LineType.Continuous);
             orbitLine.material = LineMaterial;
             orbitLine.MakeCircle(Vector3.zero, Vector3.up, Vector3.Distance(Vector3.zero, Utility.UVector(p.Pos)));
             orbitLine.Draw3DAuto();
 
         }
-        
+
 
     }
 
@@ -109,34 +116,44 @@ public class ClientSolarSystem : MonoBehaviour
         GameObject resourceAsteroid = Resources.Load<GameObject>("Asteroid");
         foreach (Asteroid a in SolarSystem.Asteroids)
         {
-            GameObject asteroidGO = (GameObject)Instantiate(resourceAsteroid, Utility.UVector(a.Pos), UnityEngine.Random.rotation);            
-            asteroidGO.transform.localScale *= (float)a.Size * Planet.EARTH_CONSTANT;          
+            GameObject asteroidGO = (GameObject)Instantiate(resourceAsteroid, Utility.UVector(a.Pos), UnityEngine.Random.rotation);
+            asteroidGO.transform.localScale *= (float)a.Size * Planet.EARTH_CONSTANT;
+            ClientAsteroid ca = asteroidGO.GetComponent<ClientAsteroid>();
+            ca.SetAsteroid(a);
+            a.GameObject = asteroidGO;
         }
 
     }
 
-  
+    public void UpdateInventory()
+    {
+        StringBuilder sb = new StringBuilder(32);
+        sb.Append("<color=\"cyan\">Inventory</color>\n");
+        foreach (Item i in NetworkManager.PlayerState.Ship.Cargo)
+        {  
+            sb.Append("<color=\"magenta\"><</color><color=\"green\">");
+            sb.Append(i.Count);
+            sb.Append("</color><color=\"magenta\">></color><color=\"cyan\">");
+            sb.Append(i.Name);
+            sb.Append("</color>\n");
+        }
+        Inventory.GetComponent<Text>().text = sb.ToString();
+    }
+
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+
+        if (Input.GetKey("i"))
         {
-            List<Vector3> laserLine = new List<Vector3>();
 
-            
-            Player p = NetworkManager.PlayerState;
-            XnaGeometry.Vector3 pos = p.Location.Pos;
-            XnaGeometry.Quaternion q = p.Rotation;
-            XnaGeometry.Vector3 endPoint = pos + XnaGeometry.Vector3.Transform(XnaGeometry.Vector3.Forward * p.Ship.MiningLaserRange*100, q);
+            ShipMenu.SetActive(!ShipMenu.activeSelf);
+            Inventory.SetActive(!Inventory.activeSelf);
 
-
-            laserLine.Add(Utility.UVector(pos));
-            laserLine.Add(Utility.UVector(endPoint));
-
-            VectorLine laser = new VectorLine("Mining Laser", laserLine, 5.0f, LineType.Continuous);
-            laser.material = this.MiningLaserMaterial;
-            laser.Draw3D();
-
+            if (Inventory.activeSelf)
+            {
+                UpdateInventory();
+            }
         }
 
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
@@ -146,7 +163,7 @@ public class ClientSolarSystem : MonoBehaviour
         {
             GameObject o = hit.collider.gameObject;
             if (o.tag == "Planet" || o.tag == "Asteroid" || o.tag == "Star")
-            {                
+            {
                 Vector3 ScreenPos = Camera.main.WorldToScreenPoint(o.transform.position);
                 Recticle.SetActive(true);
                 Recticle.transform.position = new Vector3(ScreenPos.x, ScreenPos.y, 0);
@@ -154,12 +171,13 @@ public class ClientSolarSystem : MonoBehaviour
                 {
                     IClickable i = o.GetComponent<IClickable>();
                     i.OnRightClick();
-                } else if (Input.GetMouseButtonUp(0))
+                }
+                else if (Input.GetMouseButtonUp(0))
 
                 {
                     IClickable i = o.GetComponent<IClickable>();
                     i.OnLeftClick();
-                }             
+                }
             }
         }
 

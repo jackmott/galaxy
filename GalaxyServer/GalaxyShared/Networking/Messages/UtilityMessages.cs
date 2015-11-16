@@ -67,4 +67,11 @@ namespace GalaxyShared
         public Location Location;
         public SolarSystem System;
     }
+
+   [Serializable]
+   public struct CargoStateMessage
+    {
+        public bool add;
+        public Item item;
+    }
 }

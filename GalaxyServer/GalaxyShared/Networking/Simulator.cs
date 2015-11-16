@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using XnaGeometry;
 
@@ -10,18 +11,7 @@ namespace GalaxyShared
     {
         public const double WARP_DISTANCE_THRESHOLD = 0.2d;
 
-        public static void ProcessTickForPlayer(Queue<InputMessage> inputs, Player player)
-        {
-            lock (inputs)
-            {
-                if (inputs.Count > 0)
-                {
-                    InputMessage input = inputs.Dequeue();
-                    ProcessInput(player, input);
-                }
-            }
-            ContinuedPhysics(player);            
-        }
+       
 
         public static SolarSystem GetClosestSystem(Sector sector, Vector3 pos)
         {
@@ -56,24 +46,14 @@ namespace GalaxyShared
                 player.Rotation = player.Rotation * changeRotation;
                 player.Rotation.Normalize();                 
             }
+          
             player.Seq = input.Seq;
             player.Throttle = input.Throttle;
                                                                         
 
         }
 
-        public static void ProcessTickForPlayerWarp(Queue<InputMessage> inputs, Player player)
-        {
-            lock (inputs)
-            {
-                if (inputs.Count > 0)
-                {
-                    InputMessage input = inputs.Dequeue();
-                    ProcessInputWarp(player, input);
-                }
-            }
-            ContinuedPhysicsWarp(player);
-        }
+       
 
         public static void ContinuedPhysicsWarp(Player player)
         {
@@ -91,6 +71,7 @@ namespace GalaxyShared
                 player.Rotation = player.Rotation * changeRotation;
                 player.Rotation.Normalize();
             }
+            
             player.Seq = input.Seq;
             player.Throttle = input.Throttle;
 
@@ -126,6 +107,8 @@ namespace GalaxyShared
         }
 
 
-
+      
+    
+       
     }
 }

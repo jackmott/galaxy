@@ -13,7 +13,7 @@ public class Warp : MonoBehaviour {
     int SectorCount = 9; //must be odd
     
     public static ClientSector ClosestSector = null;
-
+    public GameObject Ship;
         
     Dictionary<int,ClientSector> LoadedSectors;            
     
@@ -30,9 +30,9 @@ public class Warp : MonoBehaviour {
 
 
         Camera.main.farClipPlane = (float)(Sector.SECTOR_SIZE * Sector.EXPAND_FACTOR * (SectorCount / 2f));
-        Camera.main.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
-        Camera.main.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
-        Camera.main.transform.Translate(Vector3.forward * .2f);
+        Ship.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
+        Ship.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
+        Ship.transform.Translate(Vector3.forward * .2f);
        
 
         //warm up clientsectors
@@ -65,11 +65,11 @@ public class Warp : MonoBehaviour {
 
         float distanceThreshold = Camera.main.farClipPlane;
         
-        Vector3 cameraPos = Camera.main.transform.position;
+        Vector3 shipPos = Ship.transform.position;
         
-        int x = Convert.ToInt32(cameraPos.x / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
-        int y = Convert.ToInt32(cameraPos.y / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
-        int z = Convert.ToInt32(cameraPos.z / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
+        int x = Convert.ToInt32(shipPos.x / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
+        int y = Convert.ToInt32(shipPos.y / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
+        int z = Convert.ToInt32(shipPos.z / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
 
 
         
@@ -89,7 +89,7 @@ public class Warp : MonoBehaviour {
 
             Vector3 sectorPos = new Vector3((float)(x * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( y * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( z * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE));
 
-            float distance = Vector3.Distance(cameraPos, sectorPos);
+            float distance = Vector3.Distance(shipPos, sectorPos);
 
             
             if (distance > distanceThreshold) cSector.Dispose();
@@ -124,7 +124,7 @@ public class Warp : MonoBehaviour {
                     if (!LoadedSectors.ContainsKey(hash))
                     {
                         Vector3 sectorPos = new Vector3((float)(x * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( y * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( z * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE));
-                        float distance = Vector3.Distance(cameraPos, sectorPos);
+                        float distance = Vector3.Distance(shipPos, sectorPos);
                         
                         if (distance <= distanceThreshold)
                         {

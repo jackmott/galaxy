@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
+using GalaxyShared;
 
 public class ClientAsteroid : MonoBehaviour, IClickable {
+
+    
+    private Asteroid Asteroid;
 
 	// Use this for initialization
 	void Start () {
@@ -13,13 +17,18 @@ public class ClientAsteroid : MonoBehaviour, IClickable {
 	
 	}
 
+    public void SetAsteroid(Asteroid a)
+    {
+        Asteroid = a;
+    }
+
     public void OnLeftClick()
     {
-        Debug.Log("Left Click");
+        Debug.Log("Ateroid Left Click");
     }
 
     public void OnRightClick()
     {
-        Debug.Log("Right Click");
+        Debug.Log("Asteroid Right Click");
     }
 }

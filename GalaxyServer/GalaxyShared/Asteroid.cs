@@ -6,13 +6,19 @@ namespace GalaxyShared
     [Serializable]
     public class Asteroid
     {
-
+        [NonSerialized]
         public SolarSystem ParentSystem;
+
+        [NonSerialized]
+        public object GameObject;
+
         public int Orbit;
         public double OrbitAngle;
         
         public double Size;        
         public Vector3 Pos;
+
+        public double Remaining = 100f;
         
 
         public Asteroid(SolarSystem parentSystem, int orbit, double orbitAngle, double size, Vector3 posAdjust)
