@@ -26,34 +26,22 @@ SOFTWARE.
 #endregion License
 
 using System;
-#if WINRT
-using System.Runtime.Serialization;
-#endif
+using ProtoBuf;
 
 namespace XnaGeometry
 {
-#if WINRT
-    [DataContract]
-#else
-    [Serializable]
-#endif
+
+    [ProtoContract]
     public struct Quaternion : IEquatable<Quaternion>
     {
-#if WINRT
-        [DataMember]
-#endif
+
+        [ProtoMember(0)]
         public double X;
-#if WINRT
-        [DataMember]
-#endif
+        [ProtoMember(1)]
         public double Y;
-#if WINRT
-        [DataMember]
-#endif
+        [ProtoMember(2)]
         public double Z;
-#if WINRT
-        [DataMember]
-#endif
+        [ProtoMember(3)]
         public double W;
 
         static Quaternion identity = new Quaternion(0, 0, 0, 1);

@@ -1,23 +1,23 @@
-﻿using System;
-using XnaGeometry;
-
+﻿using XnaGeometry;
+using ProtoBuf;
 namespace GalaxyShared
 {
-    [Serializable]
+    [ProtoContract]
     public class Asteroid
     {
-        [NonSerialized]
-        public SolarSystem ParentSystem;
-
-        [NonSerialized]
+        
+        public SolarSystem ParentSystem;      
         public object GameObject;
 
+        [ProtoMember(0)]
         public int Orbit;
+        [ProtoMember(1)]
         public double OrbitAngle;
-        
-        public double Size;        
+        [ProtoMember(2)]
+        public double Size;
+        [ProtoMember(3)]
         public Vector3 Pos;
-
+        [ProtoMember(4)]
         public double Remaining = 100f;
         
 
@@ -41,6 +41,11 @@ namespace GalaxyShared
 
             Pos += posAdjust;
 
+        }
+
+        public int TypeID()
+        {
+            return 9;
         }
     }
 }

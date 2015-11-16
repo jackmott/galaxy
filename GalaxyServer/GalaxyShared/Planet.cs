@@ -1,28 +1,34 @@
 ﻿using System;
 using XnaGeometry;
-
+using ProtoBuf;
 namespace GalaxyShared
 {
-    [Serializable]
+    [ProtoContract]
     public class Planet
     {
         public const float EARTH_CONSTANT = 25;
         public const float ORBIT_MULTIPLIER = 20;
 
-        [NonSerialized]
+        
         public SolarSystem ParentSystem;
-
-        public int Orbit;
-        public double OrbitAngle;
-        public double RotationRate;        
-        public double Size;
-        public Vector3 Pos;
-
-        [NonSerialized]
         FastRandom rand;
 
+        [ProtoMember(0)]
+        public int Orbit;
+        [ProtoMember(1)]
+        public double OrbitAngle;
+        [ProtoMember(2)]
+        public double RotationRate;
+        [ProtoMember(3)]
+        public double Size;
+        [ProtoMember(4)]
+        public Vector3 Pos;
+
+        [ProtoMember(5)]
         public string DiscoveredBy = "Undisocvered";
+        [ProtoMember(6)]
         public string Name = "Unnamed";
+        [ProtoMember(7)]
         public string ClaimedBy = "Unclaimed";
 
 

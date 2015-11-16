@@ -26,13 +26,13 @@ SOFTWARE.
 #endregion License
 
 using System;
-using System.ComponentModel;
+using ProtoBuf;
 using System.Diagnostics;
 using System.Text;
 
 namespace XnaGeometry
 {
-    [Serializable]
+    [ProtoContract]
     public struct Vector3 : IEquatable<Vector3>
     {
         #region Private Fields
@@ -53,9 +53,11 @@ namespace XnaGeometry
 
 
         #region Public Fields
-
+        [ProtoMember(0)]
         public double X;
+        [ProtoMember(1)]
         public double Y;
+        [ProtoMember(2)]
         public double Z;
 
         #endregion Public Fields

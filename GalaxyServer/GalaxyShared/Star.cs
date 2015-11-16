@@ -1,10 +1,12 @@
 ﻿using System;
+using ProtoBuf;
 namespace GalaxyShared
 {
-    [Serializable]
+    [ProtoContract]
     public class Star
     {
         SolarSystem ParentSystem;
+        public FastRandom rand;
 
         public const int O = 0;
         public const int B = 1;
@@ -14,13 +16,16 @@ namespace GalaxyShared
         public const int K = 5;
         public const int M = 6;
 
+        [ProtoMember(0)]
         public int Type;
+        [ProtoMember(1)]
         public float Size;
 
+        [ProtoMember(2)]
         public GalaxyColor Color;
 
-        [NonSerialized]
-        public FastRandom rand;
+        
+
         
 
 

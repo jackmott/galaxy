@@ -8,6 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using GalaxyShared;
 using System.Threading;
 using System.Diagnostics;
+using ProtoBuf;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -131,36 +132,36 @@ public class NetworkManager : MonoBehaviour
             while (messageQueue.Count > 0)
             {
                 object o = messageQueue.Dequeue();
-                TypeDictionary.MsgType type = TypeDictionary.GetID(o);
+                MsgType type = TypeDictionary.GetID(o);
 
                 switch (type)
                 {
 
-                    case TypeDictionary.MsgType.LoginResultMessage:
+                    case MsgType.LoginResultMessage:
                         HandleLoginResultMessage((LoginResultMessage)o);
                         break;
-                    case TypeDictionary.MsgType.NewUserResultMessage:
+                    case MsgType.NewUserResultMessage:
                         HandleNewUserResultMessage((NewUserResultMessage)o);
                         break;
-                    case TypeDictionary.MsgType.GalaxyPlayer:
+                    case MsgType.GalaxyPlayer:
                         HandleGalaxyPlayerMessage((Player)o);
                         break;
-                    case TypeDictionary.MsgType.PlayerStateMessage:
+                    case MsgType.PlayerStateMessage:
                         HandlePlayerStateMessage((PlayerStateMessage)o);
                         break;
-                    case TypeDictionary.MsgType.GoToWarpMessage:
+                    case MsgType.GoToWarpMessage:
                         HandleGotoWarpMessage((GoToWarpMessage)o);
                         break;
-                    case TypeDictionary.MsgType.DropOutOfWarpMessage:
+                    case MsgType.DropOutOfWarpMessage:
                         HandleDropOutOfWarpMessage((DropOutOfWarpMessage)o);
                         break;
-                    case TypeDictionary.MsgType.Asteroid:
+                    case MsgType.Asteroid:
                         HandleAsteroidState((Asteroid)o);
                         break;
-                    case TypeDictionary.MsgType.Ship:
+                    case MsgType.Ship:
                         HandleShipState((Ship)o);
                         break;
-                    case TypeDictionary.MsgType.CargoStateMessage:
+                    case MsgType.CargoStateMessage:
                         HandleCargoMessage((CargoStateMessage)o);
                         break;
                     default:
@@ -173,10 +174,8 @@ public class NetworkManager : MonoBehaviour
 
     public static void Send(object msg)
     {
-        MessageWrapper m = NetworkUtils.PrepareForServerSend(msg);
-        stream.Write(m.SizeBuffer, 0, m.SizeBuffer.Length);
-        stream.Write(m.Buffer, 0, m.Size);
-
+        Serializer.SerializeWithLengthPrefix(stream, msg, PrefixStyle.Base128, (int)TypeDictionary.GetID(msg));
+        
     }
 
 

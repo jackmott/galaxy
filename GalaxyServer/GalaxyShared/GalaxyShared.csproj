@@ -32,6 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net35\protobuf-net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
   </ItemGroup>
@@ -46,15 +50,12 @@
     <Compile Include="Entities\Item.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="Networking\Messages\PlayerLoginMessage.cs" />
     <Compile Include="Sector.cs" />
     <Compile Include="Entities\Ships\Ship.cs" />
     <Compile Include="Station.cs" />
     <Compile Include="Moon.cs" />
     <Compile Include="Networking\NetworkUtils.cs" />
-    <Compile Include="Networking\Messages\MessageWrapper.cs" />
-    <Compile Include="Networking\Messages\InputMessage.cs" />
-    <Compile Include="Networking\Messages\UtilityMessages.cs" />
+    <Compile Include="Networking\Messages.cs" />
     <Compile Include="Networking\Simulator.cs" />
     <Compile Include="Networking\TypeDictionary.cs" />
     <Compile Include="Planet.cs" />
@@ -75,6 +76,9 @@
       <Project>{a4398650-10f4-450f-8e4f-fb3f30a39683}</Project>
       <Name>XnaGeometry</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

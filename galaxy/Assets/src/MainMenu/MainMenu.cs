@@ -31,7 +31,9 @@ public class MainMenu : MonoBehaviour {
         }
         else
         {
-            LoginMessage msg = new LoginMessage(_userField.text, _passField.text);            
+            LoginMessage msg; 
+            msg.UserName = _userField.text;
+            msg.Password = _passField.text;
             NetworkManager.Send(msg);
         }
 

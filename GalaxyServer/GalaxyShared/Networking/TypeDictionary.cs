@@ -1,52 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using GalaxyShared;
 
 namespace GalaxyShared
 {
+
+    public enum MsgType
+    {
+        LoginMessage,
+        NewUserMessage,
+        LoginResultMessage,
+        NewUserResultMessage,
+        GalaxyPlayer,
+        ListOfInputMessage,
+        PlayerStateMessage,
+        GoToWarpMessage,
+        DropOutOfWarpMessage,
+        Asteroid,
+        Ship,
+        CargoStateMessage
+    }
+
+    //singleton
     public class TypeDictionary
     {
-        Dictionary<Type, int> Dictionary;
+        public static Type[] TypeLookUpArray;   //for performant deserialization
+        public static Dictionary<Type,MsgType> TypeLookupDictionary = new Dictionary<Type,MsgType>();  //for human readable code
+        private static TypeDictionary instance;
 
-        public enum MsgType {
-            LoginMessage,
-            NewUserMessage,
-            LoginResultMessage,
-            NewUserResultMessage,
-            GalaxyPlayer,
-            ListOfInputMessage,
-            PlayerStateMessage,
-            GoToWarpMessage,
-            DropOutOfWarpMessage,
-            Asteroid,
-            Ship,
-            CargoStateMessage
-        }
+       
 
         public TypeDictionary()
         {
-            Dictionary = new Dictionary<Type, int>();            
-            Dictionary.Add(typeof(LoginMessage), 0);
-            Dictionary.Add(typeof(NewUserMessage), 1);
-            Dictionary.Add(typeof(LoginResultMessage), 2);
-            Dictionary.Add(typeof(NewUserResultMessage), 3);
-            Dictionary.Add(typeof(Player), 4);
-            Dictionary.Add(typeof(List<InputMessage>), 5);
-            Dictionary.Add(typeof(PlayerStateMessage), 6);
-            Dictionary.Add(typeof(GoToWarpMessage), 7);
-            Dictionary.Add(typeof(DropOutOfWarpMessage), 8);
-            Dictionary.Add(typeof(Asteroid), 9);
-            Dictionary.Add(typeof(Ship), 10);
-            Dictionary.Add(typeof(CargoStateMessage), 11);
+            if (instance == null)
+            {
+                Array values = Enum.GetValues(typeof(MsgType));
+
+                int numMsgs = values.Length;
+                TypeLookUpArray = new Type[numMsgs];
+                int i = 0;
+                foreach (MsgType msgType in values)
+                {
+                    string enumName = msgType.ToString();
+                    Type t = Type.GetType(enumName);
+                    TypeLookUpArray[i] = t;
+                    TypeLookupDictionary.Add(t, msgType);
+                    i++;
+                }
+                instance = this;
+            }
+
         }
 
-        public MsgType GetID(object o)
+        public static MsgType GetID(object o)
         {
-            int id = -1;
-            while(!Dictionary.TryGetValue(o.GetType(), out id)) { }
-            return (MsgType)id;
+            MsgType m;
+            TypeLookupDictionary.TryGetValue(o.GetType(),out m);
+            return m;
+        }
+  
+      
+        public Type TypeResolver(int fieldNumber)
+        {
+            return TypeLookUpArray[fieldNumber];
         }
     }
 }

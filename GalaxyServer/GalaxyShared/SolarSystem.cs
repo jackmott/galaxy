@@ -2,24 +2,29 @@
 using System.Collections.Generic;
 using System.Text;
 using XnaGeometry;
+using ProtoBuf;
 
 namespace GalaxyShared
 {
-    [Serializable]
+    [ProtoContract]
     public class SolarSystem
     {
-        
-        public SectorCoord ParentSectorCoord;        
+        [ProtoMember(0)]
+        public SectorCoord ParentSectorCoord;
+        [ProtoMember(1)]
         public int Index;
-        public Vector3 Pos;                
+        [ProtoMember(2)]
+        public Vector3 Pos;
 
-
+        [ProtoMember(3)]
         public Star Star;
-        
+
+        [ProtoMember(4)]
         public List<Planet> Planets;
+        [ProtoMember(5)]
         public List<Asteroid> Asteroids;
 
-        [NonSerialized]
+        
         FastRandom rand;
                 
         static readonly int[] PlanetCountDistribution = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };

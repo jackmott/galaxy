@@ -21,8 +21,9 @@ namespace GalaxyServer
         {
             Console.WriteLine("HandleLoginMessage");
 
-            PlayerLoginMessage login = DataLayer.GetLogin(msg.UserName);
-            if (login != null && login.Password == msg.Password)
+            LoginMessage login = DataLayer.GetLogin(msg.UserName);
+            
+            if (login.UserName != null && login.Password == msg.Password)
             {
                 Console.WriteLine("User " + login.UserName + " logged in");
                 InitiateLogin(msg.UserName, client);
@@ -61,7 +62,9 @@ namespace GalaxyServer
         {
             Console.WriteLine("HandleNewUserMessage");
             NewUserResultMessage m;
-            PlayerLoginMessage login = new PlayerLoginMessage(msg.UserName, msg.Password);
+            LoginMessage login;
+            login.UserName = msg.UserName;
+            login.Password = msg.Password;
             if (DataLayer.CreateNewLogin(msg.UserName, msg.Password))
             {
                 InitiateLogin(msg.UserName, client);

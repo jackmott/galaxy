@@ -1,10 +1,10 @@
-﻿using System;
+﻿
 using StackExchange.Redis;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using GalaxyShared;
 using XnaGeometry;
+using ProtoBuf;
 
 namespace GalaxyServer
 {
@@ -21,7 +21,7 @@ namespace GalaxyServer
         public const long PLAYER_STATE_PERSIST_RATE = 10000;//ms
 
         private static IDatabase DB;
-        private static IFormatter Serializer;
+        
 
 
         public DataLayer()
@@ -29,7 +29,7 @@ namespace GalaxyServer
 
             ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
             DB = redis.GetDatabase();
-            Serializer = new BinaryFormatter();
+            
             
 
         }
@@ -43,7 +43,7 @@ namespace GalaxyServer
                 return default(T);
             }
             MemoryStream stream = new MemoryStream(bytes);
-            return (T)Serializer.Deserialize(stream);
+            return Serializer.Deserialize<T>(stream);
                 
         }
 
@@ -56,9 +56,9 @@ namespace GalaxyServer
             return DB.StringSet(key, bytes);
         }
 
-        public static PlayerLoginMessage GetLogin(string username)
+        public static LoginMessage GetLogin(string username)
         {
-            return Get<PlayerLoginMessage>(LOGIN+username);
+            return Get<LoginMessage>(LOGIN+username);
         }
 
 
@@ -75,7 +75,9 @@ namespace GalaxyServer
 
         public static bool CreateNewLogin(string username,string password)
         {
-            PlayerLoginMessage login = new PlayerLoginMessage(username, password);
+            LoginMessage login;
+            login.UserName = username;
+            login.Password = password;
             return Add(LOGIN+username,login);
         }
 

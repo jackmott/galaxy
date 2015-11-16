@@ -35,8 +35,10 @@ namespace GalaxyShared
             Ship.Location = Location;
         }
 
-        public Player()
-        { }
+        public int TypeID()
+        {
+            return 4;
+        }
 
     }
 }
