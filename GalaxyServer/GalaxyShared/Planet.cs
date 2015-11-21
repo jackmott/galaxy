@@ -32,7 +32,7 @@ namespace GalaxyShared
         public string ClaimedBy = "Unclaimed";
 
 
-
+        public Planet() { }
         public Planet(SolarSystem parentSystem, int orbit)
         {
             rand = new FastRandom(Convert.ToInt32(parentSystem.Pos.X), Convert.ToInt32(parentSystem.Pos.Y), Convert.ToInt32(parentSystem.Pos.Z), orbit);

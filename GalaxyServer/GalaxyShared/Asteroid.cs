@@ -43,6 +43,11 @@ namespace GalaxyShared
             Pos += posAdjust;
 
         }
+
+        public Asteroid()
+        {
+
+        }
       
 
         public void Proto(Stream stream, byte[] typeBuffer)

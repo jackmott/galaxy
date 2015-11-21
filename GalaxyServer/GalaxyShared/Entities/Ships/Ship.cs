@@ -12,7 +12,7 @@ namespace GalaxyShared
         public Player Owner;
 
         [ProtoMember(1)]
-        public int TopSpeed;
+        public int TopSpeed=100;
         [ProtoMember(2)]
         public string Name;
         [ProtoMember(3)]
@@ -28,9 +28,15 @@ namespace GalaxyShared
         [ProtoMember(8)]
         public int MiningLaserPower;
 
+        public Ship()
+        {
+
+        }
+
         public Ship(Player owner)
         {
             Owner = owner;
+            Cargo = new List<Item>();
         }
 
         public void Update(Ship ship)

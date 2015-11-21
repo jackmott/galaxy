@@ -70,8 +70,8 @@ namespace GalaxyShared
             new int[] {1,1,1,1,1,1,1,1,1,2 }, //M
         };
 
-        
 
+        public Star() { }
 
         public Star(SolarSystem parentSystem)
         {

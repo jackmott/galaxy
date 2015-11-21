@@ -17,8 +17,7 @@ namespace GalaxyShared
         public float Throttle;
         [ProtoMember(5)]
         public long Seq;
-
-        
+        [ProtoMember(6)]
         public Ship Ship;
         
         public SolarSystem SolarSystem;
@@ -37,6 +36,11 @@ namespace GalaxyShared
             Location.InWarp = true;
             Ship = new Ship(this);
             Ship.Location = Location;
+        }
+
+        public Player()
+        {
+
         }
 
        

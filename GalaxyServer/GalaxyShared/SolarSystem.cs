@@ -40,6 +40,9 @@ namespace GalaxyShared
             Star = new Star(this);
         }
 
+        public SolarSystem()
+        { }
+
         public string key()
         {
             StringBuilder sb = new StringBuilder(32);

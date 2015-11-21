@@ -53,7 +53,7 @@ namespace GalaxyServer
 
             Console.WriteLine("About to send player data");
             while (!PlayerTable.TryAdd(client, player)) { }
-          //  GalaxyServer.AddToSendQueue(client, player);
+            GalaxyServer.AddToSendQueue(client, player);
             Console.WriteLine("Player Data Sent");
 
         }
@@ -81,9 +81,9 @@ namespace GalaxyServer
 
        
 
-        public static void HandleMessage(GoToWarpMessage msg, Client client)
+        public void HandleMessage(GoToWarpMessage msg, object extra)
         {
-
+            Client client = (Client)extra;
             Player player;
             while (!PlayerTable.TryGetValue(client, out player)) { }
 
@@ -101,8 +101,9 @@ namespace GalaxyServer
 
         }
 
-        public static void HandleMessage(DropOutOfWarpMessage msg, Client client)
+        public void HandleMessage(DropOutOfWarpMessage msg, object extra)
         {
+            Client client = (Client)extra;
             Player player = GetPlayer(client);
             int x = Convert.ToInt32(player.Location.Pos.X / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
             int y = Convert.ToInt32(player.Location.Pos.Y / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
@@ -151,8 +152,9 @@ namespace GalaxyServer
             return player;
         }
 
-        public static void HandleMessage(InputMessage input, Client client)
+        public void HandleMessage(InputMessage input, object extra)
         {
+            Client client = (Client)extra;
             lock (client.Inputs)
             {               
                 client.Inputs.Enqueue(input);               
@@ -305,25 +307,14 @@ namespace GalaxyServer
             throw new NotImplementedException();
         }
 
-        public void HandleMessage(GoToWarpMessage msg, object extra = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void HandleMessage(DropOutOfWarpMessage msg, object extra = null)
-        {
-            throw new NotImplementedException();
-        }
+       
 
         public void HandleMessage(CargoStateMessage msg, object extra = null)
         {
             throw new NotImplementedException();
         }
 
-        public void HandleMessage(InputMessage msg, object extra = null)
-        {
-            throw new NotImplementedException();
-        }
+       
 
         public void HandleMessage(Player msg, object extra = null)
         {
