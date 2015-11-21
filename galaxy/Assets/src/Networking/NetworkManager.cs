@@ -154,7 +154,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     public void NetworkReadLoop()
     {
-        byte[] buffer = new byte[NetworkUtils.SERVER_READ_BUFFER_SIZE];
+        byte[] buffer = new byte[1];
         while (true)
         {
           

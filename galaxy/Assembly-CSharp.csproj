@@ -57,7 +57,6 @@
     <Compile Include="Assets\src\ColorRamp.cs" />
     <Compile Include="Assets\src\IClickable.cs" />
     <Compile Include="Assets\src\MainMenu\MainMenu.cs" />
-    <Compile Include="Assets\src\Networking\MessageHandler.cs" />
     <Compile Include="Assets\src\Networking\NetworkManager.cs" />
     <Compile Include="Assets\src\Noise.cs" />
     <Compile Include="Assets\src\PlanetTextureGenerator.cs" />
