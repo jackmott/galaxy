@@ -1,9 +1,10 @@
 ﻿using XnaGeometry;
 using ProtoBuf;
+using System.IO;
 namespace GalaxyShared
 {
     [ProtoContract]
-    public class Asteroid
+    public class Asteroid : IMessage
     {
         
         public SolarSystem ParentSystem;      
@@ -42,10 +43,19 @@ namespace GalaxyShared
             Pos += posAdjust;
 
         }
+      
 
-        public int TypeID()
+        public void Proto(Stream stream, byte[] typeBuffer)
         {
-            return 9;
+            typeBuffer[0] = (byte)MsgType.Asteroid;
+            stream.Write(typeBuffer, 0, 1);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
         }
+
+        public void AcceptHandler(IMessageHandler handler, object o = null)
+        {
+            handler.HandleMessage(this, o);
+        }
+
     }
 }

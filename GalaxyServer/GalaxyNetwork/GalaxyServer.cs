@@ -136,6 +136,30 @@ namespace GalaxyServer
                         case MsgType.NewUserMessage:
                             wrapper.Payload = Serializer.DeserializeWithLengthPrefix<NewUserMessage>(m, PrefixStyle.Fixed32);
                             break;
+                        case MsgType.Player:
+                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<Player>(m, PrefixStyle.Fixed32);
+                            break;
+                        case MsgType.InputMessage:
+                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<InputMessage>(m, PrefixStyle.Fixed32);
+                            break;
+                        case MsgType.PlayerStateMessage:
+                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<PlayerStateMessage>(m, PrefixStyle.Fixed32);
+                            break;
+                        case MsgType.GoToWarpMessage:
+                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<GoToWarpMessage>(m, PrefixStyle.Fixed32);
+                            break;
+                        case MsgType.DropOutOfWarpMessage:
+                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<DropOutOfWarpMessage>(m, PrefixStyle.Fixed32);
+                            break;
+                        case MsgType.Asteroid:
+                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<Asteroid>(m, PrefixStyle.Fixed32);
+                            break;
+                        case MsgType.Ship:
+                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<Ship>(m, PrefixStyle.Fixed32);
+                            break;
+                        case MsgType.CargoStateMessage:
+                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<CargoStateMessage>(m, PrefixStyle.Fixed32);
+                            break;
                         default:
                             wrapper.Payload = null;
                             break;

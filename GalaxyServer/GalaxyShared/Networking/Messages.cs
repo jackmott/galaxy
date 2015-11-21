@@ -1,13 +1,12 @@
 ﻿using ProtoBuf;
-using System.Net.Sockets;
 using XnaGeometry;
-using System;
+using System.IO;
 
 namespace GalaxyShared
 {    
     public interface IMessage
     {
-        void Proto(NetworkStream stream,byte[] typeBuffer);
+        void Proto(Stream stream,byte[] typeBuffer);
         void AcceptHandler(IMessageHandler handler,object o = null);                
     }
 
@@ -19,7 +18,7 @@ namespace GalaxyShared
         [ProtoMember(2)]
         public string Password;
                 
-        public void Proto(NetworkStream stream,byte[] typeBuffer)
+        public void Proto(Stream stream,byte[] typeBuffer)
         {
             typeBuffer[0] = (byte)MsgType.LoginMessage;
             stream.Write(typeBuffer, 0, 1);
@@ -40,14 +39,16 @@ namespace GalaxyShared
         [ProtoMember(1)]
         public bool success;
 
-        public void AcceptHandler(IMessageHandler handler, object o = null)
+        public void Proto(Stream stream, byte[] typeBuffer)
         {
-            throw new NotImplementedException();
+            typeBuffer[0] = (byte)MsgType.LoginResultMessage;
+            stream.Write(typeBuffer, 0, 1);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
         }
 
-        public void Proto(NetworkStream stream, byte[] typeBuffer)
+        public void AcceptHandler(IMessageHandler handler, object o = null)
         {
-            throw new NotImplementedException();
+            handler.HandleMessage(this, o);
         }
     }
 
@@ -65,7 +66,7 @@ namespace GalaxyShared
             Password = password;
         }
 
-        public void Proto(NetworkStream stream, byte[] typeBuffer)
+        public void Proto(Stream stream, byte[] typeBuffer)
         {
             typeBuffer[0] = (byte)MsgType.NewUserMessage;
             stream.Write(typeBuffer, 0, 1);
@@ -76,23 +77,7 @@ namespace GalaxyShared
         {
             handler.HandleMessage(this, o);
         }
-        /*
-public void ToBytes(ref byte[] buffer)
-{
-   int size = Marshal.SizeOf(this);
-   IntPtr ptr = Marshal.AllocHGlobal(size);
-   Marshal.StructureToPtr(this, ptr, true);
-   Marshal.Copy(ptr, buffer, 0, size);
-   Marshal.FreeHGlobal(ptr);
-}
 
-public static NewUserMessage FromBytes(byte[] buffer)
-{
-   GCHandle pinnedPacket = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-   NewUserMessage msg = (NewUserMessage)Marshal.PtrToStructure(pinnedPacket.AddrOfPinnedObject(),typeof(NewUserMessage));
-   pinnedPacket.Free();
-   return msg;
-}*/
     }
 
     [ProtoContract]
@@ -101,14 +86,16 @@ public static NewUserMessage FromBytes(byte[] buffer)
         [ProtoMember(1)]
         public bool success;
 
-        public void AcceptHandler(IMessageHandler handler, object o)
+        public void Proto(Stream stream, byte[] typeBuffer)
         {
-            throw new NotImplementedException();
+            typeBuffer[0] = (byte)MsgType.NewUserResultMessage;
+            stream.Write(typeBuffer, 0, 1);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
         }
 
-        public void Proto(NetworkStream stream, byte[] typeBuffer)
+        public void AcceptHandler(IMessageHandler handler, object o = null)
         {
-            throw new NotImplementedException();
+            handler.HandleMessage(this, o);
         }
     }
 
@@ -124,14 +111,16 @@ public static NewUserMessage FromBytes(byte[] buffer)
         [ProtoMember(4)]
         public float Throttle;
 
-        public void Proto(NetworkStream stream, byte[] typeBuffer)
+        public void Proto(Stream stream, byte[] typeBuffer)
         {
-            throw new NotImplementedException();
+            typeBuffer[0] = (byte)MsgType.PlayerStateMessage;
+            stream.Write(typeBuffer, 0, 1);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
         }
 
-        public void AcceptHandler(IMessageHandler handler, object o)
+        public void AcceptHandler(IMessageHandler handler, object o = null)
         {
-            throw new NotImplementedException();
+            handler.HandleMessage(this, o);
         }
     }
 
@@ -143,14 +132,16 @@ public static NewUserMessage FromBytes(byte[] buffer)
         [ProtoMember(2)]
         public Location Location;
 
-        public void Proto(NetworkStream stream, byte[] typeBuffer)
+        public void Proto(Stream stream, byte[] typeBuffer)
         {
-            throw new NotImplementedException();
+            typeBuffer[0] = (byte)MsgType.GoToWarpMessage;
+            stream.Write(typeBuffer, 0, 1);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
         }
 
-        public void AcceptHandler(IMessageHandler handler, object o)
+        public void AcceptHandler(IMessageHandler handler, object o = null)
         {
-            throw new NotImplementedException();
+            handler.HandleMessage(this, o);
         }
     }
 
@@ -164,14 +155,16 @@ public static NewUserMessage FromBytes(byte[] buffer)
         [ProtoMember(3)]
         public SolarSystem System;
 
-        public void Proto(NetworkStream stream, byte[] typeBuffer)
+        public void Proto(Stream stream, byte[] typeBuffer)
         {
-            throw new NotImplementedException();
+            typeBuffer[0] = (byte)MsgType.DropOutOfWarpMessage;
+            stream.Write(typeBuffer, 0, 1);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
         }
 
-        public void AcceptHandler(IMessageHandler handler, object o)
+        public void AcceptHandler(IMessageHandler handler, object o = null)
         {
-            throw new NotImplementedException();
+            handler.HandleMessage(this, o);
         }
     }
 
@@ -183,14 +176,16 @@ public static NewUserMessage FromBytes(byte[] buffer)
         [ProtoMember(2)]
         public Item item;
 
-        public void AcceptHandler(IMessageHandler handler, object o)
+        public void Proto(Stream stream, byte[] typeBuffer)
         {
-            throw new NotImplementedException();
+            typeBuffer[0] = (byte)MsgType.CargoStateMessage;
+            stream.Write(typeBuffer, 0, 1);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
         }
 
-        public void Proto(NetworkStream stream, byte[] typeBuffer)
+        public void AcceptHandler(IMessageHandler handler, object o = null)
         {
-            throw new NotImplementedException();
+            handler.HandleMessage(this, o);
         }
     }
 
@@ -214,14 +209,16 @@ public static NewUserMessage FromBytes(byte[] buffer)
         [ProtoMember(8)]
         public bool SecondaryButton;
 
-        public void Proto(NetworkStream stream, byte[] typeBuffer)
+        public void Proto(Stream stream, byte[] typeBuffer)
         {
-            throw new NotImplementedException();
+            typeBuffer[0] = (byte)MsgType.InputMessage;
+            stream.Write(typeBuffer, 0, 1);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
         }
 
-        public void AcceptHandler(IMessageHandler handler, object o)
+        public void AcceptHandler(IMessageHandler handler, object o = null)
         {
-            throw new NotImplementedException();
+            handler.HandleMessage(this, o);
         }
     }
 }

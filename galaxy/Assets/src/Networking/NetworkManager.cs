@@ -7,15 +7,16 @@ using GalaxyShared;
 using System.Threading;
 using System.Diagnostics;
 using ProtoBuf;
-using System.IO;
 
-public class NetworkManager : MonoBehaviour
+
+public class NetworkManager : MonoBehaviour, IMessageHandler
 {
 
     private static TcpClient socket;
     private static NetworkStream stream;
     public static Queue messageQueue;
     private Thread NetworkThread;
+    
 
     public static float throttle = 0;
     public static List<InputMessage> InputsToSend;
@@ -39,7 +40,7 @@ public class NetworkManager : MonoBehaviour
 
     void Awake()
     {
-
+        
         messageQueue = new Queue();
 
         DontDestroyOnLoad(this);
@@ -134,6 +135,8 @@ public class NetworkManager : MonoBehaviour
             while (messageQueue.Count > 0)
             {
                 IMessage msg = (IMessage)messageQueue.Dequeue();
+                msg.AcceptHandler(this);
+
                 //pass in handler
                 //make something implement imessagehandler on the client
             }
@@ -166,6 +169,30 @@ public class NetworkManager : MonoBehaviour
                 case MsgType.NewUserResultMessage:
                     msg = Serializer.DeserializeWithLengthPrefix<NewUserResultMessage>(stream, PrefixStyle.Fixed32);
                     break;
+                case MsgType.Player:
+                    msg = Serializer.DeserializeWithLengthPrefix<Player>(stream, PrefixStyle.Fixed32);
+                    break;
+                case MsgType.InputMessage:
+                    msg = Serializer.DeserializeWithLengthPrefix<InputMessage>(stream, PrefixStyle.Fixed32);
+                    break;
+                case MsgType.PlayerStateMessage:
+                    msg = Serializer.DeserializeWithLengthPrefix<PlayerStateMessage>(stream, PrefixStyle.Fixed32);
+                    break;
+                case MsgType.GoToWarpMessage:
+                    msg = Serializer.DeserializeWithLengthPrefix<GoToWarpMessage>(stream, PrefixStyle.Fixed32);
+                    break;
+                case MsgType.DropOutOfWarpMessage:
+                    msg = Serializer.DeserializeWithLengthPrefix<DropOutOfWarpMessage>(stream, PrefixStyle.Fixed32);
+                    break;
+                case MsgType.Asteroid:
+                    msg = Serializer.DeserializeWithLengthPrefix<Asteroid>(stream, PrefixStyle.Fixed32);
+                    break;
+                case MsgType.Ship:
+                    msg = Serializer.DeserializeWithLengthPrefix<Ship>(stream, PrefixStyle.Fixed32);
+                    break;
+                case MsgType.CargoStateMessage:
+                    msg = Serializer.DeserializeWithLengthPrefix<CargoStateMessage>(stream, PrefixStyle.Fixed32);
+                    break;
                 default:
                     msg = null;
                 break;
@@ -179,7 +206,7 @@ public class NetworkManager : MonoBehaviour
     }
 
 
-    public void HandleLoginResultMessage(LoginResultMessage msg)
+    public void HandleMessage(LoginResultMessage msg, object extra = null)
     {
         //show error
     }
@@ -189,7 +216,7 @@ public class NetworkManager : MonoBehaviour
         //show error
     }
 
-    public void HandleGotoWarpMessage(GoToWarpMessage msg)
+    public void HandleMessage(GoToWarpMessage msg, object extra = null)
     {
         PlayerState.Location = msg.Location;
         PlayerState.Rotation = msg.Rotation;
@@ -201,7 +228,7 @@ public class NetworkManager : MonoBehaviour
 
     }
 
-    public void HandleDropOutOfWarpMessage(DropOutOfWarpMessage msg)
+    public void HandleMessage(DropOutOfWarpMessage msg, object extra = null)
     {
         Warp.ClosestSector.ParticleSystem.Clear();
         ClientSolarSystem.Cubemap = new Cubemap(2048, TextureFormat.ARGB32, false);
@@ -216,19 +243,19 @@ public class NetworkManager : MonoBehaviour
         Application.LoadLevel((int)Level.System);
     }
 
-    public void HandlePlayerMessage(Player player)
+    public void HandleMessage(Player player, object extra = null)
     {
         UnityEngine.Debug.Log("handle player message");
         PlayerState = player;
         Application.LoadLevel("Warp");
     }
 
-    public void HandleShipState(Ship ship)
+    public void HandleMessage(Ship ship, object extra = null)
     {
-
+        //todo
     }
 
-    public void HandleCargoMessage(CargoStateMessage msg)
+    public void HandleMessage(CargoStateMessage msg, object extra = null)
     {
         if (msg.add)
         {
@@ -238,7 +265,7 @@ public class NetworkManager : MonoBehaviour
         shipGO.GetComponent<ClientSolarSystem>().UpdateInventory();
     }
 
-    public void HandleAsteroidState(Asteroid serverAsteroid)
+    public void HandleMessage(Asteroid serverAsteroid, object extra = null)
     {
         Asteroid clientAsteroid = null;
         foreach (Asteroid a in PlayerState.SolarSystem.Asteroids)
@@ -265,7 +292,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    public void HandlePlayerStateMessage(PlayerStateMessage p)
+    public void HandleMessage(PlayerStateMessage p, object extra = null)
     {
         if (BufferedInputs != null)
         {
@@ -500,5 +527,27 @@ public class NetworkManager : MonoBehaviour
 
 
 
+    }
+
+
+    //things the client doesn't need to implement
+    public void HandleMessage(LoginMessage msg, object extra = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void HandleMessage(NewUserMessage msg, object extra = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void HandleMessage(NewUserResultMessage msg, object extra = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void HandleMessage(InputMessage msg, object extra = null)
+    {
+        throw new NotImplementedException();
     }
 }

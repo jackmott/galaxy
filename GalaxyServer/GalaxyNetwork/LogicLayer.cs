@@ -17,9 +17,9 @@ namespace GalaxyServer
         public static readonly Vector3 SYSTEM_START_POS = new Vector3(0, 0, -5000);
 
 
-        public void HandleMessage(LoginMessage msg, object o)
+        public void HandleMessage(LoginMessage msg, object extra)
         {
-            Client client = (Client)o;
+            Client client = (Client)extra;
             Console.WriteLine("HandleLoginMessage");
 
             LoginMessage login = DataLayer.GetLogin(msg.UserName);
@@ -59,9 +59,9 @@ namespace GalaxyServer
         }
 
 
-        public  void HandleMessage(NewUserMessage msg,object o)
+        public  void HandleMessage(NewUserMessage msg,object extra)
         {
-            Client client = (Client)o;
+            Client client = (Client)extra;
             Console.WriteLine("HandleNewUserMessage");
             NewUserResultMessage m;
             LoginMessage login;
@@ -79,7 +79,9 @@ namespace GalaxyServer
 
         }
 
-        public static void HandleGotoWarpMessage(GoToWarpMessage msg, Client client)
+       
+
+        public static void HandleMessage(GoToWarpMessage msg, Client client)
         {
 
             Player player;
@@ -99,7 +101,7 @@ namespace GalaxyServer
 
         }
 
-        public static void HandleDropOutOfWarpMessage(DropOutOfWarpMessage msg, Client client)
+        public static void HandleMessage(DropOutOfWarpMessage msg, Client client)
         {
             Player player = GetPlayer(client);
             int x = Convert.ToInt32(player.Location.Pos.X / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
@@ -149,7 +151,7 @@ namespace GalaxyServer
             return player;
         }
 
-        public static void HandleInput(InputMessage input, Client client)
+        public static void HandleMessage(InputMessage input, Client client)
         {
             lock (client.Inputs)
             {               
@@ -285,6 +287,57 @@ namespace GalaxyServer
                 }
             }
             Simulator.ContinuedPhysicsWarp(player);
+        }
+
+
+        //Stuff the server doesn't need to implement
+        public void HandleMessage(NewUserResultMessage msg, object extra) {
+            throw new NotImplementedException();
+        }
+
+        public void HandleMessage(LoginResultMessage msg, object extra = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleMessage(PlayerStateMessage msg, object extra = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleMessage(GoToWarpMessage msg, object extra = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleMessage(DropOutOfWarpMessage msg, object extra = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleMessage(CargoStateMessage msg, object extra = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleMessage(InputMessage msg, object extra = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleMessage(Player msg, object extra = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleMessage(Ship msg, object extra = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleMessage(Asteroid msg, object extra = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,10 +1,13 @@
 ﻿
 using System.Collections.Generic;
 using ProtoBuf;
+using System.IO;
+
 namespace GalaxyShared
 {
     [ProtoContract]
-    public class Ship : Entity
+    public class Ship : Entity, IMessage
+
     {
         public Player Owner;
 
@@ -50,6 +53,20 @@ namespace GalaxyShared
             return true;
             //Todo check against cargo volume
         }
+
+
+        public void Proto(Stream stream, byte[] typeBuffer)
+        {
+            typeBuffer[0] = (byte)MsgType.Ship;
+            stream.Write(typeBuffer, 0, 1);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
+        }
+
+        public void AcceptHandler(IMessageHandler handler, object o = null)
+        {
+            handler.HandleMessage(this, o);
+        }
+
 
     }
 }

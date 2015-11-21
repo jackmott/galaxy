@@ -1,15 +1,16 @@
 ﻿using XnaGeometry;
 using ProtoBuf;
+using System.IO;
 
 namespace GalaxyShared
 {
     [ProtoContract]
-    public class Player
+    public class Player : IMessage
     {
         [ProtoMember(1)]
         public string UserName;
         [ProtoMember(2)]
-        public Location Location;
+        public Location Location; 
         [ProtoMember(3)]
         public Quaternion Rotation;
         [ProtoMember(4)]
@@ -38,9 +39,18 @@ namespace GalaxyShared
             Ship.Location = Location;
         }
 
-        public int TypeID()
+       
+
+        public void Proto(Stream stream, byte[] typeBuffer)
         {
-            return 4;
+            typeBuffer[0] = (byte)MsgType.Player;
+            stream.Write(typeBuffer, 0, 1);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
+        }
+
+        public void AcceptHandler(IMessageHandler handler, object o = null)
+        {
+            handler.HandleMessage(this, o);
         }
 
     }
