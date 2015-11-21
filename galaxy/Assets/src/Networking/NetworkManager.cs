@@ -133,44 +133,9 @@ public class NetworkManager : MonoBehaviour
         {
             while (messageQueue.Count > 0)
             {
-               /* ProtoWrapper p = (ProtoWrapper)messageQueue.Dequeue();
-                object o = p.Payload;
-                
-            
-                switch (p.MsgType)
-                {
-
-                    case MsgType.LoginResultMessage:
-                        HandleLoginResultMessage((LoginResultMessage)o);
-                        break;
-                    case MsgType.NewUserResultMessage:
-                        HandleNewUserResultMessage((NewUserResultMessage)o);
-                        break;
-                    case MsgType.Player:
-                        HandlePlayerMessage((Player)o);
-                        break;
-                    case MsgType.PlayerStateMessage:
-                        HandlePlayerStateMessage((PlayerStateMessage)o);
-                        break;
-                    case MsgType.GoToWarpMessage:
-                        HandleGotoWarpMessage((GoToWarpMessage)o);
-                        break;
-                    case MsgType.DropOutOfWarpMessage:
-                        HandleDropOutOfWarpMessage((DropOutOfWarpMessage)o);
-                        break;
-                    case MsgType.Asteroid:
-                        HandleAsteroidState((Asteroid)o);
-                        break;
-                    case MsgType.Ship:
-                        HandleShipState((Ship)o);
-                        break;
-                    case MsgType.CargoStateMessage:
-                        HandleCargoMessage((CargoStateMessage)o);
-                        break;
-                    default:
-                        Console.WriteLine("unknown message");
-                        break;
-                }*/
+                IMessage msg = (IMessage)messageQueue.Dequeue();
+                //pass in handler
+                //make something implement imessagehandler on the client
             }
         }
     }
@@ -190,24 +155,24 @@ public class NetworkManager : MonoBehaviour
         while (true)
         {
           
-            int bytesRead = 0;
-            do
+            //get type
+            stream.Read(buffer,0, 1);
+            IMessage msg;
+            switch ((MsgType)buffer[0])
             {
-                bytesRead += stream.Read(buffer, bytesRead, NetworkUtils.HEADER_SIZE-bytesRead);
-            } while (bytesRead < NetworkUtils.HEADER_SIZE);
-
-            int type = (int)buffer[0];
-            int size = BitConverter.ToInt32(buffer, 1) + 1;
-
-
-            while (bytesRead < size+1) 
-            {
-                bytesRead += stream.Read(buffer, bytesRead, size - bytesRead);
-            } 
-
-            MemoryStream m = new MemoryStream(buffer, NetworkUtils.HEADER_SIZE, bytesRead-NetworkUtils.HEADER_SIZE);
+                case MsgType.LoginResultMessage:
+                    msg = Serializer.DeserializeWithLengthPrefix<LoginResultMessage>(stream, PrefixStyle.Fixed32);
+                    break;
+                case MsgType.NewUserResultMessage:
+                    msg = Serializer.DeserializeWithLengthPrefix<NewUserResultMessage>(stream, PrefixStyle.Fixed32);
+                    break;
+                default:
+                    msg = null;
+                break;
+            }
             
-            messageQueue.Enqueue(Serializer.NonGeneric.Deserialize(TypeDictionary.TypeLookUpArray[type],m));
+            
+            messageQueue.Enqueue(msg);
 
         }
 

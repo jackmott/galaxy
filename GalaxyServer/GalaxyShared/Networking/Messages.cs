@@ -8,10 +8,9 @@ namespace GalaxyShared
     public interface IMessage
     {
         void Proto(NetworkStream stream,byte[] typeBuffer);
-        void AcceptHandler(IMessageHandler handler,object o);
-        
-        
+        void AcceptHandler(IMessageHandler handler,object o = null);                
     }
+
     [ProtoContract]
     public struct LoginMessage  : IMessage
     {
@@ -24,10 +23,10 @@ namespace GalaxyShared
         {
             typeBuffer[0] = (byte)MsgType.LoginMessage;
             stream.Write(typeBuffer, 0, 1);
-            Serializer.SerializeWithLengthPrefix<LoginMessage>(stream, this,PrefixStyle.Fixed32);
+            Serializer.SerializeWithLengthPrefix(stream, this,PrefixStyle.Fixed32);
         }
 
-        public void AcceptHandler(IMessageHandler handler,object o)
+        public void AcceptHandler(IMessageHandler handler,object o = null)
         {
             handler.HandleMessage(this,o);
         }
@@ -41,7 +40,7 @@ namespace GalaxyShared
         [ProtoMember(1)]
         public bool success;
 
-        public void AcceptHandler(IMessageHandler handler, object o)
+        public void AcceptHandler(IMessageHandler handler, object o = null)
         {
             throw new NotImplementedException();
         }
@@ -70,7 +69,7 @@ namespace GalaxyShared
         {
             typeBuffer[0] = (byte)MsgType.NewUserMessage;
             stream.Write(typeBuffer, 0, 1);
-            Serializer.SerializeWithLengthPrefix<NewUserMessage>(stream, this, PrefixStyle.Fixed32);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
         }
 
         public void AcceptHandler(IMessageHandler handler, object o)
