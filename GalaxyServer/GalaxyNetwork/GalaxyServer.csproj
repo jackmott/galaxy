@@ -72,7 +72,7 @@
   <ItemGroup>
     <Compile Include="DataLayer.cs" />
     <Compile Include="Client.cs" />
-    <Compile Include="MessageWrapper.cs" />
+    <Compile Include="MessageWrappers.cs" />
     <Compile Include="GalaxyServer.cs" />
     <Compile Include="LogicLayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

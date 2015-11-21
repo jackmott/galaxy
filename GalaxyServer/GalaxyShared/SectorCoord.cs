@@ -4,11 +4,11 @@ namespace GalaxyShared
     [ProtoContract]
     public struct SectorCoord
     {
-        [ProtoMember(0)]
-        public int X;
         [ProtoMember(1)]
-        public int Y;
+        public int X;
         [ProtoMember(2)]
+        public int Y;
+        [ProtoMember(3)]
         public int Z;
 
         public SectorCoord(int x, int y, int z)

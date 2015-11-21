@@ -53,11 +53,11 @@ namespace XnaGeometry
 
 
         #region Public Fields
-        [ProtoMember(0)]
-        public double X;
         [ProtoMember(1)]
-        public double Y;
+        public double X;
         [ProtoMember(2)]
+        public double Y;
+        [ProtoMember(3)]
         public double Z;
 
         #endregion Public Fields

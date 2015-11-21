@@ -16,12 +16,12 @@ namespace GalaxyShared
         public const int K = 5;
         public const int M = 6;
 
-        [ProtoMember(0)]
-        public int Type;
         [ProtoMember(1)]
+        public int Type;
+        [ProtoMember(2)]
         public float Size;
 
-        [ProtoMember(2)]
+        [ProtoMember(3)]
         public GalaxyColor Color;
 
         

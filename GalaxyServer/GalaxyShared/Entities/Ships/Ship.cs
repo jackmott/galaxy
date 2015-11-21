@@ -1,25 +1,34 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+using ProtoBuf;
 namespace GalaxyShared
 {
-    [Serializable]
+    [ProtoContract]
     public class Ship : Entity
     {
-        public int TopSpeed;
-        public string Name;
-        public string TypeName;
-        public string Description;
-        public int CargoVolume;
-        public int MiningLaserRange;
-
         public Player Owner;
 
+        [ProtoMember(1)]
+        public int TopSpeed;
+        [ProtoMember(2)]
+        public string Name;
+        [ProtoMember(3)]
+        public string TypeName;
+        [ProtoMember(4)]
+        public string Description;
+        [ProtoMember(5)]
+        public int CargoVolume;
+        [ProtoMember(6)]
+        public int MiningLaserRange;        
+        [ProtoMember(7)]
         public List<Item> Cargo;
-
+        [ProtoMember(8)]
         public int MiningLaserPower;
+
+        public Ship(Player owner)
+        {
+            Owner = owner;
+        }
 
         public void Update(Ship ship)
         {

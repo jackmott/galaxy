@@ -10,8 +10,8 @@ namespace GalaxyShared
         NewUserMessage,
         LoginResultMessage,
         NewUserResultMessage,
-        GalaxyPlayer,
-        ListOfInputMessage,
+        Player,
+        InputMessage,
         PlayerStateMessage,
         GoToWarpMessage,
         DropOutOfWarpMessage,
@@ -40,7 +40,7 @@ namespace GalaxyShared
                 int i = 0;
                 foreach (MsgType msgType in values)
                 {
-                    string enumName = msgType.ToString();
+                    string enumName = "GalaxyShared."+ msgType.ToString();
                     Type t = Type.GetType(enumName);
                     TypeLookUpArray[i] = t;
                     TypeLookupDictionary.Add(t, msgType);

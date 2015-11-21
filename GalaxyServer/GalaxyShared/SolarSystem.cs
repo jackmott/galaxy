@@ -9,19 +9,19 @@ namespace GalaxyShared
     [ProtoContract]
     public class SolarSystem
     {
-        [ProtoMember(0)]
-        public SectorCoord ParentSectorCoord;
         [ProtoMember(1)]
-        public int Index;
+        public SectorCoord ParentSectorCoord;
         [ProtoMember(2)]
+        public int Index;
+        [ProtoMember(3)]
         public Vector3 Pos;
 
-        [ProtoMember(3)]
+        [ProtoMember(4)]
         public Star Star;
 
-        [ProtoMember(4)]
-        public List<Planet> Planets;
         [ProtoMember(5)]
+        public List<Planet> Planets;
+        [ProtoMember(6)]
         public List<Asteroid> Asteroids;
 
         

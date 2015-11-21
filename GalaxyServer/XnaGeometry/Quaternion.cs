@@ -35,13 +35,13 @@ namespace XnaGeometry
     public struct Quaternion : IEquatable<Quaternion>
     {
 
-        [ProtoMember(0)]
-        public double X;
         [ProtoMember(1)]
-        public double Y;
+        public double X;
         [ProtoMember(2)]
-        public double Z;
+        public double Y;
         [ProtoMember(3)]
+        public double Z;
+        [ProtoMember(4)]
         public double W;
 
         static Quaternion identity = new Quaternion(0, 0, 0, 1);

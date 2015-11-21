@@ -9,15 +9,15 @@ namespace GalaxyShared
         public SolarSystem ParentSystem;      
         public object GameObject;
 
-        [ProtoMember(0)]
-        public int Orbit;
         [ProtoMember(1)]
-        public double OrbitAngle;
+        public int Orbit;
         [ProtoMember(2)]
-        public double Size;
+        public double OrbitAngle;
         [ProtoMember(3)]
-        public Vector3 Pos;
+        public double Size;
         [ProtoMember(4)]
+        public Vector3 Pos;
+        [ProtoMember(5)]
         public double Remaining = 100f;
         
 

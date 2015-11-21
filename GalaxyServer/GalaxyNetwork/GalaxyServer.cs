@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading.Tasks;
@@ -102,37 +101,46 @@ namespace GalaxyServer
 
         private async Task HandleClientRead(Client client)
         {
+            
             byte[] buffer = new byte[NetworkUtils.SERVER_READ_BUFFER_SIZE];
             Console.WriteLine("Being Read Loop On Client");
             while (true)
             {
 
                 try
-                {
-
-                    int size = 0;
+                {                 
                     int bytesRead = 0;
                     do
                     {
-                        bytesRead += await client.GalaxyTcpStream.ReadAsync(buffer, bytesRead, NetworkUtils.SERVER_READ_BUFFER_SIZE);
-                    } while (!Serializer.TryReadLengthPrefix(buffer, 0, bytesRead, PrefixStyle.Base128, out size));
+                        bytesRead += await client.GalaxyTcpStream.ReadAsync(buffer, bytesRead, NetworkUtils.HEADER_SIZE - bytesRead);
+                    } while (bytesRead < NetworkUtils.HEADER_SIZE);
 
-
-                    while (bytesRead < size)
+                    int size = BitConverter.ToInt32(buffer, 1);
+                    
+                    while (bytesRead < size) 
                     {
-                        bytesRead += await client.GalaxyTcpStream.ReadAsync(buffer, bytesRead, size - bytesRead);
-                    }
+                        bytesRead += await client.GalaxyTcpStream.ReadAsync(buffer, bytesRead, size+NetworkUtils.HEADER_SIZE - bytesRead);
+                    } 
 
-                    MemoryStream m = new MemoryStream(buffer, 0, bytesRead);
-                    object message;
-                    if (!Serializer.NonGeneric.TryDeserializeWithLengthPrefix(m, PrefixStyle.Base128, TypeDictionary.TypeResolver, out message))
+                    MemoryStream m = new MemoryStream(buffer, 1, bytesRead-1);
+
+
+                    MessageWrapper wrapper;
+                    wrapper.Client = client;
+                    
+                    switch ((MsgType)buffer[0])
                     {
-                        Console.WriteLine("Failed to deserialize");
+                        case MsgType.LoginMessage:
+                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<LoginMessage>(m, PrefixStyle.Fixed32);
+                            break;
+                        case MsgType.NewUserMessage:
+                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<NewUserMessage>(m, PrefixStyle.Fixed32);
+                            break;
+                        default:
+                            wrapper.Payload = null;
+                            break;
                     }
                     
-                    MessageWrapper wrapper;
-                    wrapper.c = client;
-                    wrapper.o = message;
                     Messages.Add(wrapper);
                 }
                 catch (Exception)
@@ -162,31 +170,28 @@ namespace GalaxyServer
 
 
 
-        public static void AddToSendQueue(Client c, object o)
+        public static void AddToSendQueue(Client client, IMessage payload)
         {
-
             MessageWrapper m;
-            m.c = c;
-            m.o = o;
+            m.Client = client;
+            m.Payload = payload;            
             OutgoingMessages.Add(m);
         }
 
         private void SendMessages()
-        {
-            //IFormatter binaryFormatter = new BinaryFormatter();
+        {                                    
+            byte[] typeBuffer = new byte[1]; 
             while (true)
             {
-                MessageWrapper m = OutgoingMessages.Take();
-
+                MessageWrapper m = OutgoingMessages.Take();               
                 try
                 {
-                    //binaryFormatter.Serialize(m.c.GalaxyTcpStream, m.o);                    
-                    Serializer.SerializeWithLengthPrefix(m.c.GalaxyTcpStream, m.o, PrefixStyle.Base128, (int)TypeDictionary.GetID(m.o));
+                    m.Payload.Proto(m.Client.GalaxyTcpStream, typeBuffer);                    
                 }
                 catch (Exception)
                 {
                     Console.WriteLine("Send Loop Exception");
-                    CleanUpClient(m.c);
+                    CleanUpClient(m.Client);
                 }
 
             }
@@ -194,48 +199,11 @@ namespace GalaxyServer
 
         //spins and processes messages
         private void ProcessMessages()
-        {
-
-            // IFormatter binaryFormatter = new BinaryFormatter();
-
+        {         
             while (true)
             {
                 MessageWrapper message = Messages.Take();
-                
-                Client client = null;
-                try
-                {
-                    client = message.c;
-                    
-                                                            
-                    switch (TypeDictionary.GetID(message.o))
-                    {
-                        case MsgType.LoginMessage:
-                            LogicLayer.HandleLoginMessage((LoginMessage)message.o, client);
-                            break;
-                        case MsgType.NewUserMessage:
-                            LogicLayer.HandleNewUserMessage((NewUserMessage)message.o, client);
-                            break;
-                        case MsgType.ListOfInputMessage:
-                            LogicLayer.HandleInputs((List<InputMessage>)message.o, client);
-                            break;
-                        case MsgType.GoToWarpMessage:
-                            LogicLayer.HandleGotoWarpMessage((GoToWarpMessage)message.o, client);
-                            break;
-                        case MsgType.DropOutOfWarpMessage:
-                            LogicLayer.HandleDropOutOfWarpMessage((DropOutOfWarpMessage)message.o, client);
-                            break;
-                        default:
-                            Console.WriteLine("unknown message");
-                            break;
-                    }
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("Exception on process messages");
-                    if (client != null) CleanUpClient(client);
-                }
-
+                message.Payload.AcceptHandler(new LogicLayer(),message.Client);               
 
             }
         }

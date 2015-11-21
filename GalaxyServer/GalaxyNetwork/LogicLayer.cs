@@ -8,7 +8,7 @@ using XnaGeometry;
 
 namespace GalaxyServer
 {
-    class LogicLayer
+    public class LogicLayer : IMessageHandler
     {
 
         public static ConcurrentDictionary<Client, Player> PlayerTable = new ConcurrentDictionary<Client, Player>();
@@ -17,8 +17,9 @@ namespace GalaxyServer
         public static readonly Vector3 SYSTEM_START_POS = new Vector3(0, 0, -5000);
 
 
-        public static void HandleLoginMessage(LoginMessage msg, Client client)
+        public void HandleMessage(LoginMessage msg, object o)
         {
+            Client client = (Client)o;
             Console.WriteLine("HandleLoginMessage");
 
             LoginMessage login = DataLayer.GetLogin(msg.UserName);
@@ -52,14 +53,15 @@ namespace GalaxyServer
 
             Console.WriteLine("About to send player data");
             while (!PlayerTable.TryAdd(client, player)) { }
-            GalaxyServer.AddToSendQueue(client, player);
+          //  GalaxyServer.AddToSendQueue(client, player);
             Console.WriteLine("Player Data Sent");
 
         }
 
 
-        public static void HandleNewUserMessage(NewUserMessage msg, Client client)
+        public  void HandleMessage(NewUserMessage msg,object o)
         {
+            Client client = (Client)o;
             Console.WriteLine("HandleNewUserMessage");
             NewUserResultMessage m;
             LoginMessage login;
@@ -147,16 +149,11 @@ namespace GalaxyServer
             return player;
         }
 
-        public static void HandleInputs(List<InputMessage> inputs, Client client)
+        public static void HandleInput(InputMessage input, Client client)
         {
-            lock (inputs)
-            {
-                foreach (InputMessage input in inputs)
-                {
-
-                    client.Inputs.Enqueue(input);
-
-                }
+            lock (client.Inputs)
+            {               
+                client.Inputs.Enqueue(input);               
             }
         }
 
@@ -202,7 +199,7 @@ namespace GalaxyServer
                 hit.Remaining -= player.Ship.MiningLaserPower;
                 player.Ship.AddCargo(new IronOre(player.Ship.MiningLaserPower));
                 Console.WriteLine("hit!:" + hit.Remaining);
-                GalaxyServer.AddToSendQueue(client, hit);
+            //    GalaxyServer.AddToSendQueue(client, hit);
                 CargoStateMessage cargoState = new CargoStateMessage();
                 cargoState.add = true;
                 cargoState.item = new IronOre(player.Ship.MiningLaserPower);

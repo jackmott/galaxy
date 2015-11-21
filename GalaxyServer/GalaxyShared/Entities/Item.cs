@@ -1,20 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ProtoBuf;
 
 namespace GalaxyShared
 {
-    [Serializable]
+    [ProtoContract]
     public abstract class Item
     {
+        [ProtoMember(1)]
         public string Name;
+        [ProtoMember(2)]
         public int Count;
+        [ProtoMember(3)]
         public double Mass;
+        [ProtoMember(4)]
         public double Volume;
     }
 
-    [Serializable]
+    [ProtoContract]
     public class IronOre : Item
     {
         public IronOre(int amount)

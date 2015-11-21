@@ -5,11 +5,11 @@ namespace GalaxyShared
     [ProtoContract]
     public struct GalaxyColor
     {
-        [ProtoMember(0)]
-        public int R;
         [ProtoMember(1)]
-        public int G;
+        public int R;
         [ProtoMember(2)]
+        public int G;
+        [ProtoMember(3)]
         public int B;
 
         public void FromArgb(int r,int g, int b)

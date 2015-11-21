@@ -38,13 +38,14 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Asteroid.cs" />
     <Compile Include="Buttons.cs" />
-    <Compile Include="Entities\Ships\BustedHeap.cs" />
     <Compile Include="FastRandom.cs" />
     <Compile Include="GalaxyColor.cs" />
+    <Compile Include="Networking\IMessageHandler.cs" />
     <Compile Include="SectorCoord.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Item.cs" />

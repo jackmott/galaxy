@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Net.Sockets;
 using System;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using GalaxyShared;
 using System.Threading;
 using System.Diagnostics;
 using ProtoBuf;
+using System.IO;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -108,7 +107,10 @@ public class NetworkManager : MonoBehaviour
             {
                 if (InputsToSend.Count > 0)
                 {
-                    Send(InputsToSend);
+                    foreach (InputMessage input in InputsToSend)
+                    {
+                        Send(input);
+                    }
                     InputsToSend.Clear();
                 }
                 SendStopwatch.Stop();
@@ -131,10 +133,11 @@ public class NetworkManager : MonoBehaviour
         {
             while (messageQueue.Count > 0)
             {
-                object o = messageQueue.Dequeue();
-                MsgType type = TypeDictionary.GetID(o);
-
-                switch (type)
+               /* ProtoWrapper p = (ProtoWrapper)messageQueue.Dequeue();
+                object o = p.Payload;
+                
+            
+                switch (p.MsgType)
                 {
 
                     case MsgType.LoginResultMessage:
@@ -143,8 +146,8 @@ public class NetworkManager : MonoBehaviour
                     case MsgType.NewUserResultMessage:
                         HandleNewUserResultMessage((NewUserResultMessage)o);
                         break;
-                    case MsgType.GalaxyPlayer:
-                        HandleGalaxyPlayerMessage((Player)o);
+                    case MsgType.Player:
+                        HandlePlayerMessage((Player)o);
                         break;
                     case MsgType.PlayerStateMessage:
                         HandlePlayerStateMessage((PlayerStateMessage)o);
@@ -167,28 +170,44 @@ public class NetworkManager : MonoBehaviour
                     default:
                         Console.WriteLine("unknown message");
                         break;
-                }
+                }*/
             }
         }
     }
 
-    public static void Send(object msg)
+    private static byte[] typeBuffer = new byte[1];
+    public static void Send(IMessage msg)
     {
-        Serializer.SerializeWithLengthPrefix(stream, msg, PrefixStyle.Base128, (int)TypeDictionary.GetID(msg));
-        
+
+        msg.Proto(stream, typeBuffer);
+                
     }
 
 
     public void NetworkReadLoop()
     {
-        IFormatter binaryFormatter = new BinaryFormatter();
+        byte[] buffer = new byte[NetworkUtils.SERVER_READ_BUFFER_SIZE];
         while (true)
         {
-            object o = binaryFormatter.Deserialize(stream);
-            lock (messageQueue)
+          
+            int bytesRead = 0;
+            do
             {
-                messageQueue.Enqueue(o);
-            }
+                bytesRead += stream.Read(buffer, bytesRead, NetworkUtils.HEADER_SIZE-bytesRead);
+            } while (bytesRead < NetworkUtils.HEADER_SIZE);
+
+            int type = (int)buffer[0];
+            int size = BitConverter.ToInt32(buffer, 1) + 1;
+
+
+            while (bytesRead < size+1) 
+            {
+                bytesRead += stream.Read(buffer, bytesRead, size - bytesRead);
+            } 
+
+            MemoryStream m = new MemoryStream(buffer, NetworkUtils.HEADER_SIZE, bytesRead-NetworkUtils.HEADER_SIZE);
+            
+            messageQueue.Enqueue(Serializer.NonGeneric.Deserialize(TypeDictionary.TypeLookUpArray[type],m));
 
         }
 
@@ -232,9 +251,9 @@ public class NetworkManager : MonoBehaviour
         Application.LoadLevel((int)Level.System);
     }
 
-    public void HandleGalaxyPlayerMessage(Player player)
+    public void HandlePlayerMessage(Player player)
     {
-        UnityEngine.Debug.Log("handle galaxyplayer message");
+        UnityEngine.Debug.Log("handle player message");
         PlayerState = player;
         Application.LoadLevel("Warp");
     }

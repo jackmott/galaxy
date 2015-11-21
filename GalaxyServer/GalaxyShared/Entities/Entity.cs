@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using XnaGeometry;
+﻿using ProtoBuf;
 
 namespace GalaxyShared
 {
-    [Serializable]
+    [ProtoContract]
     public class Entity
     {
+        [ProtoMember(1)]
         public Location Location;
 
         public Entity()

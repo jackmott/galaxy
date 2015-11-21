@@ -13,22 +13,22 @@ namespace GalaxyShared
         public SolarSystem ParentSystem;
         FastRandom rand;
 
-        [ProtoMember(0)]
-        public int Orbit;
         [ProtoMember(1)]
-        public double OrbitAngle;
+        public int Orbit;
         [ProtoMember(2)]
-        public double RotationRate;
+        public double OrbitAngle;
         [ProtoMember(3)]
-        public double Size;
+        public double RotationRate;
         [ProtoMember(4)]
+        public double Size;
+        [ProtoMember(5)]
         public Vector3 Pos;
 
-        [ProtoMember(5)]
-        public string DiscoveredBy = "Undisocvered";
         [ProtoMember(6)]
-        public string Name = "Unnamed";
+        public string DiscoveredBy = "Undisocvered";
         [ProtoMember(7)]
+        public string Name = "Unnamed";
+        [ProtoMember(8)]
         public string ClaimedBy = "Unclaimed";
 
 

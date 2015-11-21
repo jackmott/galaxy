@@ -1,22 +1,25 @@
-﻿using System;
-using XnaGeometry;
-using System.Collections.Generic;
+﻿using XnaGeometry;
+using ProtoBuf;
 
 namespace GalaxyShared
 {
-    [Serializable]
+    [ProtoContract]
     public class Player
     {
+        [ProtoMember(1)]
         public string UserName;
+        [ProtoMember(2)]
         public Location Location;
-        public Quaternion Rotation;        
+        [ProtoMember(3)]
+        public Quaternion Rotation;
+        [ProtoMember(4)]
         public float Throttle;
+        [ProtoMember(5)]
         public long Seq;
 
         
         public Ship Ship;
-
-        [NonSerialized]
+        
         public SolarSystem SolarSystem;
 
 
@@ -31,7 +34,7 @@ namespace GalaxyShared
             Location.Pos = (Location.SystemPos * Sector.EXPAND_FACTOR) + Vector3.Transform(Vector3.Forward * .3d, Rotation);
             Throttle = 0;
             Location.InWarp = true;
-            Ship = new BustedHeap(this);
+            Ship = new Ship(this);
             Ship.Location = Location;
         }
 
