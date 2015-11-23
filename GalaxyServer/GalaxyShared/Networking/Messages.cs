@@ -2,6 +2,7 @@
 using XnaGeometry;
 using System.IO;
 
+
 namespace GalaxyShared
 {    
     public interface IMessage
@@ -158,8 +159,9 @@ namespace GalaxyShared
         public void Proto(Stream stream, byte[] typeBuffer)
         {
             typeBuffer[0] = (byte)MsgType.DropOutOfWarpMessage;
-            stream.Write(typeBuffer, 0, 1);
+            stream.Write(typeBuffer, 0, 1); 
             Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
+           
         }
 
         public void AcceptHandler(IMessageHandler handler, object o = null)
@@ -169,16 +171,20 @@ namespace GalaxyShared
     }
 
     [ProtoContract]
-    public struct CargoStateMessage : IMessage
+    public struct MiningMessage : IMessage
     {
         [ProtoMember(1)]
-        public bool add;
+        public bool Add;
         [ProtoMember(2)]
-        public Item item;
+        public Item Item;
+        [ProtoMember(3)]
+        public int AsteroidHash;
+        [ProtoMember(4)]
+        public ushort Remaining;
 
         public void Proto(Stream stream, byte[] typeBuffer)
         {
-            typeBuffer[0] = (byte)MsgType.CargoStateMessage;
+            typeBuffer[0] = (byte)MsgType.MiningMessage;
             stream.Write(typeBuffer, 0, 1);
             Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
         }
@@ -193,7 +199,7 @@ namespace GalaxyShared
     public struct InputMessage : IMessage
     {
         [ProtoMember(1)]
-        public int Seq;
+        public long Seq;
         [ProtoMember(2)]
         public float DeltaTime; //seconds
         [ProtoMember(3)]

@@ -5,6 +5,7 @@ using System.IO;
 using GalaxyShared;
 using XnaGeometry;
 using ProtoBuf;
+using System;
 
 namespace GalaxyServer
 {
@@ -37,22 +38,27 @@ namespace GalaxyServer
         //Gets object from redis
         public static T Get<T>(string key)
         {
-            RedisValue bytes = DB.StringGet(key);
-            if (!bytes.HasValue)
+            try {
+                RedisValue bytes = DB.StringGet(key);
+                if (!bytes.HasValue)
+                {
+                    return default(T);
+                }
+                MemoryStream stream = new MemoryStream(bytes);
+                return Serializer.Deserialize<T>(stream);
+            } catch (Exception ex)
             {
-                return default(T);
+                Console.WriteLine(ex);
             }
-            MemoryStream stream = new MemoryStream(bytes);
-            return Serializer.Deserialize<T>(stream);
-                
+            return default(T);
         }
 
         //puts object in redis
         public static bool Add(string key, object value)
         {
             MemoryStream stream = new MemoryStream();
-            Serializer.Serialize(stream,value);
-            byte[] bytes = stream.GetBuffer();
+            Serializer.Serialize(stream, value);
+            byte[] bytes = stream.ToArray();
             return DB.StringSet(key, bytes);
         }
 

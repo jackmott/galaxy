@@ -24,6 +24,8 @@ public class ClientSolarSystem : MonoBehaviour
 
     public VectorLine MiningLaser;
 
+    public Dictionary<int, Asteroid> asteroidDictionary;
+
 
     //private GameObject[] Planets;
     //private GameObject[] Asteroids;
@@ -34,6 +36,7 @@ public class ClientSolarSystem : MonoBehaviour
     {
         //SolarSystem = new SolarSystem(NetworkManager.PlayerState.Location.SystemPos);
         SolarSystem = NetworkManager.PlayerState.SolarSystem;
+        asteroidDictionary = new Dictionary<int, Asteroid>(1000);
         GameObject star = (GameObject)Instantiate(Resources.Load<GameObject>("Star"), Vector3.zero, Quaternion.identity);
         star.transform.position = Vector3.zero;
         star.transform.localScale *= SolarSystem.Star.Size * Planet.EARTH_CONSTANT * 30;
@@ -86,19 +89,14 @@ public class ClientSolarSystem : MonoBehaviour
         GameObject resourcePlanet = Resources.Load<GameObject>("Planet");
         foreach (Planet p in SolarSystem.Planets)
         {
+            p.ParentSystem = SolarSystem;
             GameObject planetGO = (GameObject)Instantiate(resourcePlanet, Utility.UVector(p.Pos), Quaternion.identity);
             planetGO.transform.localScale *= (float)p.Size * Planet.EARTH_CONSTANT;
             ClientPlanet cp = planetGO.GetComponent<ClientPlanet>();
             cp.Planet = p;
 
 
-            /*
-
-            LineRenderer lr = planetGO.GetComponent<LineRenderer>();
-            Color c = new Color(1, 1, 1);
-            lr.material = new Material(Shader.Find("Unlit/Color"));
-            lr.SetColors(c, c);
-            lr.SetWidth(20f, 20f);*/
+     
 
             int vertexCount = Convert.ToInt32(100f * (p.Orbit / 5f));
             VectorLine orbitLine = new VectorLine("OrbitLine", new List<Vector3>(vertexCount), 1.0f, LineType.Continuous);
@@ -116,12 +114,33 @@ public class ClientSolarSystem : MonoBehaviour
         GameObject resourceAsteroid = Resources.Load<GameObject>("Asteroid");
         foreach (Asteroid a in SolarSystem.Asteroids)
         {
+            a.ParentSystem = SolarSystem;
+            asteroidDictionary.Add(a.Hash, a);
             GameObject asteroidGO = (GameObject)Instantiate(resourceAsteroid, Utility.UVector(a.Pos), UnityEngine.Random.rotation);
             asteroidGO.transform.localScale *= (float)a.Size * Planet.EARTH_CONSTANT;
             ClientAsteroid ca = asteroidGO.GetComponent<ClientAsteroid>();
+            Renderer r = asteroidGO.GetComponent<Renderer>();
+            r.material.color = new Color(.5f, .2f, .1f);
             ca.SetAsteroid(a);
             a.GameObject = asteroidGO;
         }
+
+    }
+
+    public void UpdateAsteroid(int hash, ushort remaining)
+    {
+        Asteroid a = null;
+        asteroidDictionary.TryGetValue(hash, out a);
+        if (remaining > 0 )
+        {
+            a.Remaining = remaining;
+        } else
+        {
+            Destroy((GameObject)a.GameObject);
+            SolarSystem.Asteroids.Remove(a);
+            asteroidDictionary.Remove(hash);
+        }
+
 
     }
 

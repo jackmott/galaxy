@@ -103,32 +103,38 @@ namespace GalaxyServer
         {
             
             byte[] buffer = new byte[NetworkUtils.SERVER_READ_BUFFER_SIZE];
+            byte[] typeBuffer = new byte[1];
             Console.WriteLine("Being Read Loop On Client");
             while (true)
             {
 
                 try
-                {                 
-                    int bytesRead = 0;
-                    do
-                    {
-                        bytesRead += await client.GalaxyTcpStream.ReadAsync(buffer, bytesRead, NetworkUtils.HEADER_SIZE - bytesRead);
-                    } while (bytesRead < NetworkUtils.HEADER_SIZE);
-
-                    int size = BitConverter.ToInt32(buffer, 1);
+                {
                     
-                    while (bytesRead < size) 
+                    await client.GalaxyTcpStream.ReadAsync(typeBuffer, 0, 1);
+                    
+                    int bytesRead = 0;
+
+                    while (bytesRead < 4)
                     {
-                        bytesRead += await client.GalaxyTcpStream.ReadAsync(buffer, bytesRead, size+NetworkUtils.HEADER_SIZE - bytesRead);
+                        bytesRead += await client.GalaxyTcpStream.ReadAsync(buffer, bytesRead, 4 - bytesRead);
                     } 
 
-                    MemoryStream m = new MemoryStream(buffer, 1, bytesRead-1);
+                    int size = BitConverter.ToInt32(buffer, 0);
+
+                    bytesRead = 0;
+                    while (bytesRead < size) 
+                    {
+                        bytesRead += await client.GalaxyTcpStream.ReadAsync(buffer, bytesRead+4, size - bytesRead);
+                    } 
+
+                    MemoryStream m = new MemoryStream(buffer, 0, size+4);
 
 
                     MessageWrapper wrapper;
                     wrapper.Client = client;
                     
-                    switch ((MsgType)buffer[0])
+                    switch ((MsgType)typeBuffer[0])
                     {
                         case MsgType.LoginMessage:
                             wrapper.Payload = Serializer.DeserializeWithLengthPrefix<LoginMessage>(m, PrefixStyle.Fixed32);
@@ -157,8 +163,8 @@ namespace GalaxyServer
                         case MsgType.Ship:
                             wrapper.Payload = Serializer.DeserializeWithLengthPrefix<Ship>(m, PrefixStyle.Fixed32);
                             break;
-                        case MsgType.CargoStateMessage:
-                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<CargoStateMessage>(m, PrefixStyle.Fixed32);
+                        case MsgType.MiningMessage:
+                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<MiningMessage>(m, PrefixStyle.Fixed32);
                             break;
                         default:
                             wrapper.Payload = null;
@@ -167,9 +173,9 @@ namespace GalaxyServer
                     
                     Messages.Add(wrapper);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    Console.WriteLine("handle read exception");
+                    Console.WriteLine("handle read exception"+ex);
                     CleanUpClient(client);
                     return;
                 }

@@ -17,6 +17,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     public static Queue messageQueue;
     private Thread NetworkThread;
 
+    bool shutdown = false;
 
     public static float throttle = 0;
     public static List<InputMessage> InputsToSend;
@@ -66,7 +67,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     void OnApplicationQuit()
     {
         socket.Close();
-        NetworkThread.Abort();
+        shutdown = true;
     }
 
     void OnLevelWasLoaded(int level)
@@ -135,7 +136,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             while (messageQueue.Count > 0)
             {
                 ClientWrapper wrapper = (ClientWrapper)messageQueue.Dequeue();
-                MemoryStream stream = new MemoryStream(wrapper.buffer, 1, wrapper.size);
+                MemoryStream stream = new MemoryStream(wrapper.buffer, 0, wrapper.size);
 
 
                 IMessage msg;
@@ -168,8 +169,8 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                     case MsgType.Ship:
                         msg = Serializer.DeserializeWithLengthPrefix<Ship>(stream, PrefixStyle.Fixed32);
                         break;
-                    case MsgType.CargoStateMessage:
-                        msg = Serializer.DeserializeWithLengthPrefix<CargoStateMessage>(stream, PrefixStyle.Fixed32);
+                    case MsgType.MiningMessage:
+                        msg = Serializer.DeserializeWithLengthPrefix<MiningMessage>(stream, PrefixStyle.Fixed32);
                         break;
                     default:
                         msg = null;
@@ -188,45 +189,72 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     private static byte[] typeBuffer = new byte[1];
     public static void Send(IMessage msg)
     {
-
-        msg.Proto(stream, typeBuffer);
-
-    }
-
-
-    public class ClientMessageWrapper
-    {
-        public ClientMessageWrapper(int size)
+        MemoryStream m = new MemoryStream();
+        msg.Proto(m, typeBuffer);
+        byte[] buffer = m.GetBuffer();
+        //UnityEngine.Debug.Log(msg.GetType().ToString() + " Len:" + m.Length);
+        //UnityEngine.Debug.Log("[" + buffer[0] + "," + buffer[1] + "," + buffer[2] + "]");
+        if (buffer[1]+5 != (byte)m.Length)
         {
-            byte[] b = new byte[size];
+            UnityEngine.Debug.Log("OH NO SIZE DISAGREE");
+        } 
+        if (buffer[2] != 0)
+        {
+            UnityEngine.Debug.Log("OH NO SIZE IS GOOF");
         }
+        stream.Write(buffer, 0, (int)m.Length);
+
+
     }
+
+
+   
 
     public void NetworkReadLoop()
     {
-
+        byte[] typeBuffer = new byte[1];
         while (true)
         {
+            if (shutdown) return;
+            try {
+                ClientWrapper wrapper = ClientWrapperPool.GetWrapper();
+                int bytesRead = 0;
+                while (bytesRead < 1)
+                {
+                    bytesRead += stream.Read(typeBuffer, 0, 1);
+                }
 
-            ClientWrapper wrapper = ClientWrapperPool.GetWrapper();
-            int bytesRead = 0;
-            while (bytesRead < 5)
-            {
-                bytesRead += stream.Read(wrapper.buffer, bytesRead, 5-bytesRead);
+                bytesRead = 0;
+                while (bytesRead < 4)
+                {
+                    bytesRead += stream.Read(wrapper.buffer, 0, 4 - bytesRead);
+                }
+
+                int size = BitConverter.ToInt32(wrapper.buffer, 0);
+                if (size > 5000)
+                {
+                    UnityEngine.Debug.Log("BIG Size:" + size);
+                    UnityEngine.Debug.Log("type:" + typeBuffer[0]);
+                }
+               
+                bytesRead = 0;
+                while (bytesRead < size)
+                {
+                    bytesRead += stream.Read(wrapper.buffer, bytesRead + 4, size - bytesRead);
+                }
+
+                wrapper.type = (MsgType)typeBuffer[0];
+                if (wrapper.type == MsgType.DropOutOfWarpMessage) UnityEngine.Debug.Log("got drop out of warp");
+                wrapper.size = size + 4;
+
+                messageQueue.Enqueue(wrapper);
             }
-
-
-            int size = BitConverter.ToInt32(wrapper.buffer, 1);
-            bytesRead = 0;
-            while (bytesRead < size)
+            catch (Exception Ex)
             {
-                bytesRead += stream.Read(wrapper.buffer, bytesRead+5, size-bytesRead);
-            }
-
-            wrapper.type = (MsgType)wrapper.buffer[0];
-            wrapper.size = size + 4;
-
-            messageQueue.Enqueue(wrapper);
+               
+                UnityEngine.Debug.Log(Ex);
+                if (shutdown) return;
+             }
         }
 
     }
@@ -282,15 +310,16 @@ public void HandleMessage(Ship ship, object extra = null)
     //todo
 }
 
-public void HandleMessage(CargoStateMessage msg, object extra = null)
+public void HandleMessage(MiningMessage msg, object extra = null)
 {
-    if (msg.add)
+    if (msg.Add)
     {
-        PlayerState.Ship.AddCargo(msg.item);
+        PlayerState.Ship.AddCargo(msg.Item);
     }
     GameObject shipGO = GameObject.FindGameObjectWithTag("Ship");
     shipGO.GetComponent<ClientSolarSystem>().UpdateInventory();
-}
+    shipGO.GetComponent<ClientSolarSystem>().UpdateAsteroid(msg.AsteroidHash,msg.Remaining);
+    }
 
 public void HandleMessage(Asteroid serverAsteroid, object extra = null)
 {

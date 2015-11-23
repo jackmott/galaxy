@@ -3,22 +3,30 @@
 namespace GalaxyShared
 {
     [ProtoContract]
+    [ProtoInclude(100, typeof(IronOre))]
     public abstract class Item
     {
         [ProtoMember(1)]
         public string Name;
         [ProtoMember(2)]
-        public int Count;
+        public ushort Count;
         [ProtoMember(3)]
-        public double Mass;
+        public float Mass;
         [ProtoMember(4)]
-        public double Volume;
+        public float Volume;
+
+        public Item()
+        { }
     }
 
     [ProtoContract]
     public class IronOre : Item
     {
-        public IronOre(int amount)
+        public IronOre()
+        {
+
+        }
+        public IronOre(ushort amount)
         {
             Name = "Iron Ore";
             Count = amount;

@@ -11,22 +11,24 @@ namespace GalaxyShared
         public object GameObject;
 
         [ProtoMember(1)]
-        public int Orbit;
+        public byte Orbit;
         [ProtoMember(2)]
-        public double OrbitAngle;
+        public float OrbitAngle;
         [ProtoMember(3)]
-        public double Size;
+        public float Size;
         [ProtoMember(4)]
         public Vector3 Pos;
         [ProtoMember(5)]
-        public double Remaining = 100f;
+        public ushort Remaining = 100;
+        [ProtoMember(6)]
+        public byte Type = 0;
+        [ProtoMember(7)]
+        public int Hash;
         
 
-        public Asteroid(SolarSystem parentSystem, int orbit, double orbitAngle, double size, Vector3 posAdjust)
+        public Asteroid(SolarSystem parentSystem, byte orbit, float orbitAngle, float size, Vector3 posAdjust, int hash)
         {
-
-            
-
+            this.Hash = hash;
             ParentSystem = parentSystem;
             Orbit = orbit;
 
@@ -37,9 +39,7 @@ namespace GalaxyShared
             Vector3 start = Vector3.Zero;                                    
             Matrix rotation = Matrix.CreateFromYawPitchRoll(OrbitAngle,0,0);
             Pos = start + Vector3.Transform(Vector3.Forward * (Orbit+1)*Planet.EARTH_CONSTANT*40, rotation);
-
           
-
             Pos += posAdjust;
 
         }

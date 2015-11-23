@@ -17,7 +17,7 @@ namespace GalaxyShared
         DropOutOfWarpMessage,
         Asteroid,
         Ship,
-        CargoStateMessage
+        MiningMessage
     }
 
     //singleton

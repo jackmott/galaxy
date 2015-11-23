@@ -16,11 +16,11 @@ namespace GalaxyShared
         [ProtoMember(1)]
         public int Orbit;
         [ProtoMember(2)]
-        public double OrbitAngle;
+        public float OrbitAngle;
         [ProtoMember(3)]
-        public double RotationRate;
+        public float RotationRate;
         [ProtoMember(4)]
-        public double Size;
+        public float Size;
         [ProtoMember(5)]
         public Vector3 Pos;
 
@@ -39,9 +39,9 @@ namespace GalaxyShared
             
             ParentSystem = parentSystem;
             Orbit = orbit;
-            RotationRate = rand.Next(.01d, .1d);
-            OrbitAngle = rand.Next(0d, MathHelper.TwoPi);
-            Size = rand.Next(2.5d, 14d);
+            RotationRate = rand.Next(.01f, .1f);
+            OrbitAngle = rand.Next(0f, (float)MathHelper.TwoPi);
+            Size = rand.Next(2.5f, 14f);
             
             Vector3 start = Vector3.Zero;
             Matrix rotation = Matrix.CreateFromYawPitchRoll(OrbitAngle, 0, 0);

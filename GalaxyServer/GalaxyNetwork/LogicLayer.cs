@@ -41,7 +41,11 @@ namespace GalaxyServer
         public static void InitiateLogin(string username, Client client)
         {
             Console.WriteLine("InitiateLogin");
-            Player player = DataLayer.GetGalaxyPlayer(username);
+
+            //todo - this commented out for testing 
+            //Player player = DataLayer.GetGalaxyPlayer(username);
+            Player player = null;
+
             Console.WriteLine("Attempted to get GalaxyPlayer");
             //new player case
             if (player == null)
@@ -103,8 +107,14 @@ namespace GalaxyServer
 
         public void HandleMessage(DropOutOfWarpMessage msg, object extra)
         {
+            
             Client client = (Client)extra;
             Player player = GetPlayer(client);
+            if (!player.Location.InWarp)
+            {
+                Console.WriteLine("Drop out of warp msg received when not in warp");
+                return;
+            }
             int x = Convert.ToInt32(player.Location.Pos.X / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
             int y = Convert.ToInt32(player.Location.Pos.Y / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
             int z = Convert.ToInt32(player.Location.Pos.Z / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
@@ -129,11 +139,12 @@ namespace GalaxyServer
                     DataLayer.AddSystem(closeSystem);
                 }
 
-                player.Location.InWarp = false;
+                
                 player.Location.Pos = SYSTEM_START_POS;
                 player.Location.SystemPos = closeSystem.Pos;
                 player.Location.SectorCoord = sector.Coord;
                 player.SolarSystem = closeSystem;
+                player.Location.InWarp = false;
                 msg.Location = player.Location;
                 msg.Rotation = player.Rotation;
                 msg.System = closeSystem;
@@ -203,11 +214,13 @@ namespace GalaxyServer
                 hit.Remaining -= player.Ship.MiningLaserPower;
                 player.Ship.AddCargo(new IronOre(player.Ship.MiningLaserPower));
                 Console.WriteLine("hit!:" + hit.Remaining);
-            //    GalaxyServer.AddToSendQueue(client, hit);
-                CargoStateMessage cargoState = new CargoStateMessage();
-                cargoState.add = true;
-                cargoState.item = new IronOre(player.Ship.MiningLaserPower);
-                GalaxyServer.AddToSendQueue(client, cargoState);
+                //    GalaxyServer.AddToSendQueue(client, hit);
+                MiningMessage miningState = new MiningMessage();
+                miningState.Add = true;
+                miningState.Item = new IronOre(player.Ship.MiningLaserPower);
+                miningState.AsteroidHash = hit.Hash;
+                miningState.Remaining = hit.Remaining;
+                GalaxyServer.AddToSendQueue(client, miningState);
                 if (hit.Remaining <= 0) asteroids.Remove(hit);
                 DataLayer.AddSystem(player.SolarSystem);
             }
@@ -309,7 +322,7 @@ namespace GalaxyServer
 
        
 
-        public void HandleMessage(CargoStateMessage msg, object extra = null)
+        public void HandleMessage(MiningMessage msg, object extra = null)
         {
             throw new NotImplementedException();
         }

@@ -41,7 +41,9 @@ namespace GalaxyShared
         }
 
         public SolarSystem()
-        { }
+        {
+           
+        }
 
         public string key()
         {
@@ -83,7 +85,8 @@ namespace GalaxyShared
 
             }
 
-            foreach (int orbit in availableOrbits)
+            int asteroidIndex = 0;
+            foreach (byte orbit in availableOrbits)
             {
                 int asteroidChance = rand.Next(0, 100);
                 if (asteroidChance == 0)
@@ -91,9 +94,10 @@ namespace GalaxyShared
                     int numAsteroids = rand.Next(20 * orbit, 100 * orbit);
                     for (int i = 0; i < numAsteroids;i++)
                     {
-                        double magnitude = rand.Next(5000d, 25000d);
+                        double magnitude = rand.Next(500d, 5000d);
                         Vector3 posAdjust = new Vector3(rand.Next(-magnitude, magnitude), rand.Next(-magnitude, magnitude), rand.Next(-magnitude, magnitude));                        
-                        Asteroids.Add(new Asteroid(this, orbit,rand.Next(0.0d,MathHelper.TwoPi),rand.Next(1d,3.5d),posAdjust));
+                        Asteroids.Add(new Asteroid(this, orbit,rand.Next(0.0f,(float)MathHelper.TwoPi),rand.Next(.1f,1f),posAdjust,asteroidIndex));
+                        asteroidIndex++;
                     }
 
                 }

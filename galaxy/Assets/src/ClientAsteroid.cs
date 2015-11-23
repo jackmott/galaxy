@@ -30,5 +30,6 @@ public class ClientAsteroid : MonoBehaviour, IClickable {
     public void OnRightClick()
     {
         Debug.Log("Asteroid Right Click");
+       
     }
 }

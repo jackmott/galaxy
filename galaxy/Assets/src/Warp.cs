@@ -106,7 +106,9 @@ public class Warp : MonoBehaviour {
             
             if (XnaGeometry.Vector3.Distance(system.Pos*Sector.EXPAND_FACTOR,NetworkManager.PlayerState.Location.Pos) < Simulator.WARP_DISTANCE_THRESHOLD)
             {
-                DropOutOfWarp();                
+               
+                DropOutOfWarp();
+                 
             }
      //       Debug.Log(XnaGeometry.Vector3.Distance(system.Pos * Sector.EXPAND_FACTOR, NetworkManager.PlayerState.Location.Pos));
 
@@ -170,8 +172,8 @@ public class Warp : MonoBehaviour {
    
     public void DropOutOfWarp()
     {
-        
-        
+
+
         DropOutOfWarpMessage msg = new DropOutOfWarpMessage();        
         NetworkManager.Send(msg);
         //tell the server we want to drop out of warp
