@@ -221,7 +221,7 @@ namespace GalaxyShared
         public bool SecondaryButton;
 
         public double DeltaTime; //ms
-        public double PrecedingTime;
+        public bool ClientOnly;
   
         public void Proto(Stream stream, byte[] typeBuffer)
         {
@@ -239,7 +239,7 @@ namespace GalaxyShared
         public override string ToString()
         {
             string result = "";
-            result += "InputMessage: Seq:" + Seq + ",thorttle:" + Throttle + ", deltat:" + DeltaTime + ", precedingTime:" + PrecedingTime;
+            result += "InputMessage: Seq:" + Seq + ",thorttle:" + Throttle + ", deltat:" + DeltaTime; 
             return result;
         }
     }

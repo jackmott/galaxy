@@ -340,30 +340,27 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     {
         lock (BufferedInputs)
         {
-            int removed = BufferedInputs.RemoveAll(input => input.Seq <= p.Seq);
+            BufferedInputs.RemoveAll(input => input.Seq <= p.Seq);
 
-            log.WriteLine("PlayerState.Pos:" + PlayerState.Location.Pos + ", throttle:" + PlayerState.Throttle);
+          //  log.WriteLine("PlayerState.Pos:" + PlayerState.Location.Pos + ", throttle:" + PlayerState.Throttle);
 
             PlayerState.Location.Pos = p.PlayerPos;
             PlayerState.Rotation = p.Rotation;
             PlayerState.Throttle = p.Throttle;
 
-            log.WriteLine(p);
-            log.WriteLine("bufferedinput count:" + BufferedInputs.Count);
+          //  log.WriteLine(p);
+          //  log.WriteLine("bufferedinput count:" + BufferedInputs.Count);
 
             foreach (InputMessage input in BufferedInputs)
             {
 
-               
-
-              
-
-                Simulator.ProcessInput(PlayerState, input);
+                if (!input.ClientOnly)
+                    Simulator.ProcessInput(PlayerState, input);
 
 
                 if (PlayerState.Location.InWarp)
                 {
-                    log.WriteLine("input:" + input);
+                   // log.WriteLine("input:" + input);
                     Simulator.ContinuedPhysicsWarp(PlayerState, input.DeltaTime);
                 }
                 else
@@ -373,9 +370,12 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                 }
 
             }
-            log.WriteLine("PlayerState.Pos:" + PlayerState.Location.Pos + ", throttle:" + PlayerState.Throttle);
 
-            log.WriteLine("-----------------------------------------------");
+            BufferedInputs.RemoveAll(input => input.ClientOnly);
+
+           // log.WriteLine("PlayerState.Pos:" + PlayerState.Location.Pos + ", throttle:" + PlayerState.Throttle);
+
+          //  log.WriteLine("-----------------------------------------------");
 
         }
     }
@@ -456,22 +456,32 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         
         if (anyInput)
         {
+            input.ClientOnly = false;
             input.Seq = Seq;
             input.Throttle = throttle;
             input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
             Simulator.ProcessInput(PlayerState, input);
             Seq++;
-
-
-            lock (BufferedInputs)
-            {
-                BufferedInputs.Add(input);
-                log.WriteLine("Input at send - " + input);
-            }
-            InputsToSend.Add(input);
-          
+    
         }
-        
+        else
+        {
+            input.ClientOnly = true;
+            input.Seq = Seq;
+            input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
+        }
+
+        lock (BufferedInputs)
+        {
+            BufferedInputs.Add(input);
+            
+        }
+        if (anyInput)
+        {
+           // log.WriteLine("Input at send - " + input);
+            InputsToSend.Add(input);
+        }
+
         Simulator.ContinuedPhysicsWarp(PlayerState, PlayerState.Stopwatch.ElapsedMilliseconds);
         PlayerState.Stopwatch.Reset();
         PlayerState.Stopwatch.Start();
@@ -546,7 +556,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             GameObject resourceStation = Resources.Load<GameObject>("Station");
             GameObject station = (GameObject)Instantiate(resourceStation, Utility.UVector(PlayerState.Location.Pos), Utility.UQuaternion(PlayerState.Rotation));
             station.transform.Translate(Vector3.forward * 3);
-            station.transform.localScale *= .1f;
+           // station.transform.localScale *= .1f;
         }
         else if (Input.GetKey("space"))
         {
@@ -585,21 +595,32 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
         if (anyInput)
         {
+            input.ClientOnly = false;
             input.Seq = Seq;
             input.Throttle = throttle;
             input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
             Simulator.ProcessInput(PlayerState, input);
             Seq++;
 
+        }
+        else
+        {
+            input.ClientOnly = true;
+            input.Seq = Seq;
+            input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
+        }
 
-            lock (BufferedInputs)
-            {
-                BufferedInputs.Add(input);
-                log.WriteLine("Input at send - " + input);
-            }
-            InputsToSend.Add(input);
+        lock (BufferedInputs)
+        {
+            BufferedInputs.Add(input);
 
         }
+        if (anyInput)
+        {
+            // log.WriteLine("Input at send - " + input);
+            InputsToSend.Add(input);
+        }
+
 
         Simulator.ContinuedPhysics(PlayerState, PlayerState.Stopwatch.ElapsedMilliseconds);
         PlayerState.Stopwatch.Reset();

@@ -306,6 +306,7 @@ namespace GalaxyServer
                 }
             }
             player.Stopwatch.Stop();
+            Console.WriteLine("ms:" + player.Stopwatch.ElapsedMilliseconds);
             Simulator.ContinuedPhysicsWarp(player, player.Stopwatch.ElapsedMilliseconds);
             player.Stopwatch.Restart();
 
