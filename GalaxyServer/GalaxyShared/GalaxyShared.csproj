@@ -83,8 +83,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDir)..\galaxy\Assets\GalaxyShared\
-copy /Y "$(TargetDir)assets" "$(SolutionDir)..\galaxy\Assets\GalaxyShared\</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(TargetDir)$(ProjectName).dll" "$(SolutionDir)..\galaxy\Assets\Plugins\GalaxyShared\
+copy /Y "$(TargetDir)assets" "$(SolutionDir)..\galaxy\Assets\Plugins\GalaxyShared\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

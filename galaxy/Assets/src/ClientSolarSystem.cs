@@ -47,7 +47,7 @@ public class ClientSolarSystem : MonoBehaviour
         Color c = new Color(SolarSystem.Star.Color.R / 255f, SolarSystem.Star.Color.G / 255f, SolarSystem.Star.Color.B / 255f);
         flare.color = c;
 
-        l.color = c;
+        l.color = Color.Lerp(Color.white, c,.5f);
         star.GetComponent<Renderer>().material.SetColor("_EmissionColor", c);
 
 

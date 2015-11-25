@@ -32,7 +32,7 @@ namespace GalaxyShared
             {
                 try
                 {
-                    Hoag = (Bitmap)Bitmap.FromFile("Assets/GalaxyShared/hoag-ring.bmp");
+                    Hoag = (Bitmap)Bitmap.FromFile("Assets/Plugins/GalaxyShared/hoag-ring.bmp");
                 }
                 catch
                 {

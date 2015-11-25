@@ -111,7 +111,14 @@ namespace GalaxyShared
         public Quaternion Rotation;
         [ProtoMember(4)]
         public float Throttle;
+       
 
+
+        public override string ToString()
+        {
+            return "pm - Seq:" + Seq + ", Pos:" + PlayerPos + ", Throttle:" + Throttle;
+
+        }
         public void Proto(Stream stream, byte[] typeBuffer)
         {
             typeBuffer[0] = (byte)MsgType.PlayerStateMessage;
@@ -201,30 +208,39 @@ namespace GalaxyShared
         [ProtoMember(1)]
         public long Seq;
         [ProtoMember(2)]
-        public float DeltaTime; //seconds
-        [ProtoMember(3)]
         public float XTurn;
-        [ProtoMember(4)]
+        [ProtoMember(3)]
         public float YTurn;
-        [ProtoMember(5)]
+        [ProtoMember(4)]
         public float RollTurn;
-        [ProtoMember(6)]
+        [ProtoMember(5)]
         public float Throttle;
-        [ProtoMember(7)]
+        [ProtoMember(6)]
         public bool PrimaryButton;
-        [ProtoMember(8)]
+        [ProtoMember(7)]
         public bool SecondaryButton;
 
+        public double DeltaTime; //ms
+        public double PrecedingTime;
+  
         public void Proto(Stream stream, byte[] typeBuffer)
         {
             typeBuffer[0] = (byte)MsgType.InputMessage;
             stream.Write(typeBuffer, 0, 1);
             Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
+           
         }
 
         public void AcceptHandler(IMessageHandler handler, object o = null)
         {
             handler.HandleMessage(this, o);
+        }
+
+        public override string ToString()
+        {
+            string result = "";
+            result += "InputMessage: Seq:" + Seq + ",thorttle:" + Throttle + ", deltat:" + DeltaTime + ", precedingTime:" + PrecedingTime;
+            return result;
         }
     }
 }

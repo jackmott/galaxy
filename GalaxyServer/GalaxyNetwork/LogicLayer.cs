@@ -199,7 +199,7 @@ namespace GalaxyServer
             foreach (Asteroid a in asteroids)
             {
                 Ray ray = new Ray(pos, Vector3.Transform(Vector3.Forward, player.Rotation));
-                BoundingSphere sphere = new BoundingSphere(a.Pos, a.Size*Planet.EARTH_CONSTANT);
+                BoundingSphere sphere = new BoundingSphere(a.Pos, a.Size*Planet.EARTH_CONSTANT*10f);
                 double? result = ray.Intersects(sphere);
                 if (result != null)
                 {
@@ -239,6 +239,7 @@ namespace GalaxyServer
                 {
                     Player player;
                     while (!PlayerTable.TryGetValue(client, out player)) { }
+                    
                     if (player.Location.InWarp)
                     {
                         ProcessTickForPlayerWarp(client, player);
@@ -288,7 +289,10 @@ namespace GalaxyServer
                     if (input.SecondaryButton) AsteroidMining(client, player);
                 }
             }
-            Simulator.ContinuedPhysics(player);
+
+            player.Stopwatch.Stop();
+            Simulator.ContinuedPhysics(player,player.Stopwatch.ElapsedMilliseconds);
+            player.Stopwatch.Restart();
         }
 
         public static void ProcessTickForPlayerWarp(Client client, Player player)
@@ -301,7 +305,10 @@ namespace GalaxyServer
                     Simulator.ProcessInputWarp(player, input);
                 }
             }
-            Simulator.ContinuedPhysicsWarp(player);
+            player.Stopwatch.Stop();
+            Simulator.ContinuedPhysicsWarp(player, player.Stopwatch.ElapsedMilliseconds);
+            player.Stopwatch.Restart();
+
         }
 
 

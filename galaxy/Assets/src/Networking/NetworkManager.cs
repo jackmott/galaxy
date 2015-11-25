@@ -31,19 +31,22 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     public static Player PlayerState = null;
 
 
-    public static int Seq = 0;
+    public static int Seq = 1;
 
     bool GoingToWarp = false;
 
     enum Level { MainMenu, Warp, System };
     Level CurrentLevel;
 
+    StreamWriter log;
 
     void Awake()
     {
+        log = File.CreateText("log.txt");
 
         messageQueue = new Queue();
-
+        InputsToSend = new List<InputMessage>();
+        BufferedInputs = new List<InputMessage>();
         DontDestroyOnLoad(this);
         socket = new TcpClient("localhost", 8888);
         socket.NoDelay = true;
@@ -51,8 +54,6 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         NetworkThread = new Thread(new ThreadStart(NetworkReadLoop));
         NetworkThread.Start();
 
-        InputsToSend = new List<InputMessage>();
-        BufferedInputs = new List<InputMessage>();
 
         InputSampleStopwatch.Start();
         SendStopwatch.Start();
@@ -100,7 +101,6 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                         //nothin
                         break;
                 }
-                InputSampleStopwatch.Stop();
                 InputSampleStopwatch.Reset();
                 InputSampleStopwatch.Start();
             }
@@ -115,7 +115,6 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                     }
                     InputsToSend.Clear();
                 }
-                SendStopwatch.Stop();
                 SendStopwatch.Reset();
                 SendStopwatch.Start();
             }
@@ -189,26 +188,14 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     private static byte[] typeBuffer = new byte[1];
     public static void Send(IMessage msg)
     {
-        MemoryStream m = new MemoryStream();
-        msg.Proto(m, typeBuffer);
-        byte[] buffer = m.GetBuffer();
-        //UnityEngine.Debug.Log(msg.GetType().ToString() + " Len:" + m.Length);
-        //UnityEngine.Debug.Log("[" + buffer[0] + "," + buffer[1] + "," + buffer[2] + "]");
-        if (buffer[1]+5 != (byte)m.Length)
-        {
-            UnityEngine.Debug.Log("OH NO SIZE DISAGREE");
-        } 
-        if (buffer[2] != 0)
-        {
-            UnityEngine.Debug.Log("OH NO SIZE IS GOOF");
-        }
-        stream.Write(buffer, 0, (int)m.Length);
+
+        msg.Proto(stream, typeBuffer);
 
 
     }
 
 
-   
+
 
     public void NetworkReadLoop()
     {
@@ -216,7 +203,8 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         while (true)
         {
             if (shutdown) return;
-            try {
+            try
+            {
                 ClientWrapper wrapper = ClientWrapperPool.GetWrapper();
                 int bytesRead = 0;
                 while (bytesRead < 1)
@@ -236,7 +224,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                     UnityEngine.Debug.Log("BIG Size:" + size);
                     UnityEngine.Debug.Log("type:" + typeBuffer[0]);
                 }
-               
+
                 bytesRead = 0;
                 while (bytesRead < size)
                 {
@@ -251,359 +239,400 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             }
             catch (Exception Ex)
             {
-               
+
                 UnityEngine.Debug.Log(Ex);
                 if (shutdown) return;
-             }
+            }
         }
 
     }
 
 
 
-public void HandleMessage(LoginResultMessage msg, object extra = null)
-{
-    //show error
-}
-
-public void HandleNewUserResultMessage(NewUserResultMessage msg)
-{
-    //show error
-}
-
-public void HandleMessage(GoToWarpMessage msg, object extra = null)
-{
-    PlayerState.Location = msg.Location;
-    PlayerState.Rotation = msg.Rotation;
-    lock (BufferedInputs)
+    public void HandleMessage(LoginResultMessage msg, object extra = null)
     {
-        BufferedInputs.Clear();
-    }
-    Application.LoadLevel((int)Level.Warp);
-
-}
-
-public void HandleMessage(DropOutOfWarpMessage msg, object extra = null)
-{
-    Warp.ClosestSector.ParticleSystem.Clear();
-    ClientSolarSystem.Cubemap = new Cubemap(2048, TextureFormat.ARGB32, false);
-    bool work = Camera.main.RenderToCubemap(ClientSolarSystem.Cubemap);
-    PlayerState.Location = msg.Location;
-    PlayerState.Rotation = msg.Rotation;
-    PlayerState.SolarSystem = msg.System;
-    lock (BufferedInputs)
-    {
-        BufferedInputs.Clear();
-    }
-    Application.LoadLevel((int)Level.System);
-}
-
-public void HandleMessage(Player player, object extra = null)
-{
-    UnityEngine.Debug.Log("handle player message");
-    PlayerState = player;
-    Application.LoadLevel("Warp");
-}
-
-public void HandleMessage(Ship ship, object extra = null)
-{
-    //todo
-}
-
-public void HandleMessage(MiningMessage msg, object extra = null)
-{
-    if (msg.Add)
-    {
-        PlayerState.Ship.AddCargo(msg.Item);
-    }
-    GameObject shipGO = GameObject.FindGameObjectWithTag("Ship");
-    shipGO.GetComponent<ClientSolarSystem>().UpdateInventory();
-    shipGO.GetComponent<ClientSolarSystem>().UpdateAsteroid(msg.AsteroidHash,msg.Remaining);
+        //show error
     }
 
-public void HandleMessage(Asteroid serverAsteroid, object extra = null)
-{
-    Asteroid clientAsteroid = null;
-    foreach (Asteroid a in PlayerState.SolarSystem.Asteroids)
+    public void HandleNewUserResultMessage(NewUserResultMessage msg)
     {
-        if (a.Pos == serverAsteroid.Pos)
+        //show error
+    }
+
+    public void HandleMessage(GoToWarpMessage msg, object extra = null)
+    {
+        PlayerState.Location = msg.Location;
+        PlayerState.Rotation = msg.Rotation;
+        lock (BufferedInputs)
         {
-            clientAsteroid = a;
-            break;
+            BufferedInputs.Clear();
         }
-    }
-    if (clientAsteroid != null)
-    {
-        clientAsteroid.Remaining = serverAsteroid.Remaining;
-        if (clientAsteroid.Remaining <= 0)
-        {
-            PlayerState.SolarSystem.Asteroids.Remove(clientAsteroid);
-            GameObject goAsteroid = (GameObject)clientAsteroid.GameObject;
-            GameObject.Destroy(goAsteroid);
-        }
-    }
-    else
-    {
-        UnityEngine.Debug.Log("Asteroid messages received for asteroid that does not exist");
-    }
-}
+        Application.LoadLevel((int)Level.Warp);
 
-public void HandleMessage(PlayerStateMessage p, object extra = null)
-{
-    if (BufferedInputs != null)
+    }
+
+    public void HandleMessage(DropOutOfWarpMessage msg, object extra = null)
+    {
+        Warp.ClosestSector.ParticleSystem.Clear();
+        ClientSolarSystem.Cubemap = new Cubemap(2048, TextureFormat.ARGB32, false);
+        bool work = Camera.main.RenderToCubemap(ClientSolarSystem.Cubemap);
+        PlayerState.Location = msg.Location;
+        PlayerState.Rotation = msg.Rotation;
+        PlayerState.SolarSystem = msg.System;
+        lock (BufferedInputs)
+        {
+            BufferedInputs.Clear();
+        }
+        Application.LoadLevel((int)Level.System);
+    }
+
+    public void HandleMessage(Player player, object extra = null)
+    {
+        UnityEngine.Debug.Log("handle player message");
+        PlayerState = player;
+        Application.LoadLevel("Warp");
+    }
+
+    public void HandleMessage(Ship ship, object extra = null)
+    {
+        //todo
+    }
+
+    public void HandleMessage(MiningMessage msg, object extra = null)
+    {
+        if (msg.Add)
+        {
+            PlayerState.Ship.AddCargo(msg.Item);
+        }
+        GameObject shipGO = GameObject.FindGameObjectWithTag("Ship");
+        shipGO.GetComponent<ClientSolarSystem>().UpdateInventory();
+        shipGO.GetComponent<ClientSolarSystem>().UpdateAsteroid(msg.AsteroidHash, msg.Remaining);
+    }
+
+    public void HandleMessage(Asteroid serverAsteroid, object extra = null)
+    {
+        Asteroid clientAsteroid = null;
+        foreach (Asteroid a in PlayerState.SolarSystem.Asteroids)
+        {
+            if (a.Pos == serverAsteroid.Pos)
+            {
+                clientAsteroid = a;
+                break;
+            }
+        }
+        if (clientAsteroid != null)
+        {
+            clientAsteroid.Remaining = serverAsteroid.Remaining;
+            if (clientAsteroid.Remaining <= 0)
+            {
+                PlayerState.SolarSystem.Asteroids.Remove(clientAsteroid);
+                GameObject goAsteroid = (GameObject)clientAsteroid.GameObject;
+                GameObject.Destroy(goAsteroid);
+            }
+        }
+        else
+        {
+            UnityEngine.Debug.Log("Asteroid messages received for asteroid that does not exist");
+        }
+    }
+
+    public void HandleMessage(PlayerStateMessage p, object extra = null)
     {
         lock (BufferedInputs)
         {
-            BufferedInputs.RemoveAll(input => input.Seq <= p.Seq);
+            int removed = BufferedInputs.RemoveAll(input => input.Seq <= p.Seq);
+
+            log.WriteLine("PlayerState.Pos:" + PlayerState.Location.Pos + ", throttle:" + PlayerState.Throttle);
 
             PlayerState.Location.Pos = p.PlayerPos;
             PlayerState.Rotation = p.Rotation;
+            PlayerState.Throttle = p.Throttle;
+
+            log.WriteLine(p);
+            log.WriteLine("bufferedinput count:" + BufferedInputs.Count);
+
             foreach (InputMessage input in BufferedInputs)
             {
+
+               
+
+              
+
                 Simulator.ProcessInput(PlayerState, input);
+
+
                 if (PlayerState.Location.InWarp)
                 {
-                    Simulator.ContinuedPhysicsWarp(PlayerState);
+                    log.WriteLine("input:" + input);
+                    Simulator.ContinuedPhysicsWarp(PlayerState, input.DeltaTime);
                 }
                 else
                 {
-                    Simulator.ContinuedPhysics(PlayerState);
+                    Simulator.ContinuedPhysics(PlayerState, input.DeltaTime);
+
                 }
+
+            }
+            log.WriteLine("PlayerState.Pos:" + PlayerState.Location.Pos + ", throttle:" + PlayerState.Throttle);
+
+            log.WriteLine("-----------------------------------------------");
+
+        }
+    }
+
+
+    private void SampleWarpInput()
+    {
+        bool anyInput = false;
+
+        Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
+        Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+
+
+        float xDelta = mousePos.x - screenCenter.x;
+        float yDelta = mousePos.y - screenCenter.y;
+
+
+        InputMessage input = new InputMessage();
+
+
+        //rotation
+        yDelta = Mathf.Clamp(yDelta, -70, 70);
+        xDelta = Mathf.Clamp(xDelta, -70, 70);
+        if (Math.Abs(xDelta) > 10 || Math.Abs(yDelta) > 10)
+        {
+            //  Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
+             input.XTurn = xDelta / 4000f;
+               input.YTurn = -yDelta / 4000f;
+
+               anyInput = true;
+        }
+        else
+        {
+            input.XTurn = 0;
+            input.YTurn = 0;
+        }
+
+        //throttle    
+        if (Input.GetKey("w"))
+        {
+            if (throttle < 100)
+            {
+                throttle = Mathf.Clamp(throttle + 1, 0, 100);
+                anyInput = true;
+            }
+
+        }
+        else if (Input.GetKey("s"))
+        {
+            if (throttle > 0)
+            {
+                throttle = Mathf.Clamp(throttle - 1, 0, 100);
+                anyInput = true;
             }
         }
-    }
-
-
-}
-
-private void SampleWarpInput()
-{
-    bool anyInput = false;
-
-    Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
-    Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
-
-
-    float xDelta = mousePos.x - screenCenter.x;
-    float yDelta = mousePos.y - screenCenter.y;
-
-
-    InputMessage input = new InputMessage();
-
-
-    //rotation
-    yDelta = Mathf.Clamp(yDelta, -70, 70);
-    xDelta = Mathf.Clamp(xDelta, -70, 70);
-    if (Math.Abs(xDelta) > 10 || Math.Abs(yDelta) > 10)
-    {
-        //  Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
-        input.XTurn = xDelta / 4000f;
-        input.YTurn = -yDelta / 4000f;
-
-        anyInput = true;
-    }
-    else
-    {
-        input.XTurn = 0;
-        input.YTurn = 0;
-    }
-
-    //throttle    
-    if (Input.GetKey("w"))
-    {
-        if (throttle < 100)
-        {
-            throttle = Mathf.Clamp(throttle + 1, 0, 100);
-            anyInput = true;
-        }
-
-    }
-    else if (Input.GetKey("s"))
-    {
-        if (throttle > 0)
-        {
-            throttle = Mathf.Clamp(throttle - 1, 0, 100);
-            anyInput = true;
-        }
-    }
-    else if (Input.GetKey("space"))
-    {
-        throttle = 0;
-
-    }
-
-
-    //do a barrel roll
-    if (Input.GetKey("q"))
-    {
-
-        input.RollTurn = .01f;
-        anyInput = true;
-    }
-    else if (Input.GetKey("e"))
-    {
-
-        input.RollTurn = -.01f;
-        anyInput = true;
-    }
-
-
-
-    if (anyInput)
-    {
-        input.Seq = Seq;
-        input.Throttle = throttle;
-        InputsToSend.Add(input);
-        lock (BufferedInputs)
-        {
-            BufferedInputs.Add(input);
-        }
-        Simulator.ProcessInput(PlayerState, input);
-        Seq++;
-
-    }
-
-    Simulator.ContinuedPhysicsWarp(PlayerState);
-    Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
-    Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
-
-
-}
-
-private void SampleSystemInput()
-{
-    bool anyInput = false;
-
-    Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
-    Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
-
-
-    float xDelta = mousePos.x - screenCenter.x;
-    float yDelta = mousePos.y - screenCenter.y;
-
-
-    InputMessage input = new InputMessage();
-
-
-    //rotation
-    yDelta = Mathf.Clamp(yDelta, -70, 70);
-    xDelta = Mathf.Clamp(xDelta, -70, 70);
-    if (Math.Abs(xDelta) > 10 || Math.Abs(yDelta) > 10)
-    {
-        //  Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
-        input.XTurn = xDelta / 4000f;
-        input.YTurn = -yDelta / 4000f;
-
-        anyInput = true;
-    }
-    else
-    {
-        input.XTurn = 0;
-        input.YTurn = 0;
-    }
-
-    //throttle    
-    if (Input.GetKey("w"))
-    {
-        if (throttle < 100)
-        {
-            throttle = Mathf.Clamp(throttle + 1, 0, 100);
-            anyInput = true;
-        }
-
-    }
-    else if (Input.GetKey("s"))
-    {
-        if (throttle > 0)
-        {
-            throttle = Mathf.Clamp(throttle - 1, 0, 100);
-            anyInput = true;
-        }
-    }
-    else if (Input.GetKey("j"))
-    {
-        GoingToWarp = true;
-        GoToWarpMessage msg;
-        msg.Location = PlayerState.Location;
-        msg.Rotation = PlayerState.Rotation;
-        Send(msg);
-        //todo some sort of animation/sounds            
-    }
-    else if (Input.GetKey("space"))
-    {
-        if (throttle != 0)
+        else if (Input.GetKey("space"))
         {
             throttle = 0;
+
+        }
+
+
+        //do a barrel roll
+        if (Input.GetKey("q"))
+        {
+
+            input.RollTurn = .01f;
             anyInput = true;
         }
-    }
-
-
-    //do a barrel roll
-    if (Input.GetKey("q"))
-    {
-        //Camera.main.transforinput.Rotate(new Vector3(0, 0, -50*Time.deltaTime));
-        input.RollTurn = .01f;
-        anyInput = true;
-    }
-    else if (Input.GetKey("e"))
-    {
-        //Camera.main.transforinput.Rotate(new Vector3(0, 0, 50*Time.deltaTime));
-        input.RollTurn = -.01f;
-        anyInput = true;
-    }
-
-    // Camera.main.transform.Translate(Vector3.forward * throttle * 40 *  Time.deltaTime);
-
-    if (Input.GetMouseButton(1))
-    {
-        UnityEngine.Debug.Log("MouseButton1");
-        anyInput = true;
-        input.SecondaryButton = true;
-    }
-
-    if (anyInput)
-    {
-        input.Seq = Seq;
-        input.Throttle = throttle;
-        InputsToSend.Add(input);
-        lock (BufferedInputs)
+        else if (Input.GetKey("e"))
         {
-            BufferedInputs.Add(input);
+
+            input.RollTurn = -.01f;
+            anyInput = true;
         }
-        Simulator.ProcessInput(PlayerState, input);
-        Seq++;
+
+        PlayerState.Stopwatch.Stop();
+        
+        if (anyInput)
+        {
+            input.Seq = Seq;
+            input.Throttle = throttle;
+            input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
+            Simulator.ProcessInput(PlayerState, input);
+            Seq++;
+
+
+            lock (BufferedInputs)
+            {
+                BufferedInputs.Add(input);
+                log.WriteLine("Input at send - " + input);
+            }
+            InputsToSend.Add(input);
+          
+        }
+        
+        Simulator.ContinuedPhysicsWarp(PlayerState, PlayerState.Stopwatch.ElapsedMilliseconds);
+        PlayerState.Stopwatch.Reset();
+        PlayerState.Stopwatch.Start();
+
+        Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
+        Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
+
 
     }
 
-    Simulator.ContinuedPhysics(PlayerState);
-    Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
-    Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
+    private void SampleSystemInput()
+    {
+        bool anyInput = false;
+
+        Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
+        Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+
+
+        float xDelta = mousePos.x - screenCenter.x;
+        float yDelta = mousePos.y - screenCenter.y;
+
+
+        InputMessage input = new InputMessage();
+
+
+        //rotation
+        yDelta = Mathf.Clamp(yDelta, -70, 70);
+        xDelta = Mathf.Clamp(xDelta, -70, 70);
+        if (Math.Abs(xDelta) > 10 || Math.Abs(yDelta) > 10)
+        {
+            //  Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
+            input.XTurn = xDelta / 4000f;
+            input.YTurn = -yDelta / 4000f;
+
+            anyInput = true;
+        }
+        else
+        {
+            input.XTurn = 0;
+            input.YTurn = 0;
+        }
+
+        //throttle    
+        if (Input.GetKey("w"))
+        {
+            if (throttle < 100)
+            {
+                throttle = Mathf.Clamp(throttle + 1, 0, 100);
+                anyInput = true;
+            }
+
+        }
+        else if (Input.GetKey("s"))
+        {
+            if (throttle > 0)
+            {
+                throttle = Mathf.Clamp(throttle - 1, 0, 100);
+                anyInput = true;
+            }
+        }
+        else if (Input.GetKey("j"))
+        {
+            GoingToWarp = true;
+            GoToWarpMessage msg;
+            msg.Location = PlayerState.Location;
+            msg.Rotation = PlayerState.Rotation;
+            Send(msg);
+            //todo some sort of animation/sounds            
+        }
+        else if (Input.GetKeyUp("b")) 
+        {
+            GameObject resourceStation = Resources.Load<GameObject>("Station");
+            GameObject station = (GameObject)Instantiate(resourceStation, Utility.UVector(PlayerState.Location.Pos), Utility.UQuaternion(PlayerState.Rotation));
+            station.transform.Translate(Vector3.forward * 3);
+            station.transform.localScale *= .1f;
+        }
+        else if (Input.GetKey("space"))
+        {
+            if (throttle != 0)
+            {
+                throttle = 0;
+                anyInput = true;
+            }
+        }
+
+
+        //do a barrel roll
+        if (Input.GetKey("q"))
+        {
+            //Camera.main.transforinput.Rotate(new Vector3(0, 0, -50*Time.deltaTime));
+            input.RollTurn = .01f;
+            anyInput = true;
+        }
+        else if (Input.GetKey("e"))
+        {
+            //Camera.main.transforinput.Rotate(new Vector3(0, 0, 50*Time.deltaTime));
+            input.RollTurn = -.01f;
+            anyInput = true;
+        }
+
+        // Camera.main.transform.Translate(Vector3.forward * throttle * 40 *  Time.deltaTime);
+
+        if (Input.GetMouseButton(1))
+        {
+            UnityEngine.Debug.Log("MouseButton1");
+            anyInput = true;
+            input.SecondaryButton = true;
+        }
+
+        PlayerState.Stopwatch.Stop();
+
+        if (anyInput)
+        {
+            input.Seq = Seq;
+            input.Throttle = throttle;
+            input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
+            Simulator.ProcessInput(PlayerState, input);
+            Seq++;
+
+
+            lock (BufferedInputs)
+            {
+                BufferedInputs.Add(input);
+                log.WriteLine("Input at send - " + input);
+            }
+            InputsToSend.Add(input);
+
+        }
+
+        Simulator.ContinuedPhysics(PlayerState, PlayerState.Stopwatch.ElapsedMilliseconds);
+        PlayerState.Stopwatch.Reset();
+        PlayerState.Stopwatch.Start();
+
+
+        Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
+        Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
 
 
 
 
-}
+    }
 
 
-//things the client doesn't need to implement
-public void HandleMessage(LoginMessage msg, object extra = null)
-{
-    throw new NotImplementedException();
-}
+    //things the client doesn't need to implement
+    public void HandleMessage(LoginMessage msg, object extra = null)
+    {
+        throw new NotImplementedException();
+    }
 
-public void HandleMessage(NewUserMessage msg, object extra = null)
-{
-    throw new NotImplementedException();
-}
+    public void HandleMessage(NewUserMessage msg, object extra = null)
+    {
+        throw new NotImplementedException();
+    }
 
-public void HandleMessage(NewUserResultMessage msg, object extra = null)
-{
-    throw new NotImplementedException();
-}
+    public void HandleMessage(NewUserResultMessage msg, object extra = null)
+    {
+        throw new NotImplementedException();
+    }
 
-public void HandleMessage(InputMessage msg, object extra = null)
-{
-    throw new NotImplementedException();
-}
+    public void HandleMessage(InputMessage msg, object extra = null)
+    {
+        throw new NotImplementedException();
+    }
 }

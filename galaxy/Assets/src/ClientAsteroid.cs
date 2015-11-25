@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using GalaxyShared;
 
 public class ClientAsteroid : MonoBehaviour, IClickable {

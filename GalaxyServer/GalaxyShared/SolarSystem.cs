@@ -42,7 +42,7 @@ namespace GalaxyShared
 
         public SolarSystem()
         {
-           
+            Asteroids = new List<Asteroid>();
         }
 
         public string key()

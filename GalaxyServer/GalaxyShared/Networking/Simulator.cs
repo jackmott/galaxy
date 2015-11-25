@@ -30,10 +30,10 @@ namespace GalaxyShared
         }
 
      
-        public static void ContinuedPhysics(Player player)
+        public static void ContinuedPhysics(Player player, double deltaTime)
         {            
             double speed = player.Ship.TopSpeed * GetGravityInfluence(player);
-            player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle*speed / NetworkUtils.SERVER_TICK_RATE, player.Rotation);
+            player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle*speed * deltaTime/1000d, player.Rotation);
         }
 
         public static void ProcessInput(Player player, InputMessage input)
@@ -55,10 +55,10 @@ namespace GalaxyShared
 
        
 
-        public static void ContinuedPhysicsWarp(Player player)
+        public static void ContinuedPhysicsWarp(Player player,double deltaTime)
         {
            
-            player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle * player.Ship.TopSpeed / NetworkUtils.SERVER_TICK_RATE / 2000d, player.Rotation);
+            player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle * player.Ship.TopSpeed * (deltaTime / 1500000d), player.Rotation);
         }
 
         public static void ProcessInputWarp(Player player, InputMessage input)
