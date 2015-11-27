@@ -3,6 +3,8 @@ using System.Collections;
 using System.Text;
 using GalaxyShared;
 using UnityEngine.UI;
+using Rewired;
+using SLS.Widgets.Table;
 
 public class Hud : MonoBehaviour
 {
@@ -11,14 +13,39 @@ public class Hud : MonoBehaviour
     public GameObject ShipMenu;
     public GameObject Inventory;
 
+    Table ShipMenuTable;
+    
     // Use this for initialization
     void Start()
     {
         InputCollector = GameObject.Find("NetworkManager").GetComponent<InputCollector>();
-     
+        ShipMenuTable = ShipMenu.GetComponent<Table>();
         DontDestroyOnLoad(this);
+        GenerateShipMenu();
+        
     }
 
+    void GenerateShipMenu()
+    {
+        ShipMenuTable.reset();
+
+        ShipMenuTable.addTextColumn();
+       
+
+        ShipMenuTable.initialize();
+
+        Rewired.Player inputPlayer = ReInput.players.GetPlayer(0);
+        IEnumerable actions = ReInput.mapping.ActionsInCategory("System");
+
+        foreach (InputAction action in actions)
+        {
+            ActionElementMap buttonMap = inputPlayer.controllers.maps.GetFirstButtonMapWithAction(action.id, true);
+            Datum d = Datum.Body(action.name);
+            d.elements.Add(GenerateMenuItem(buttonMap.elementIdentifierName, action.descriptiveName));
+            ShipMenuTable.data.Add(d);
+        }
+        ShipMenuTable.startRenderEngine();
+    }
 
     // Update is called once per frame
     void Update()
@@ -76,5 +103,20 @@ public class Hud : MonoBehaviour
             sb.Append("</color>\n");
         }
         Inventory.GetComponent<Text>().text = sb.ToString();
+    }
+
+    public string TextColor(string text, string color)
+    {
+        return "<color=\"" + color + "\">" + text + "</color>";
+    }
+
+    public string GenerateMenuItem(string key, string description)
+    {
+        string result = "";
+        result += TextColor("<", "magenta");
+        result += TextColor(key, "green");
+        result += TextColor(">", "magenta");
+        result += TextColor(description, "cyan");
+        return result;
     }
 }

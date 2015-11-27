@@ -66,11 +66,11 @@
     <Reference Include="UnityEditor.iOS.Extensions.Xcode">
       <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
     </Reference>
-    <Reference Include="Vectrosity">
-      <HintPath>Assets\Plugins\Vectrosity\Vectrosity.dll</HintPath>
-    </Reference>
     <Reference Include="GalaxyShared">
       <HintPath>Assets\Plugins\GalaxyShared\GalaxyShared.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>Assets\Plugins\GalaxyShared\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing">
       <HintPath>Assets\Plugins\GalaxyShared\System.Drawing.dll</HintPath>
@@ -78,8 +78,8 @@
     <Reference Include="XnaGeometry">
       <HintPath>Assets\Plugins\GalaxyShared\XnaGeometry.dll</HintPath>
     </Reference>
-    <Reference Include="protobuf-net">
-      <HintPath>Assets\Plugins\GalaxyShared\protobuf-net.dll</HintPath>
+    <Reference Include="Vectrosity">
+      <HintPath>Assets\Plugins\Vectrosity\Vectrosity.dll</HintPath>
     </Reference>
     <Reference Include="Rewired_Core">
       <HintPath>Assets\Rewired\Internal\Libraries\Runtime\Rewired_Core.dll</HintPath>
@@ -139,6 +139,25 @@
     <Compile Include="Assets\Rewired\Internal\Scripts\InputManager.cs" />
     <Compile Include="Assets\Rewired\Internal\Scripts\Misc\ExternalTools.cs" />
     <Compile Include="Assets\Rewired\Internal\Scripts\Platforms\Ouya\OuyaInputSource.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\BodyRect.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Cell.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Column.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Control.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Datum.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Factory.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\HeaderCell.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\InputCell.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\MeasureMaster.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Row.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Samples\AutoUpdating.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Samples\AutoUpdatingAll.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Samples\DataTable.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Samples\DataTableData.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Samples\KitchenSink.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Samples\Simple.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\ScrollWatcher.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Spinner.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Table.cs" />
     <Compile Include="Assets\ShaderForge\Example Assets\Scripts\EditorLabel.cs" />
     <Compile Include="Assets\ShaderForge\Example Assets\Scripts\EnableCameraDepthInForward.cs" />
     <Compile Include="Assets\ShaderForge\Example Assets\Scripts\SoftNormalsToVertexColor.cs" />
@@ -172,6 +191,7 @@
     <None Include="Assets\Rewired\Documentation\ReleaseNotes.txt" />
     <None Include="Assets\Rewired\Documentation\licences.txt" />
     <None Include="Assets\Rewired\Internal\Libraries\Runtime\Rewired_Core.XML" />
+    <None Include="Assets\SLS\Widgets\Table\ReadMe.txt" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\Common\ExtractChannel.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\Common\FillColor.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\Common\ReadPackedData.shader" />
