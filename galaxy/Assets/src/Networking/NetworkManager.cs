@@ -12,6 +12,9 @@ using System.IO;
 public class NetworkManager : MonoBehaviour, IMessageHandler
 {
 
+    public InputCollector InputCollector;
+   
+
     private static TcpClient socket;
     private static NetworkStream stream;
     public static Queue messageQueue;
@@ -26,7 +29,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     private GameObject Ship;
 
     Stopwatch SendStopwatch = new Stopwatch();
-    Stopwatch InputSampleStopwatch = new Stopwatch();
+   
 
     public static Player PlayerState = null;
 
@@ -55,14 +58,14 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         NetworkThread.Start();
 
 
-        InputSampleStopwatch.Start();
+        
         SendStopwatch.Start();
 
     }
     // Use this for initialization
     void Start()
     {
-
+        InputCollector = GetComponent<InputCollector>();
     }
 
     void OnApplicationQuit()
@@ -82,13 +85,14 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         }
     }
 
+
+     
     // Update is called once per frame
     void Update()
     {
         if (!GoingToWarp)
         {
-            if (InputSampleStopwatch.ElapsedMilliseconds >= NetworkUtils.SERVER_TICK_RATE)
-            {
+       
                 switch (CurrentLevel)
                 {
                     case Level.System:
@@ -101,9 +105,8 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                         //nothin
                         break;
                 }
-                InputSampleStopwatch.Reset();
-                InputSampleStopwatch.Start();
-            }
+               
+            
 
             if (SendStopwatch.ElapsedMilliseconds >= NetworkUtils.CLIENT_BUFFER_TIME)
             {
@@ -305,7 +308,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             PlayerState.Ship.AddCargo(msg.Item);
         }
         GameObject shipGO = GameObject.FindGameObjectWithTag("Ship");
-        shipGO.GetComponent<ClientSolarSystem>().UpdateInventory();
+        GetComponent<Hud>().UpdateInventory();
         shipGO.GetComponent<ClientSolarSystem>().UpdateAsteroid(msg.AsteroidHash, msg.Remaining);
     }
 
@@ -342,14 +345,14 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         {
             BufferedInputs.RemoveAll(input => input.Seq <= p.Seq);
 
-          //  log.WriteLine("PlayerState.Pos:" + PlayerState.Location.Pos + ", throttle:" + PlayerState.Throttle);
+            //  log.WriteLine("PlayerState.Pos:" + PlayerState.Location.Pos + ", throttle:" + PlayerState.Throttle);
 
             PlayerState.Location.Pos = p.PlayerPos;
             PlayerState.Rotation = p.Rotation;
             PlayerState.Throttle = p.Throttle;
 
-          //  log.WriteLine(p);
-          //  log.WriteLine("bufferedinput count:" + BufferedInputs.Count);
+            //  log.WriteLine(p);
+            //  log.WriteLine("bufferedinput count:" + BufferedInputs.Count);
 
             foreach (InputMessage input in BufferedInputs)
             {
@@ -360,7 +363,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
                 if (PlayerState.Location.InWarp)
                 {
-                   // log.WriteLine("input:" + input);
+                    // log.WriteLine("input:" + input);
                     Simulator.ContinuedPhysicsWarp(PlayerState, input.DeltaTime);
                 }
                 else
@@ -373,9 +376,9 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
             BufferedInputs.RemoveAll(input => input.ClientOnly);
 
-           // log.WriteLine("PlayerState.Pos:" + PlayerState.Location.Pos + ", throttle:" + PlayerState.Throttle);
+            // log.WriteLine("PlayerState.Pos:" + PlayerState.Location.Pos + ", throttle:" + PlayerState.Throttle);
 
-          //  log.WriteLine("-----------------------------------------------");
+            //  log.WriteLine("-----------------------------------------------");
 
         }
     }
@@ -383,254 +386,163 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     private void SampleWarpInput()
     {
-        bool anyInput = false;
-
-        Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
-        Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
-
-
-        float xDelta = mousePos.x - screenCenter.x;
-        float yDelta = mousePos.y - screenCenter.y;
-
-
-        InputMessage input = new InputMessage();
-
-
-        //rotation
-        yDelta = Mathf.Clamp(yDelta, -70, 70);
-        xDelta = Mathf.Clamp(xDelta, -70, 70);
-        if (Math.Abs(xDelta) > 10 || Math.Abs(yDelta) > 10)
+        if (PlayerState.Stopwatch.ElapsedMilliseconds >= NetworkUtils.SERVER_TICK_RATE)
         {
-            //  Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
-             input.XTurn = xDelta / 4000f;
-               input.YTurn = -yDelta / 4000f;
 
-               anyInput = true;
-        }
-        else
-        {
-            input.XTurn = 0;
-            input.YTurn = 0;
-        }
 
-        //throttle    
-        if (Input.GetKey("w"))
-        {
-            if (throttle < 100)
+            bool anyInput = false;
+
+
+
+            InputMessage input = new InputMessage();
+
+
+            //rotation
+            if (InputCollector.Yaw != 0 || InputCollector.Pitch != 0 || InputCollector.Roll != 0 || InputCollector.Throttle != PlayerState.Throttle)
             {
-                throttle = Mathf.Clamp(throttle + 1, 0, 100);
+
+                //  Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
+                input.Yaw = InputCollector.Yaw;
+                input.Pitch = InputCollector.Pitch;
+                input.Roll = InputCollector.Roll;
+                input.Throttle = InputCollector.Throttle;
                 anyInput = true;
             }
 
-        }
-        else if (Input.GetKey("s"))
-        {
-            if (throttle > 0)
+
+
+
+            PlayerState.Stopwatch.Stop();
+
+            if (anyInput)
             {
-                throttle = Mathf.Clamp(throttle - 1, 0, 100);
-                anyInput = true;
+                input.ClientOnly = false;
+                input.Seq = Seq;
+                input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
+                Simulator.ProcessInput(PlayerState, input);
+                Seq++;
             }
+            else
+            {
+                input.ClientOnly = true;
+                input.Seq = Seq;
+                input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
+            }
+
+            lock (BufferedInputs)
+            {
+                BufferedInputs.Add(input);
+            }
+
+            if (anyInput)
+            {
+                InputsToSend.Add(input);
+            }
+
+            Simulator.ContinuedPhysicsWarp(PlayerState, PlayerState.Stopwatch.ElapsedMilliseconds);
+            PlayerState.Stopwatch.Reset();
+            PlayerState.Stopwatch.Start();
+
+
+
+
+
+
+            Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
+            Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
         }
-        else if (Input.GetKey("space"))
-        {
-            throttle = 0;
-
-        }
-
-
-        //do a barrel roll
-        if (Input.GetKey("q"))
-        {
-
-            input.RollTurn = .01f;
-            anyInput = true;
-        }
-        else if (Input.GetKey("e"))
-        {
-
-            input.RollTurn = -.01f;
-            anyInput = true;
-        }
-
-        PlayerState.Stopwatch.Stop();
-        
-        if (anyInput)
-        {
-            input.ClientOnly = false;
-            input.Seq = Seq;
-            input.Throttle = throttle;
-            input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
-            Simulator.ProcessInput(PlayerState, input);
-            Seq++;
-    
-        }
-        else
-        {
-            input.ClientOnly = true;
-            input.Seq = Seq;
-            input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
-        }
-
-        lock (BufferedInputs)
-        {
-            BufferedInputs.Add(input);
-            
-        }
-        if (anyInput)
-        {
-           // log.WriteLine("Input at send - " + input);
-            InputsToSend.Add(input);
-        }
-
-        Simulator.ContinuedPhysicsWarp(PlayerState, PlayerState.Stopwatch.ElapsedMilliseconds);
-        PlayerState.Stopwatch.Reset();
-        PlayerState.Stopwatch.Start();
-
-        Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
-        Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
-
 
     }
 
     private void SampleSystemInput()
     {
-        bool anyInput = false;
 
-        Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
-        Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
-
-
-        float xDelta = mousePos.x - screenCenter.x;
-        float yDelta = mousePos.y - screenCenter.y;
-
-
-        InputMessage input = new InputMessage();
-
-
-        //rotation
-        yDelta = Mathf.Clamp(yDelta, -70, 70);
-        xDelta = Mathf.Clamp(xDelta, -70, 70);
-        if (Math.Abs(xDelta) > 10 || Math.Abs(yDelta) > 10)
+        if (PlayerState.Stopwatch.ElapsedMilliseconds >= NetworkUtils.SERVER_TICK_RATE)
         {
-            //  Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
-            input.XTurn = xDelta / 4000f;
-            input.YTurn = -yDelta / 4000f;
 
-            anyInput = true;
-        }
-        else
-        {
-            input.XTurn = 0;
-            input.YTurn = 0;
-        }
+            bool anyInput = false;
+            InputMessage input = new InputMessage();
 
-        //throttle    
-        if (Input.GetKey("w"))
-        {
-            if (throttle < 100)
+
+            //rotation
+            if (InputCollector.Yaw != 0 || InputCollector.Pitch != 0 || InputCollector.Roll != 0 || InputCollector.Throttle != 0)
             {
-                throttle = Mathf.Clamp(throttle + 1, 0, 100);
+
+                //  Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
+                input.Yaw = InputCollector.Yaw;
+                input.Pitch = InputCollector.Pitch;
+                input.Roll = InputCollector.Roll;
+                input.Throttle = InputCollector.Throttle;
                 anyInput = true;
             }
 
-        }
-        else if (Input.GetKey("s"))
-        {
-            if (throttle > 0)
+
+
+            if (InputCollector.JumpToWarp)
             {
-                throttle = Mathf.Clamp(throttle - 1, 0, 100);
-                anyInput = true;
+                GoingToWarp = true;
+                GoToWarpMessage msg;
+                msg.Location = PlayerState.Location;
+                msg.Rotation = PlayerState.Rotation;
+                Send(msg);
+                //todo some sort of animation/sounds            
             }
-        }
-        else if (Input.GetKey("j"))
-        {
-            GoingToWarp = true;
-            GoToWarpMessage msg;
-            msg.Location = PlayerState.Location;
-            msg.Rotation = PlayerState.Rotation;
-            Send(msg);
-            //todo some sort of animation/sounds            
-        }
-        else if (Input.GetKeyUp("b")) 
-        {
-            GameObject resourceStation = Resources.Load<GameObject>("Station");
-            GameObject station = (GameObject)Instantiate(resourceStation, Utility.UVector(PlayerState.Location.Pos), Utility.UQuaternion(PlayerState.Rotation));
-            station.transform.Translate(Vector3.forward * 3);
-           // station.transform.localScale *= .1f;
-        }
-        else if (Input.GetKey("space"))
-        {
-            if (throttle != 0)
+            else if (InputCollector.Build)
             {
-                throttle = 0;
-                anyInput = true;
+                GameObject resourceStation = Resources.Load<GameObject>("Station");
+                GameObject station = (GameObject)Instantiate(resourceStation, Utility.UVector(PlayerState.Location.Pos), Utility.UQuaternion(PlayerState.Rotation));
+                station.transform.Translate(Vector3.forward * 3);
+                // station.transform.localScale *= .1f;
             }
+
+
+
+            if (InputCollector.SecondaryButton)
+            {
+                UnityEngine.Debug.Log("MouseButton1");
+                anyInput = true;
+                input.SecondaryButton = true;
+            }
+
+            PlayerState.Stopwatch.Stop();
+
+            if (anyInput)
+            {
+                input.ClientOnly = false;
+                input.Seq = Seq;
+                input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
+                Simulator.ProcessInput(PlayerState, input);
+                Seq++;
+
+            }
+            else
+            {
+                input.ClientOnly = true;
+                input.Seq = Seq;
+                input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
+            }
+
+            lock (BufferedInputs)
+            {
+                BufferedInputs.Add(input);
+
+            }
+            if (anyInput)
+            {
+                // log.WriteLine("Input at send - " + input);
+                InputsToSend.Add(input);
+            }
+
+
+            Simulator.ContinuedPhysics(PlayerState, PlayerState.Stopwatch.ElapsedMilliseconds);
+            PlayerState.Stopwatch.Reset();
+            PlayerState.Stopwatch.Start();
+
+
+            Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
+            Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
+
         }
-
-
-        //do a barrel roll
-        if (Input.GetKey("q"))
-        {
-            //Camera.main.transforinput.Rotate(new Vector3(0, 0, -50*Time.deltaTime));
-            input.RollTurn = .01f;
-            anyInput = true;
-        }
-        else if (Input.GetKey("e"))
-        {
-            //Camera.main.transforinput.Rotate(new Vector3(0, 0, 50*Time.deltaTime));
-            input.RollTurn = -.01f;
-            anyInput = true;
-        }
-
-        // Camera.main.transform.Translate(Vector3.forward * throttle * 40 *  Time.deltaTime);
-
-        if (Input.GetMouseButton(1))
-        {
-            UnityEngine.Debug.Log("MouseButton1");
-            anyInput = true;
-            input.SecondaryButton = true;
-        }
-
-        PlayerState.Stopwatch.Stop();
-
-        if (anyInput)
-        {
-            input.ClientOnly = false;
-            input.Seq = Seq;
-            input.Throttle = throttle;
-            input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
-            Simulator.ProcessInput(PlayerState, input);
-            Seq++;
-
-        }
-        else
-        {
-            input.ClientOnly = true;
-            input.Seq = Seq;
-            input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
-        }
-
-        lock (BufferedInputs)
-        {
-            BufferedInputs.Add(input);
-
-        }
-        if (anyInput)
-        {
-            // log.WriteLine("Input at send - " + input);
-            InputsToSend.Add(input);
-        }
-
-
-        Simulator.ContinuedPhysics(PlayerState, PlayerState.Stopwatch.ElapsedMilliseconds);
-        PlayerState.Stopwatch.Reset();
-        PlayerState.Stopwatch.Start();
-
-
-        Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
-        Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
-
-
 
 
     }

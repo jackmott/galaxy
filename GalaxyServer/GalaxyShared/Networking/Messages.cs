@@ -208,11 +208,11 @@ namespace GalaxyShared
         [ProtoMember(1)]
         public long Seq;
         [ProtoMember(2)]
-        public float XTurn;
+        public float Yaw;
         [ProtoMember(3)]
-        public float YTurn;
+        public float Pitch;
         [ProtoMember(4)]
-        public float RollTurn;
+        public float Roll;
         [ProtoMember(5)]
         public float Throttle;
         [ProtoMember(6)]

@@ -15,6 +15,8 @@ bin
 /*.pidb
 /*.booproj
 
+/*.dll
+
 #Unity3D Generated File On Crash Reports
 sysinfo.txt
 

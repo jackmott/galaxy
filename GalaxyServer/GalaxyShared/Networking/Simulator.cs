@@ -39,10 +39,10 @@ namespace GalaxyShared
         public static void ProcessInput(Player player, InputMessage input)
         {
 
-            if (input.XTurn != 0 || input.YTurn != 0 || input.RollTurn != 0)
+            if (input.Yaw != 0 || input.Pitch != 0 || input.Roll != 0)
             {
                 //rotate            
-                Quaternion changeRotation = Quaternion.CreateFromYawPitchRoll(input.XTurn, input.YTurn, input.RollTurn);            
+                Quaternion changeRotation = Quaternion.CreateFromYawPitchRoll(input.Yaw, input.Pitch, input.Roll);            
                 player.Rotation = player.Rotation * changeRotation;
                 player.Rotation.Normalize();                 
             }
@@ -64,10 +64,10 @@ namespace GalaxyShared
         public static void ProcessInputWarp(Player player, InputMessage input)
         {
 
-            if (input.XTurn != 0 || input.YTurn != 0 || input.RollTurn != 0)
+            if (input.Yaw != 0 || input.Pitch != 0 || input.Roll != 0)
             {
                 //rotate            
-                Quaternion changeRotation = Quaternion.CreateFromYawPitchRoll(input.XTurn, input.YTurn, input.RollTurn);
+                Quaternion changeRotation = Quaternion.CreateFromYawPitchRoll(input.Yaw, input.Pitch, input.Roll);
                 player.Rotation = player.Rotation * changeRotation;
                 player.Rotation.Normalize();
             }
