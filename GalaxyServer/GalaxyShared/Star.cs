@@ -73,11 +73,10 @@ namespace GalaxyShared
 
         public Star() { }
 
-        public Star(SolarSystem parentSystem)
-        {
-            rand = new FastRandom(Convert.ToInt32(parentSystem.Pos.X), Convert.ToInt32(parentSystem.Pos.Y), Convert.ToInt32(parentSystem.Pos.Z));
+        public Star(SolarSystem parentSystem, FastRandom rand)
+        {            
             ParentSystem = parentSystem;
-            Sector s = new Sector(parentSystem.ParentSectorCoord);
+            Sector s = ParentSystem.ParentSector;
             Type = typeToTypeDistribution[s.DominantStarType][rand.Next(0, 10)];
             Size = typeToSizeDistribution[Type][rand.Next(0, 10)];
 

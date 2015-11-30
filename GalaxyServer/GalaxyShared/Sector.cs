@@ -71,8 +71,7 @@ namespace GalaxyShared
         {
             r.Init(Coord.X, Coord.Y, Coord.Z, index);
             Vector3 starCoord = new Vector3(r.Next(-SECTOR_SIZE/2d,SECTOR_SIZE/2d) + Coord.X * SECTOR_SIZE, r.Next(-SECTOR_SIZE/2d, SECTOR_SIZE/2d) + Coord.Y * SECTOR_SIZE, r.Next(-SECTOR_SIZE/2d, SECTOR_SIZE/2d) + Coord.Z * SECTOR_SIZE);
-            SolarSystem system = new SolarSystem(index, Coord, starCoord);
-            Console.WriteLine(system.Pos);
+            SolarSystem system = new SolarSystem(index, this, starCoord,r);            
             return system;
         }
 

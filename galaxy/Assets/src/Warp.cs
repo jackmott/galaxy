@@ -11,25 +11,28 @@ public class Warp : MonoBehaviour {
     
     
     int SectorCount = 9; //must be odd
-    
+    ClientSector SectorToRemove = null;
+
     public static ClientSector ClosestSector = null;
     public GameObject Ship;
         
-    Dictionary<int,ClientSector> LoadedSectors;            
-    
-    
+    Dictionary<int,ClientSector> LoadedSectors;
+
+    double distanceThreshold; 
+
 
     // Use this for initialization
     void Start () {
 
-
+       
         // Thread thread = new Thread(new ThreadStart(NetworkLoop));
         // thread.Start();
-    
+
         GameObject OriginalParticlePrefab = Resources.Load<GameObject>("StarParticles");
 
 
         Camera.main.farClipPlane = (float)(Sector.SECTOR_SIZE * Sector.EXPAND_FACTOR * (SectorCount / 2f));
+        distanceThreshold = (double)Camera.main.farClipPlane;
         Ship.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
         Ship.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
         Ship.transform.Translate(Vector3.forward * .2f);
@@ -63,7 +66,7 @@ public class Warp : MonoBehaviour {
     void UpdateSectors()
     {
 
-        float distanceThreshold = Camera.main.farClipPlane;
+        
 
         XnaGeometry.Vector3 shipPos = NetworkManager.PlayerState.Location.Pos;
 
@@ -72,110 +75,96 @@ public class Warp : MonoBehaviour {
         int z = Convert.ToInt32(shipPos.Z / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
 
 
-        
-        int minX = x - (SectorCount - 1) / 2;        
-        int minY = y - (SectorCount - 1) / 2;        
-        int minZ = z - (SectorCount - 1) / 2;
+        int range = (SectorCount - 1) / 2;
+        int minX = x - range;
+        int minY = y - range;
+        int minZ = z - range;
+        int maxX = x + range;
+        int maxY = y + range;
+        int maxZ = z + range;
 
+        double secMult = Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE;
 
-        ClosestSector = null;
-        double minDistance = double.MaxValue;                
-        foreach (ClientSector cSector in LoadedSectors.Values)
+        double minDistance = double.MaxValue;
+        ClientSector closestSector = null;
+
+        for (z = minZ; z <= maxZ; z++)
         {
-            
-            x = cSector.Coord.X;
-            y = cSector.Coord.Y;
-            z = cSector.Coord.Z;
-
-            XnaGeometry.Vector3 sectorPos = new XnaGeometry.Vector3((float)(x * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( y * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( z * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE));
-
-            double distance = XnaGeometry.Vector3.Distance(shipPos, sectorPos);
-
-            
-            if (distance > distanceThreshold) cSector.Dispose();
-            else if (distance < minDistance)
+            int zHash = z * Sector.SECTOR_SIZE * Sector.SECTOR_SIZE;
+            for (y = minY; y <= maxY; y++)
             {
-                minDistance = distance;
-                ClosestSector = cSector;
+                int yHash = y * Sector.SECTOR_SIZE;
+                for (x = minX; x <= maxX; x++)
+                {
+                    int hash = x + yHash + zHash;
+                    XnaGeometry.Vector3 sectorPos = new XnaGeometry.Vector3(x * secMult, y * secMult, z * secMult);
+                    double distance = XnaGeometry.Vector3.Distance(shipPos, sectorPos);
+                    //check what sector to remove, we remove only 1 per update
+                    if (LoadedSectors.ContainsKey(hash))
+                    {
+                                             
+                        if (distance > distanceThreshold && SectorToRemove == null)
+                        {                            
+                            LoadedSectors.TryGetValue(hash, out SectorToRemove);
+                            SectorToRemove.Dispose();
+                            LoadedSectors.Remove(hash);
+                          //  UnityEngine.Debug.Log("Removing chunk");
+                                              
+                        } else if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            LoadedSectors.TryGetValue(hash, out closestSector);
+                        }
+                        
+                    }
+                    else if (distance < distanceThreshold)
+                    {
+                        if (SectorToRemove != null)
+                        {
+                          //  UnityEngine.Debug.Log("Generating new chunk");
+                            Sector s = new Sector(new SectorCoord(x, y, z));
+                            s.GenerateSystems(1);
+                            SectorToRemove.Activate(s);
+                            LoadedSectors.Add(SectorToRemove.Hash,SectorToRemove);
+                            SectorToRemove = null;
+                         //   UnityEngine.Debug.Log("ChunkGenerated");
+                            return;
+                        } else
+                        {
+                            foreach (ClientSector cs in LoadedSectors.Values)
+                            {
+                                if (!cs.Active)
+                                {
+                                    SectorToRemove = cs;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        if (ClosestSector != null && ClosestSector.Active)
+        if (closestSector != null)
         {
-            SolarSystem system = GetClosestSystem(ClosestSector.Sector, shipPos);
-            double distance = XnaGeometry.Vector3.Distance(system.Pos * Sector.EXPAND_FACTOR, shipPos);
-            
+            SolarSystem s;
+            double distance = GetClosestSystem(closestSector.Sector, shipPos,out s);
             if (distance < Simulator.WARP_DISTANCE_THRESHOLD)
             {
-               
-                DropOutOfWarp(system);
-                 
+                DropOutOfWarp(s);
             }
-     //       Debug.Log(XnaGeometry.Vector3.Distance(system.Pos * Sector.EXPAND_FACTOR, NetworkManager.PlayerState.Location.Pos));
-
         }
 
-        for ( x = minX; x < minX + SectorCount; x++)
-        {
-            for (y = minY; y < minY + SectorCount; y++)
-            {
-                for (z = minZ; z < minZ + SectorCount; z++)
-                {
 
-      //              Debug.Log("build new sectors xyz: (" + x + "," + y + "," + z + ")");
-                    int hash = x + y * Sector.SECTOR_SIZE + z * Sector.SECTOR_SIZE * Sector.SECTOR_SIZE;
-                    if (!LoadedSectors.ContainsKey(hash))
-                    {
-                        XnaGeometry.Vector3 sectorPos = new XnaGeometry.Vector3((float)(x * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( y * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( z * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE));
-                        double distance = XnaGeometry.Vector3.Distance(shipPos, sectorPos);
-                        
-                        if (distance <= distanceThreshold)
-                        {
-
-                            ClientSector removeSector = null;
-                            foreach (ClientSector sector in LoadedSectors.Values)
-                            {
-                                if (!sector.Active)
-                                {
-                                    removeSector = sector;
-                                    break;
-                                } //if sector active
-                            } // foreach sector
-
-                            if (removeSector != null)
-                            {
-                                LoadedSectors.Remove(removeSector.Hash);
-                                Sector gSector = new Sector(new SectorCoord(x, y, z));
-                                UnityEngine.Debug.Log("SECTOR GEN START:"+gSector.Coord.X+","+gSector.Coord.Y+","+gSector.Coord.Z);
-                                gSector.GenerateSystems(1);
-                                if (gSector != null)
-                                {
-                                    removeSector.Activate(gSector);
-                                } else
-                                {
-                                    Debug.Log("no more sectors!");
-                                }
-                                
-                                LoadedSectors.Add(removeSector.Hash, removeSector);
-                            }
-                            
-                        } // if distance <= distanceThreshold
-                    }// if sector doesn't already exist
-                    
-                }//z
-
-            }//y
-
-        }//x
-
+   
+       
 
     }//updatesectors
 
 
-    public static SolarSystem GetClosestSystem(Sector sector, XnaGeometry.Vector3 pos)
+    public static double GetClosestSystem(Sector sector, XnaGeometry.Vector3 pos, out SolarSystem closeSystem)
     {
         double minDistance = double.MaxValue;
-        SolarSystem closeSystem = null;
+        closeSystem = sector.Systems[0];
         foreach (SolarSystem s in sector.Systems)
         {
             double distance = XnaGeometry.Vector3.Distance(pos, s.Pos * Sector.EXPAND_FACTOR);
@@ -185,7 +174,7 @@ public class Warp : MonoBehaviour {
                 closeSystem = s;
             }
         }
-        return closeSystem;
+        return minDistance;
     }
 
 
