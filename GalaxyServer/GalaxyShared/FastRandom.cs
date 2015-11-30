@@ -42,7 +42,7 @@ namespace GalaxyShared
 
         }
 
-        private void Init(int a, int b = 43837828, int c = 8378737, int d = 838383)
+        public void Init(int a, int b = 43837828, int c = 8378737, int d = 838383)
         {
             uint seed = (uint)(a ^ b ^ c ^ d);
             mt[0] = (uint)seed & 0xffffffffU;

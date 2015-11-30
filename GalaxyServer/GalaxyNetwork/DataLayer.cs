@@ -69,9 +69,10 @@ namespace GalaxyServer
 
 
 
-        public static SolarSystem GetSystem(Vector3 pos)
+        public static SolarSystem GetSystem(SolarSystem system)
         {
-             return Get<SolarSystem>(SYSTEM+pos.ToString());
+
+             return Get<SolarSystem>(SYSTEM+system.key());
         }
 
         public static void AddSystem(SolarSystem system)

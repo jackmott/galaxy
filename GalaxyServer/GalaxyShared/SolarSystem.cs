@@ -54,7 +54,7 @@ namespace GalaxyShared
             sb.Append(ParentSectorCoord.Y);
             sb.Append(",");
             sb.Append(ParentSectorCoord.Z);
-            sb.Append("I");
+            sb.Append(":");
             sb.Append(Index);
             return sb.ToString();
         }

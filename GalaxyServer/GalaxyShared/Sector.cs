@@ -23,7 +23,7 @@ namespace GalaxyShared
         public const double EXPAND_FACTOR = 1d / 2.5d; //multiplied by galaxy coordinates to get unity coordinates
         public const int HALF_SECTOR_SIZE = SECTOR_SIZE / 2;
 
-        FastRandom r;
+        private FastRandom r = new FastRandom(0);
 
 
         public Sector(SectorCoord coord)
@@ -40,8 +40,8 @@ namespace GalaxyShared
                 }
             }
             this.Coord = coord;            
-            Systems = new List<SolarSystem>();            
-            r = new FastRandom(coord.X,coord.Y,coord.Z);
+                     
+           
 
             
             //things to be looked up from data somehow
@@ -67,50 +67,27 @@ namespace GalaxyShared
            
         }
 
+        public SolarSystem GenerateSystem(int index)
+        {
+            r.Init(Coord.X, Coord.Y, Coord.Z, index);
+            Vector3 starCoord = new Vector3(r.Next(-SECTOR_SIZE/2d,SECTOR_SIZE/2d) + Coord.X * SECTOR_SIZE, r.Next(-SECTOR_SIZE/2d, SECTOR_SIZE/2d) + Coord.Y * SECTOR_SIZE, r.Next(-SECTOR_SIZE/2d, SECTOR_SIZE/2d) + Coord.Z * SECTOR_SIZE);
+            SolarSystem system = new SolarSystem(index, Coord, starCoord);
+            Console.WriteLine(system.Pos);
+            return system;
+        }
+
         public List<SolarSystem> GenerateSystems(int everyNth)
         {
             int sectorCubed = SECTOR_SIZE * SECTOR_SIZE * SECTOR_SIZE;  //how many lights years cubed are there?
-            float avgDeltaF = 1f / StellarDensity;
-            int avgDelta = Convert.ToInt32(avgDeltaF * 2f); //for average
-            avgDelta *= everyNth;
-
-
-            //System.Diagnostics.Debug.WriteLine("pixel X,Y=(" + pixelX + "," + pixelY + ")");
-            // System.Diagnostics.Debug.WriteLine("intensity=" + sectorIntensity);
-            //System.Diagnostics.Debug.WriteLine("StellarDen=" + STELLAR_DENSITY);
-            //System.Diagnostics.Debug.WriteLine("avgDelta2=" + avgDelta);
-
-            int i = 0;
-
-            while (true)
+            int starCount = (int)Math.Floor(StellarDensity * sectorCubed);
+            Systems = new List<SolarSystem>(starCount);
+            for (int i = 0; i < starCount; i=i+everyNth)
             {
-                int delta = r.Next(1, avgDelta + 1);
-
-                i = i + delta;
-                if (i >= sectorCubed)
-                {
-                    break;
-                }
-
-
-                double x = r.Next(-.5d, .5d);
-                double y = r.Next(-.5d, .5d);
-                double z = r.Next(-.5d, .5d);
-
-                int index = i;
-                x += (index % SECTOR_SIZE) - HALF_SECTOR_SIZE;
-                index = index / SECTOR_SIZE;
-                y += (index % SECTOR_SIZE) - HALF_SECTOR_SIZE;
-                index = index / SECTOR_SIZE;
-                z += index - HALF_SECTOR_SIZE;
-
-
-                SolarSystem system = new SolarSystem(index,Coord,new Vector3(x + Coord.X * SECTOR_SIZE, y + Coord.Y * SECTOR_SIZE, z + Coord.Z * SECTOR_SIZE));
-                Systems.Add(system);
-              
+                Systems.Add(GenerateSystem(i));
             }
             return Systems;
         }
+
 
     }
 }

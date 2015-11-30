@@ -64,12 +64,12 @@ public class Warp : MonoBehaviour {
     {
 
         float distanceThreshold = Camera.main.farClipPlane;
-        
-        Vector3 shipPos = Ship.transform.position;
-        
-        int x = Convert.ToInt32(shipPos.x / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
-        int y = Convert.ToInt32(shipPos.y / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
-        int z = Convert.ToInt32(shipPos.z / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
+
+        XnaGeometry.Vector3 shipPos = NetworkManager.PlayerState.Location.Pos;
+
+        int x = Convert.ToInt32(shipPos.X / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
+        int y = Convert.ToInt32(shipPos.Y / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
+        int z = Convert.ToInt32(shipPos.Z / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
 
 
         
@@ -79,7 +79,7 @@ public class Warp : MonoBehaviour {
 
 
         ClosestSector = null;
-        float minDistance = float.MaxValue;                
+        double minDistance = double.MaxValue;                
         foreach (ClientSector cSector in LoadedSectors.Values)
         {
             
@@ -87,9 +87,9 @@ public class Warp : MonoBehaviour {
             y = cSector.Coord.Y;
             z = cSector.Coord.Z;
 
-            Vector3 sectorPos = new Vector3((float)(x * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( y * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( z * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE));
+            XnaGeometry.Vector3 sectorPos = new XnaGeometry.Vector3((float)(x * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( y * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( z * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE));
 
-            float distance = Vector3.Distance(shipPos, sectorPos);
+            double distance = XnaGeometry.Vector3.Distance(shipPos, sectorPos);
 
             
             if (distance > distanceThreshold) cSector.Dispose();
@@ -102,12 +102,13 @@ public class Warp : MonoBehaviour {
 
         if (ClosestSector != null && ClosestSector.Active)
         {
-            SolarSystem system = Simulator.GetClosestSystem(ClosestSector.Sector, NetworkManager.PlayerState.Location.Pos);
+            SolarSystem system = GetClosestSystem(ClosestSector.Sector, shipPos);
+            double distance = XnaGeometry.Vector3.Distance(system.Pos * Sector.EXPAND_FACTOR, shipPos);
             
-            if (XnaGeometry.Vector3.Distance(system.Pos*Sector.EXPAND_FACTOR,NetworkManager.PlayerState.Location.Pos) < Simulator.WARP_DISTANCE_THRESHOLD)
+            if (distance < Simulator.WARP_DISTANCE_THRESHOLD)
             {
                
-                DropOutOfWarp();
+                DropOutOfWarp(system);
                  
             }
      //       Debug.Log(XnaGeometry.Vector3.Distance(system.Pos * Sector.EXPAND_FACTOR, NetworkManager.PlayerState.Location.Pos));
@@ -125,8 +126,8 @@ public class Warp : MonoBehaviour {
                     int hash = x + y * Sector.SECTOR_SIZE + z * Sector.SECTOR_SIZE * Sector.SECTOR_SIZE;
                     if (!LoadedSectors.ContainsKey(hash))
                     {
-                        Vector3 sectorPos = new Vector3((float)(x * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( y * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( z * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE));
-                        float distance = Vector3.Distance(shipPos, sectorPos);
+                        XnaGeometry.Vector3 sectorPos = new XnaGeometry.Vector3((float)(x * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( y * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE),(float)( z * Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE));
+                        double distance = XnaGeometry.Vector3.Distance(shipPos, sectorPos);
                         
                         if (distance <= distanceThreshold)
                         {
@@ -145,6 +146,7 @@ public class Warp : MonoBehaviour {
                             {
                                 LoadedSectors.Remove(removeSector.Hash);
                                 Sector gSector = new Sector(new SectorCoord(x, y, z));
+                                UnityEngine.Debug.Log("SECTOR GEN START:"+gSector.Coord.X+","+gSector.Coord.Y+","+gSector.Coord.Z);
                                 gSector.GenerateSystems(1);
                                 if (gSector != null)
                                 {
@@ -169,12 +171,30 @@ public class Warp : MonoBehaviour {
 
     }//updatesectors
 
-   
-    public void DropOutOfWarp()
+
+    public static SolarSystem GetClosestSystem(Sector sector, XnaGeometry.Vector3 pos)
+    {
+        double minDistance = double.MaxValue;
+        SolarSystem closeSystem = null;
+        foreach (SolarSystem s in sector.Systems)
+        {
+            double distance = XnaGeometry.Vector3.Distance(pos, s.Pos * Sector.EXPAND_FACTOR);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closeSystem = s;
+            }
+        }
+        return closeSystem;
+    }
+
+
+    public void DropOutOfWarp(SolarSystem system)
     {
 
 
-        DropOutOfWarpMessage msg = new DropOutOfWarpMessage();        
+        DropOutOfWarpMessage msg = new DropOutOfWarpMessage();
+        msg.SystemIndex = system.Index;
         NetworkManager.Send(msg);
         //tell the server we want to drop out of warp
     }

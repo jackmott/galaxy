@@ -13,7 +13,7 @@ public class Speedo : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        Text.text = "T:" + NetworkManager.PlayerState.Throttle + " V:" + NetworkManager.PlayerState.Throttle * NetworkManager.PlayerState.Ship.TopSpeed;
+     //   Text.text = "T:" + NetworkManager.PlayerState.Throttle + " V:" + NetworkManager.PlayerState.Throttle * NetworkManager.PlayerState.Ship.TopSpeed;
 
 	}
 }

@@ -31,11 +31,9 @@ namespace GalaxyServer
         public static void Main(string[] args)
         {
 
-            
-            GalaxyServer server = new GalaxyServer();
-
-
-
+            Sector s = new Sector(new SectorCoord(0, 0, 1));
+            s.GenerateSystems(1);
+            GalaxyServer server = new GalaxyServer();          
         }
 
         public GalaxyServer()
@@ -241,3 +239,4 @@ namespace GalaxyServer
 
     }
 }
+

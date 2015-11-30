@@ -13,22 +13,7 @@ namespace GalaxyShared
 
        
 
-        public static SolarSystem GetClosestSystem(Sector sector, Vector3 pos)
-        {
-            double minDistance = double.MaxValue;
-            SolarSystem closeSystem = null;
-            foreach (SolarSystem s in sector.Systems)
-            {
-                double distance = Vector3.Distance(pos, s.Pos*Sector.EXPAND_FACTOR);
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    closeSystem = s;
-                }
-            }
-            return closeSystem;
-        }
-
+       
      
         public static void ContinuedPhysics(Player player, double deltaTime)
         {            

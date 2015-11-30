@@ -12,9 +12,7 @@ public class ClientSolarSystem : MonoBehaviour
     private static SolarSystem SolarSystem;
     public static Cubemap Cubemap;
 
-    public GameObject Recticle;
-
-   
+       
     public Material LineMaterial;
 
 

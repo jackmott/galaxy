@@ -121,33 +121,32 @@ namespace GalaxyServer
 
             
             Sector sector = new Sector(new SectorCoord(x,y, z));
-            sector.GenerateSystems(1);
-            SolarSystem closeSystem = Simulator.GetClosestSystem(sector, player.Location.Pos);
-
+            SolarSystem system = sector.GenerateSystem(msg.SystemIndex);
+            
            
-
-            if (closeSystem != null && Vector3.Distance(player.Location.Pos,closeSystem.Pos* Sector.EXPAND_FACTOR) <= Simulator.WARP_DISTANCE_THRESHOLD)
+            if (system != null && Vector3.Distance(player.Location.Pos,system.Pos* Sector.EXPAND_FACTOR) <= Simulator.WARP_DISTANCE_THRESHOLD)
             {
-                SolarSystem system = DataLayer.GetSystem(closeSystem.Pos);
-                if (system != null)
+                //fill in the system with any deltas if it exists in DB
+                SolarSystem updatedSystem = DataLayer.GetSystem(system);
+                if (updatedSystem != null)
                 {
-                    closeSystem = system;
+                    system = updatedSystem;
                 }
                 else
                 {
-                    closeSystem.Generate();
-                    DataLayer.AddSystem(closeSystem);
+                    system.Generate();
+                    DataLayer.AddSystem(system);
                 }
 
                 
                 player.Location.Pos = SYSTEM_START_POS;
-                player.Location.SystemPos = closeSystem.Pos;
+                player.Location.SystemPos = system.Pos;
                 player.Location.SectorCoord = sector.Coord;
-                player.SolarSystem = closeSystem;
+                player.SolarSystem = system;
                 player.Location.InWarp = false;
                 msg.Location = player.Location;
                 msg.Rotation = player.Rotation;
-                msg.System = closeSystem;
+                msg.System = system;
                 GalaxyServer.AddToSendQueue(client,msg);
                 return;
             }
@@ -306,7 +305,7 @@ namespace GalaxyServer
                 }
             }
             player.Stopwatch.Stop();
-            Console.WriteLine("ms:" + player.Stopwatch.ElapsedMilliseconds);
+            
             Simulator.ContinuedPhysicsWarp(player, player.Stopwatch.ElapsedMilliseconds);
             player.Stopwatch.Restart();
 

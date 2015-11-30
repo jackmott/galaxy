@@ -94,7 +94,7 @@ public class PlanetTextureGenerator
     {
        
         NormalMap = planetNormals[rand.Next( 0, planetNormals.Length)];
-        octaves =rand.Next( 1, 6);
+        octaves =rand.Next( 1, 8);
         gain =rand.Next( 2f, 7.0f);
         lacunarity =rand.Next( 2f, 7.0f);        
         stretch =rand.Next( 0f, 10f);        
