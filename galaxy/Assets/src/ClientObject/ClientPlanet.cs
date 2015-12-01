@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using GalaxyShared;
 using System.Threading;
-using System;
+using Tuple;
 
-public class ClientPlanet : MonoBehaviour,IClickable {
+public class ClientPlanet : MonoBehaviour,IHasInfo {
 
     public Planet Planet;
     public PlanetTextureGenerator pg;
@@ -67,13 +67,23 @@ public class ClientPlanet : MonoBehaviour,IClickable {
         pg.Finished();
     }
 
-    public void OnLeftClick()
-    {
-        Debug.Log("Left Click");
-    }
 
-    public void OnRightClick()
+    public Info GetInfo()
     {
-        Debug.Log("Right Click");
+        Info info;
+        info.Title = "Planet";
+        Tuple<string, string> Size = new Tuple<string, string>("Size", Planet.Size.ToString());
+        Tuple<string, string> Rotation = new Tuple<string, string>("Rotation Rate", Planet.RotationRate.ToString());
+        Tuple<string, string> Orbit = new Tuple<string, string>("Orbit", Planet.Orbit.ToString());
+
+        info.Specs = new List<Tuple<string, string>>();
+        info.Specs.Add(Size);
+        info.Specs.Add(Rotation);
+        info.Specs.Add(Orbit);
+
+        
+        info.Actions = new List<Tuple<string, string>>();
+        
+        return info;
     }
 }

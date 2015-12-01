@@ -276,7 +276,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     public void HandleMessage(DropOutOfWarpMessage msg, object extra = null)
     {
-        Warp.ClosestSector.ParticleSystem.Clear();
+        //Warp.ClosestSector.ParticleSystem.Clear();
         ClientSolarSystem.Cubemap = new Cubemap(4096, TextureFormat.ARGB32, false);
         bool work = Camera.main.RenderToCubemap(ClientSolarSystem.Cubemap);
         PlayerState.Location = msg.Location;

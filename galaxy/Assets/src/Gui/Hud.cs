@@ -5,6 +5,7 @@ using GalaxyShared;
 using UnityEngine.UI;
 using Rewired;
 using SLS.Widgets.Table;
+using Tuple;
 
 public class Hud : MonoBehaviour
 {
@@ -12,23 +13,45 @@ public class Hud : MonoBehaviour
     public GameObject Recticle;
     public GameObject ShipMenu;
     public GameObject Inventory;
+    public GameObject Info;
 
-    Table ShipMenuTable;
+    
     
     // Use this for initialization
     void Start()
     {
         InputCollector = GameObject.Find("NetworkManager").GetComponent<InputCollector>();
-        ShipMenuTable = ShipMenu.GetComponent<Table>();
+        
         DontDestroyOnLoad(this);
         GenerateShipMenu();
         
     }
 
+    void ActivateShipMenu()
+    {
+        Info.SetActive(false);
+        Inventory.SetActive(false);
+        ShipMenu.SetActive(true);
+    }
+
+    void ActivateInventoryMenu()
+    {
+        Info.SetActive(false);
+        Inventory.SetActive(true);
+        ShipMenu.SetActive(false);
+    }
+
+    void ActivateInfoMenu()
+    {
+        Info.SetActive(true);
+        Inventory.SetActive(false);
+        ShipMenu.SetActive(false);
+    }
+
     void GenerateShipMenu()
     {
+        Table ShipMenuTable = ShipMenu.GetComponent<Table>();
         ShipMenuTable.reset();
-
         ShipMenuTable.addTextColumn();
        
 
@@ -44,7 +67,48 @@ public class Hud : MonoBehaviour
             d.elements.Add(GenerateMenuItem(buttonMap.elementIdentifierName, action.descriptiveName));
             ShipMenuTable.data.Add(d);
         }
-        ShipMenuTable.startRenderEngine();
+        ShipMenuTable.startRenderEngine();        
+        ActivateShipMenu();
+    }
+
+    void GenerateInfoMenu(IHasInfo infoObject)
+    {
+        Info info = infoObject.GetInfo();
+        Table InfoTable = Info.GetComponent<Table>();
+        InfoTable.reset();
+
+        Column c = InfoTable.addTextColumn();
+        c.headerValue = info.Title;
+        InfoTable.addTextColumn();
+        InfoTable.initialize();
+
+
+        foreach (Tuple<string, string> item in info.Specs)
+        {
+            Datum d = Datum.Body(item.Item1);
+            d.elements.Add(item.Item1);
+            d.elements.Add(item.Item2);
+            InfoTable.data.Add(d);
+        }
+        InfoTable.startRenderEngine();
+
+        ActivateInfoMenu();
+    }
+
+    void GenerateInventoryMenu()
+    {
+        StringBuilder sb = new StringBuilder(32);
+        sb.Append("<color=\"cyan\">Inventory</color>\n");
+        foreach (Item i in NetworkManager.PlayerState.Ship.Cargo)
+        {
+            sb.Append("<color=\"magenta\"><</color><color=\"green\">");
+            sb.Append(i.Count);
+            sb.Append("</color><color=\"magenta\">></color><color=\"cyan\">");
+            sb.Append(i.Name);
+            sb.Append("</color>\n");
+        }
+        Inventory.GetComponent<Text>().text = sb.ToString();
+        ActivateInventoryMenu();
     }
 
     // Update is called once per frame
@@ -53,14 +117,7 @@ public class Hud : MonoBehaviour
 
         if (InputCollector.Inventory)
         {
-
-            ShipMenu.SetActive(!ShipMenu.activeSelf);
-            Inventory.SetActive(!Inventory.activeSelf);
-
-            if (Inventory.activeSelf)
-            {
-                UpdateInventory();
-            }
+            GenerateInventoryMenu();
         }
 
 
@@ -77,32 +134,27 @@ public class Hud : MonoBehaviour
                 Recticle.transform.position = new Vector3(ScreenPos.x, ScreenPos.y, 0);
                 if (InputCollector.SecondaryButton)
                 {
-                    IClickable i = o.GetComponent<IClickable>();
-                    i.OnRightClick();
+                    if (!Info.activeSelf)
+                    {
+                        IHasInfo i = o.GetComponent<IHasInfo>();
+                        if (i != null)
+                        {
+                            GenerateInfoMenu(i);
+                        }
+                    }
+                    else
+                    {
+                        GenerateShipMenu();
+                    }
                 }
-                else if (InputCollector.PrimaryButton)
-
-                {
-                    IClickable i = o.GetComponent<IClickable>();
-                    i.OnLeftClick();
-                }
+               
             }
         }
     }
 
     public void UpdateInventory()
     {
-        StringBuilder sb = new StringBuilder(32);
-        sb.Append("<color=\"cyan\">Inventory</color>\n");
-        foreach (Item i in NetworkManager.PlayerState.Ship.Cargo)
-        {
-            sb.Append("<color=\"magenta\"><</color><color=\"green\">");
-            sb.Append(i.Count);
-            sb.Append("</color><color=\"magenta\">></color><color=\"cyan\">");
-            sb.Append(i.Name);
-            sb.Append("</color>\n");
-        }
-        Inventory.GetComponent<Text>().text = sb.ToString();
+       
     }
 
     public string TextColor(string text, string color)

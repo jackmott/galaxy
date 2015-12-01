@@ -122,9 +122,11 @@ namespace GalaxyServer
             
             Sector sector = new Sector(new SectorCoord(x,y, z));
             SolarSystem system = sector.GenerateSystem(msg.SystemIndex);
-            
-           
-            if (system != null && Vector3.Distance(player.Location.Pos,system.Pos* Sector.EXPAND_FACTOR) <= Simulator.WARP_DISTANCE_THRESHOLD)
+
+            double distance = Vector3.Distance(player.Location.Pos, system.Pos * Sector.EXPAND_FACTOR);
+        
+            //give some wiggle room since server/client will not be perfectly in sync
+            if (system != null && distance <= Simulator.WARP_DISTANCE_THRESHOLD*2)
             {
                 //fill in the system with any deltas if it exists in DB
                 SolarSystem updatedSystem = DataLayer.GetSystem(system);

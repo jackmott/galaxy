@@ -36,7 +36,7 @@ public class InputCollector : MonoBehaviour
         Yaw = PlayerInput.GetAxis("Yaw");
 
         PrimaryButton = PlayerInput.GetButton("PrimaryButton");
-        SecondaryButton = PlayerInput.GetButton("SecondaryButton");
+        SecondaryButton = PlayerInput.GetButtonUp("SecondaryButton");
 
         Inventory = PlayerInput.GetButtonUp("Inventory");
 

@@ -34,6 +34,8 @@ public class ClientSolarSystem : MonoBehaviour
         SolarSystem = NetworkManager.PlayerState.SolarSystem;
         asteroidDictionary = new Dictionary<int, Asteroid>(1000);
         GameObject star = (GameObject)Instantiate(Resources.Load<GameObject>("Star"), Vector3.zero, Quaternion.identity);
+        ClientStar cs = star.GetComponent<ClientStar>();
+        cs.SetStar(SolarSystem.Star);
         star.transform.position = Vector3.zero;
         star.transform.localScale *= SolarSystem.Star.Size * Planet.EARTH_CONSTANT * 30;
         GameObject light = (GameObject)Instantiate(Resources.Load<GameObject>("StarLight"), Vector3.zero, Quaternion.identity);

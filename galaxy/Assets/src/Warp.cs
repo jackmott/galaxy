@@ -12,8 +12,7 @@ public class Warp : MonoBehaviour {
     
     int SectorCount = 9; //must be odd
     ClientSector SectorToRemove = null;
-
-    public static ClientSector ClosestSector = null;
+    
     public GameObject Ship;
         
     Dictionary<int,ClientSector> LoadedSectors;
