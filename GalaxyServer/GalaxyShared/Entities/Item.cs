@@ -2,9 +2,9 @@
 
 namespace GalaxyShared
 {
-    [ProtoContract]
-    [ProtoInclude(100, typeof(IronOre))]
-    public abstract class Item
+    public enum ItemType { IronOre }
+    [ProtoContract]    
+    public class Item
     {
         [ProtoMember(1)]
         public string Name;
@@ -14,24 +14,19 @@ namespace GalaxyShared
         public float Mass;
         [ProtoMember(4)]
         public float Volume;
+        [ProtoMember(5)]
+        public ItemType ItemType;
 
         public Item()
         { }
-    }
 
-    [ProtoContract]
-    public class IronOre : Item
-    {
-        public IronOre()
+        public Item(ItemType itemType, ushort count)
         {
-
-        }
-        public IronOre(ushort amount)
-        {
-            Name = "Iron Ore";
-            Count = amount;
-            Mass = 10;
-            Volume = 1;
+            ItemType = itemType;
+            Name = ItemType.ToString();
+            Count = count;
         }
     }
+
+    
 }

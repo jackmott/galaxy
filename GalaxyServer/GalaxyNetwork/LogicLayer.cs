@@ -213,12 +213,12 @@ namespace GalaxyServer
             if (hit != null)
             {
                 hit.Remaining -= player.Ship.MiningLaserPower;
-                player.Ship.AddCargo(new IronOre(player.Ship.MiningLaserPower));
+                player.Ship.AddCargo(new Item(ItemType.IronOre,player.Ship.MiningLaserPower));
                 Console.WriteLine("hit!:" + hit.Remaining);
                 //    GalaxyServer.AddToSendQueue(client, hit);
                 MiningMessage miningState = new MiningMessage();
                 miningState.Add = true;
-                miningState.Item = new IronOre(player.Ship.MiningLaserPower);
+                miningState.Item = new Item(ItemType.IronOre,player.Ship.MiningLaserPower);
                 miningState.AsteroidHash = hit.Hash;
                 miningState.Remaining = hit.Remaining;
                 GalaxyServer.AddToSendQueue(client, miningState);
@@ -287,7 +287,7 @@ namespace GalaxyServer
                 {
                     InputMessage input = client.Inputs.Dequeue();
                     Simulator.ProcessInput(player, input);
-                    if (input.SecondaryButton) AsteroidMining(client, player);
+                    if (input.PrimaryButton) AsteroidMining(client, player);
                 }
             }
 

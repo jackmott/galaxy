@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using Rewired;
 using SLS.Widgets.Table;
 using Tuple;
+using System.Linq;
 
 public class Hud : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class Hud : MonoBehaviour
     public GameObject ShipMenu;
     public GameObject Inventory;
     public GameObject Info;
+    public GameObject BuildMenu;
 
     
     
@@ -27,11 +29,20 @@ public class Hud : MonoBehaviour
         
     }
 
+    void ActivateBuildMenu()
+    {
+        Info.SetActive(false);
+        Inventory.SetActive(false);
+        ShipMenu.SetActive(false);
+        BuildMenu.SetActive(true);
+    }
+
     void ActivateShipMenu()
     {
         Info.SetActive(false);
         Inventory.SetActive(false);
         ShipMenu.SetActive(true);
+        BuildMenu.SetActive(false);
     }
 
     void ActivateInventoryMenu()
@@ -39,6 +50,7 @@ public class Hud : MonoBehaviour
         Info.SetActive(false);
         Inventory.SetActive(true);
         ShipMenu.SetActive(false);
+        BuildMenu.SetActive(false);
     }
 
     void ActivateInfoMenu()
@@ -46,6 +58,37 @@ public class Hud : MonoBehaviour
         Info.SetActive(true);
         Inventory.SetActive(false);
         ShipMenu.SetActive(false);
+        BuildMenu.SetActive(false);
+    }
+
+    void GenerateBuildMenu()
+    {
+        Table BuildMenuTable = BuildMenu.GetComponent<Table>();
+        BuildMenuTable.reset();
+        BuildMenuTable.addTextColumn();
+        BuildMenuTable.addTextColumn();
+        BuildMenuTable.initialize();
+
+        IEnumerable stationModules = typeof(StationModule).Assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(StationModule)));
+        foreach (System.Type sType in stationModules)
+        {
+            StationModule sm = (StationModule)System.Activator.CreateInstance(sType);
+            sm.SetDataFromJSON();
+            Datum d = Datum.Body(sm.Name);
+            d.elements.Add(sm.Name);
+            if (sm.CanBuild(NetworkManager.PlayerState))
+            {
+                d.elements.Add(sm.BuildTime.ToString());
+            }
+            else
+            {
+                d.elements.Add("Missing materials");
+            }
+            BuildMenuTable.data.Add(d);
+        }
+
+        BuildMenuTable.startRenderEngine();
+        ActivateBuildMenu();
     }
 
     void GenerateShipMenu()
@@ -120,6 +163,10 @@ public class Hud : MonoBehaviour
             GenerateInventoryMenu();
         }
 
+        if (InputCollector.Build)
+        {
+            GenerateBuildMenu();
+        }
 
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
         RaycastHit hit;
@@ -154,7 +201,7 @@ public class Hud : MonoBehaviour
 
     public void UpdateInventory()
     {
-       
+        GenerateInventoryMenu();
     }
 
     public string TextColor(string text, string color)

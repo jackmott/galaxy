@@ -1,0 +1,6 @@
+﻿{
+  "Name": "Dock",
+  "Description": "Without a place for ships to dock, a space station is pretty useless",
+  "BuildTime": 30,
+  "BuildRequirements" :  [{"Item":"IronOre", "Quantity":30}]
+}

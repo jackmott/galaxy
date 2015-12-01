@@ -1,0 +1,6 @@
+﻿{
+  "Name": "Bar",
+  "Description": "A place for visitors to chat, drink, and hang out",
+  "BuildTime": 20,
+  "BuildRequirements" :  [{"Item":"IronOre", "Quantity":20}]
+}

@@ -1,0 +1,6 @@
+﻿{
+  "Name": "Station Coupler",
+  "Description": "Module that connects other station modules together",
+  "BuildTime": 10,
+  "BuildRequirements" :  [{"Item":"IronOre", "Quantity":10}]
+}

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using System.IO;
 using GalaxyShared;
 using ProtoBuf;
+using Newtonsoft;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 
 namespace GalaxyServer
@@ -30,10 +33,9 @@ namespace GalaxyServer
 
         public static void Main(string[] args)
         {
-
-            Sector s = new Sector(new SectorCoord(0, 0, 1));
-            s.GenerateSystems(1);
+           
             GalaxyServer server = new GalaxyServer();          
+
         }
 
         public GalaxyServer()

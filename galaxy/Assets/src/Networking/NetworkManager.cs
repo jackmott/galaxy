@@ -465,7 +465,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
 
             //rotation
-            if (InputCollector.Yaw != 0 || InputCollector.Pitch != 0 || InputCollector.Roll != 0 || InputCollector.Throttle != 0)
+            if (InputCollector.Yaw != 0 || InputCollector.Pitch != 0 || InputCollector.Roll != 0 || InputCollector.Throttle != PlayerState.Throttle)
             {
 
                 //  Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
@@ -487,21 +487,14 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                 Send(msg);
                 //todo some sort of animation/sounds            
             }
-            else if (InputCollector.Build)
-            {
-                GameObject resourceStation = Resources.Load<GameObject>("Station");
-                GameObject station = (GameObject)Instantiate(resourceStation, Utility.UVector(PlayerState.Location.Pos), Utility.UQuaternion(PlayerState.Rotation));
-                station.transform.Translate(Vector3.forward * 3);
-                // station.transform.localScale *= .1f;
-            }
+            
 
-
-
-            if (InputCollector.SecondaryButton)
+            if (InputCollector.SecondaryButton || InputCollector.PrimaryButton)
             {
                 UnityEngine.Debug.Log("MouseButton1");
                 anyInput = true;
-                input.SecondaryButton = true;
+                input.SecondaryButton = InputCollector.SecondaryButton;
+                input.PrimaryButton = InputCollector.PrimaryButton;
             }
 
             PlayerState.Stopwatch.Stop();

@@ -48,7 +48,7 @@ namespace GalaxyShared
         {
             foreach (Item i in Cargo)
             {
-                if (i.GetType() == addItem.GetType())
+                if (i.Name == addItem.Name)
                 {
                     i.Count += addItem.Count;
                     return true;
