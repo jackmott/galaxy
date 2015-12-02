@@ -87,7 +87,7 @@ namespace GalaxyShared
             int asteroidIndex = 0;
             foreach (byte orbit in availableOrbits)
             {
-                int asteroidChance = Rand.Next(0, 100);
+                int asteroidChance = Rand.Next(0, 10);
                 if (asteroidChance == 0)
                 {
                     int numAsteroids = Rand.Next(20 * orbit, 100 * orbit);

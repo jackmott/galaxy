@@ -5,13 +5,20 @@ using Rewired;
 using SLS.Widgets.Table;
 using Tuple;
 using System.Linq;
+using UnityEngine.UI;
 
 public class Hud : MonoBehaviour
 {
     public InputCollector InputCollector;
     public GameObject Recticle;
     public GameObject ShipMenu;
-    public Table MenuTable;
+    public GameObject MenuHeader;
+
+    private Table MenuTable;
+    private Text HeaderText;
+
+    IHasInfo lastTargetedThing;
+
    
     enum Menu { Main, Build, Info, Inventory };
 
@@ -23,6 +30,7 @@ public class Hud : MonoBehaviour
         InputCollector = GameObject.Find("NetworkManager").GetComponent<InputCollector>();        
         DontDestroyOnLoad(this);
         MenuTable = ShipMenu.GetComponent<Table>();
+        HeaderText = MenuHeader.GetComponent<Text>();
         GenerateMainMenu();
         
     }
@@ -32,7 +40,7 @@ public class Hud : MonoBehaviour
     void GenerateBuildMenu()
     {
         ActiveMenu = Menu.Build;
-        
+        HeaderText.text = "Build Menu";
         MenuTable.reset();
         MenuTable.addTextColumn();
         MenuTable.addTextColumn();
@@ -57,7 +65,8 @@ public class Hud : MonoBehaviour
         }
 
         MenuTable.startRenderEngine();
-        
+        MenuTable.setSelected(0, 0, false);
+
     }
 
     void GenerateMainMenu()
@@ -65,7 +74,7 @@ public class Hud : MonoBehaviour
         ActiveMenu = Menu.Main;        
         MenuTable.reset();
         MenuTable.addTextColumn();
-       
+        HeaderText.text = "Main Menu";
 
         MenuTable.initialize();
 
@@ -79,21 +88,24 @@ public class Hud : MonoBehaviour
             d.elements.Add(GenerateMenuItem(buttonMap.elementIdentifierName, action.descriptiveName));
             MenuTable.data.Add(d);
         }
-        MenuTable.startRenderEngine();        
-        
+        MenuTable.startRenderEngine();
+        MenuTable.setSelected(0, 0, false);
+
     }
 
     void GenerateInfoMenu(IHasInfo infoObject)
     {
         ActiveMenu = Menu.Info;
-        Info info = infoObject.GetInfo();        
-        MenuTable.reset();
+        HeaderText.text = "Target Info";
+        Info info = infoObject.GetInfo();
 
-        Column c = MenuTable.addTextColumn();
-        c.headerValue = info.Title;
+        MenuTable.reset();
+        MenuTable.addTextColumn();
         MenuTable.addTextColumn();
         MenuTable.initialize();
 
+        HeaderText.text = "Target Info: "+info.Title;                
+        
         foreach (Tuple<string, string> item in info.Specs)
         {
             Datum d = Datum.Body(item.Item1);
@@ -102,25 +114,38 @@ public class Hud : MonoBehaviour
             MenuTable.data.Add(d);
         }
         MenuTable.startRenderEngine();
+        MenuTable.setSelected(0, 0, false);
                 
     }
 
     void GenerateInventoryMenu()
     {
         ActiveMenu = Menu.Inventory;
-        /*
-        StringBuilder sb = new StringBuilder(32);
-        sb.Append("<color=\"cyan\">Inventory</color>\n");
+        HeaderText.text = "Inventory";
+        MenuTable.reset();
+
+        Column c = MenuTable.addTextColumn();
+        c.headerValue = "Item";
+        c = MenuTable.addTextColumn();
+        c.headerValue = "Mass";
+        c = MenuTable.addTextColumn();
+        c.headerValue = "Volume";
+        c = MenuTable.addTextColumn();
+        c.headerValue = "Qty";
+        
+        MenuTable.initialize();
+
         foreach (Item i in NetworkManager.PlayerState.Ship.Cargo)
         {
-            sb.Append("<color=\"magenta\"><</color><color=\"green\">");
-            sb.Append(i.Count);
-            sb.Append("</color><color=\"magenta\">></color><color=\"cyan\">");
-            sb.Append(i.Name);
-            sb.Append("</color>\n");
+            Datum d = Datum.Body(i.Name);
+            d.elements.Add(i.Name);
+            d.elements.Add(i.Mass.ToString());
+            d.elements.Add(i.Volume.ToString());
+            d.elements.Add(i.Count.ToString());
+            MenuTable.data.Add(d);
         }
-        Inventory.GetComponent<Text>().text = sb.ToString();
-        ActivateInventoryMenu();*/
+        MenuTable.startRenderEngine();        
+        MenuTable.setSelected(0, 0, false);
     }
 
     // Update is called once per frame
@@ -140,22 +165,22 @@ public class Hud : MonoBehaviour
         
         if (InputCollector.UIVerticle > 0)
         {
-            MenuTable.moveSelectionUp();
+            MenuTable.moveSelectionUp(false);
         }
 
         if (InputCollector.UIVerticle < 0)
         {
-            MenuTable.moveSelectionDown();
+            MenuTable.moveSelectionDown(false);
         }
 
         if (InputCollector.UIHorizontal > 0)
         {
-            MenuTable.moveSelectionRight();
+            MenuTable.moveSelectionRight(false);
         }
 
         if (InputCollector.UIHorizontal < 0)
         {
-            MenuTable.moveSelectionLeft();
+            MenuTable.moveSelectionLeft(false);
         }
 
 
@@ -172,12 +197,13 @@ public class Hud : MonoBehaviour
                 Recticle.transform.position = new Vector3(ScreenPos.x, ScreenPos.y, 0);
                 if (InputCollector.SecondaryButton)
                 {
-                    if (ActiveMenu != Menu.Inventory)
+                    if (ActiveMenu != Menu.Info)
                     {
-                        IHasInfo i = o.GetComponent<IHasInfo>();
-                        if (i != null)
+                        lastTargetedThing = o.GetComponent<IHasInfo>();
+
+                        if (lastTargetedThing != null)
                         {
-                            GenerateInfoMenu(i);
+                            GenerateInfoMenu(lastTargetedThing);
                         }
                     }
                     else
@@ -192,7 +218,13 @@ public class Hud : MonoBehaviour
 
     public void UpdateInventory()
     {
-        GenerateInventoryMenu();
+        if (ActiveMenu == Menu.Inventory) GenerateInventoryMenu();
+    }
+
+    public void UpdateInfo()
+    {
+        if (ActiveMenu == Menu.Info) GenerateInfoMenu(lastTargetedThing);
+
     }
 
     public string TextColor(string text, string color)

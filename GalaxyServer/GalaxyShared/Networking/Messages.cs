@@ -1,37 +1,37 @@
 ﻿using ProtoBuf;
 using XnaGeometry;
 using System.IO;
-
+using System.IO.Compression;
 
 namespace GalaxyShared
-{    
+{
     public interface IMessage
     {
-        void Proto(Stream stream,byte[] typeBuffer);
-        void AcceptHandler(IMessageHandler handler,object o = null);                
+        void Proto(Stream stream, byte[] typeBuffer);
+        void AcceptHandler(IMessageHandler handler, object o = null);
     }
 
     [ProtoContract]
-    public struct LoginMessage  : IMessage
+    public struct LoginMessage : IMessage
     {
         [ProtoMember(1)]
         public string UserName;
         [ProtoMember(2)]
         public string Password;
-                
-        public void Proto(Stream stream,byte[] typeBuffer)
+
+        public void Proto(Stream stream, byte[] typeBuffer)
         {
             typeBuffer[0] = (byte)MsgType.LoginMessage;
             stream.Write(typeBuffer, 0, 1);
-            Serializer.SerializeWithLengthPrefix(stream, this,PrefixStyle.Fixed32);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
         }
 
-        public void AcceptHandler(IMessageHandler handler,object o = null)
+        public void AcceptHandler(IMessageHandler handler, object o = null)
         {
-            handler.HandleMessage(this,o);
+            handler.HandleMessage(this, o);
         }
 
-                        
+
     }
 
     [ProtoContract]
@@ -55,7 +55,7 @@ namespace GalaxyShared
 
     [ProtoContract]
     public struct NewUserMessage : IMessage
-    { 
+    {
         [ProtoMember(1)]
         public string UserName;
         [ProtoMember(2)]
@@ -111,7 +111,7 @@ namespace GalaxyShared
         public Quaternion Rotation;
         [ProtoMember(4)]
         public float Throttle;
-       
+
 
 
         public override string ToString()
@@ -167,10 +167,10 @@ namespace GalaxyShared
 
         public void Proto(Stream stream, byte[] typeBuffer)
         {
+
             typeBuffer[0] = (byte)MsgType.DropOutOfWarpMessage;
-            stream.Write(typeBuffer, 0, 1); 
+            stream.Write(typeBuffer, 0, 1);
             Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
-           
         }
 
         public void AcceptHandler(IMessageHandler handler, object o = null)
@@ -224,13 +224,13 @@ namespace GalaxyShared
 
         public double DeltaTime; //ms
         public bool ClientOnly;
-  
+
         public void Proto(Stream stream, byte[] typeBuffer)
         {
             typeBuffer[0] = (byte)MsgType.InputMessage;
             stream.Write(typeBuffer, 0, 1);
             Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
-           
+
         }
 
         public void AcceptHandler(IMessageHandler handler, object o = null)
@@ -241,7 +241,7 @@ namespace GalaxyShared
         public override string ToString()
         {
             string result = "";
-            result += "InputMessage: Seq:" + Seq + ",thorttle:" + Throttle + ", deltat:" + DeltaTime; 
+            result += "InputMessage: Seq:" + Seq + ",thorttle:" + Throttle + ", deltat:" + DeltaTime;
             return result;
         }
     }

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Diagnostics;
 using ProtoBuf;
 using System.IO;
+using System.IO.Compression;
 
 public class NetworkManager : MonoBehaviour, IMessageHandler
 {
@@ -162,8 +163,8 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                     case MsgType.GoToWarpMessage:
                         msg = Serializer.DeserializeWithLengthPrefix<GoToWarpMessage>(stream, PrefixStyle.Fixed32);
                         break;
-                    case MsgType.DropOutOfWarpMessage:
-                        msg = Serializer.DeserializeWithLengthPrefix<DropOutOfWarpMessage>(stream, PrefixStyle.Fixed32);
+                    case MsgType.DropOutOfWarpMessage:                                              
+                        msg = Serializer.DeserializeWithLengthPrefix<DropOutOfWarpMessage>(gs, PrefixStyle.Fixed32);
                         break;
                     case MsgType.Asteroid:
                         msg = Serializer.DeserializeWithLengthPrefix<Asteroid>(stream, PrefixStyle.Fixed32);
@@ -307,9 +308,13 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         {
             PlayerState.Ship.AddCargo(msg.Item);
         }
-        GameObject shipGO = GameObject.FindGameObjectWithTag("Ship");
-        GetComponent<Hud>().UpdateInventory();
-        shipGO.GetComponent<ClientSolarSystem>().UpdateAsteroid(msg.AsteroidHash, msg.Remaining);
+        GameObject hudGO = GameObject.FindGameObjectWithTag("Hud");
+        Hud hud = hudGO.GetComponent<Hud>();
+        hud.UpdateInventory();
+        GameObject ship = GameObject.FindGameObjectWithTag("Ship");
+        ship.GetComponent<ClientSolarSystem>().UpdateAsteroid(msg.AsteroidHash, msg.Remaining);
+        hud.UpdateInfo();
+        
     }
 
     public void HandleMessage(Asteroid serverAsteroid, object extra = null)

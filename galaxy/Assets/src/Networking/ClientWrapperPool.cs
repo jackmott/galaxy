@@ -14,7 +14,7 @@ class ClientWrapperPool
                 return (ClientWrapper)pool.Dequeue();
             } else
             {
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     pool.Enqueue(new ClientWrapper());
                 }
