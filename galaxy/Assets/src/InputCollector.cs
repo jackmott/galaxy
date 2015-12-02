@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Rewired;
+using System;
 
 public class InputCollector : MonoBehaviour
 {
@@ -15,6 +16,12 @@ public class InputCollector : MonoBehaviour
     public bool Inventory;
     public bool Build;
     public bool JumpToWarp;
+
+    public float UIVerticle;
+    public float UIHorizontal;
+    public bool UISubmit;
+    public bool UICancel;
+
    
 
     // Use this for initialization
@@ -32,8 +39,33 @@ public class InputCollector : MonoBehaviour
 
         Throttle = Mathf.Clamp(Throttle + 100 * PlayerInput.GetAxis("Throttle"), -10, 100);
         Roll = PlayerInput.GetAxis("Roll");
-        Pitch = PlayerInput.GetAxis("Pitch");
-        Yaw = PlayerInput.GetAxis("Yaw");
+
+        //if user not using mouse then
+        //Pitch = PlayerInput.GetAxis("Pitch");        
+        //Yaw = PlayerInput.GetAxis("Yaw");
+        //else
+        Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
+        Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+
+
+        float xDelta = mousePos.x - screenCenter.x;
+        float yDelta = mousePos.y - screenCenter.y;
+        
+        //rotation
+        yDelta = Mathf.Clamp(yDelta, -70, 70);
+        xDelta = Mathf.Clamp(xDelta, -70, 70);
+        if (Math.Abs(xDelta) > 10 || Math.Abs(yDelta) > 10)
+        {
+            //  Camera.main.transform.Rotate(new Vector3(-yDelta * Time.deltaTime, xDelta  * Time.deltaTime, 0));        
+            Yaw = xDelta / 4000f;
+            Pitch = -yDelta / 4000f;
+        }
+        else
+        {
+            Yaw = 0;
+            Pitch = 0;
+        }
+
 
         PrimaryButton = PlayerInput.GetButton("PrimaryButton");
         SecondaryButton = PlayerInput.GetButtonUp("SecondaryButton");
@@ -43,6 +75,10 @@ public class InputCollector : MonoBehaviour
         Build = PlayerInput.GetButtonUp("Build");
         JumpToWarp = PlayerInput.GetButtonUp("Jump");
 
+        UIVerticle = PlayerInput.GetAxis("UIVertical");
+        UIHorizontal = PlayerInput.GetAxis("UIHorizontal");
+        UISubmit = PlayerInput.GetButtonUp("UISubmit");
+        UICancel = PlayerInput.GetButtonUp("UICancel");
 
 
     }

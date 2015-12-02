@@ -1,0 +1,6 @@
+﻿{
+  "Name": "Iron Ore",
+  "Description": "The most common ore",
+  "Mass": 10,
+  "Volume" :  1
+}

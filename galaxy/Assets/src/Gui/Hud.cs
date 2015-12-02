@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Text;
 using GalaxyShared;
-using UnityEngine.UI;
 using Rewired;
 using SLS.Widgets.Table;
 using Tuple;
@@ -13,61 +11,32 @@ public class Hud : MonoBehaviour
     public InputCollector InputCollector;
     public GameObject Recticle;
     public GameObject ShipMenu;
-    public GameObject Inventory;
-    public GameObject Info;
-    public GameObject BuildMenu;
+    public Table MenuTable;
+   
+    enum Menu { Main, Build, Info, Inventory };
 
-    
+    Menu ActiveMenu;
     
     // Use this for initialization
     void Start()
     {
-        InputCollector = GameObject.Find("NetworkManager").GetComponent<InputCollector>();
-        
+        InputCollector = GameObject.Find("NetworkManager").GetComponent<InputCollector>();        
         DontDestroyOnLoad(this);
-        GenerateShipMenu();
+        MenuTable = ShipMenu.GetComponent<Table>();
+        GenerateMainMenu();
         
     }
 
-    void ActivateBuildMenu()
-    {
-        Info.SetActive(false);
-        Inventory.SetActive(false);
-        ShipMenu.SetActive(false);
-        BuildMenu.SetActive(true);
-    }
-
-    void ActivateShipMenu()
-    {
-        Info.SetActive(false);
-        Inventory.SetActive(false);
-        ShipMenu.SetActive(true);
-        BuildMenu.SetActive(false);
-    }
-
-    void ActivateInventoryMenu()
-    {
-        Info.SetActive(false);
-        Inventory.SetActive(true);
-        ShipMenu.SetActive(false);
-        BuildMenu.SetActive(false);
-    }
-
-    void ActivateInfoMenu()
-    {
-        Info.SetActive(true);
-        Inventory.SetActive(false);
-        ShipMenu.SetActive(false);
-        BuildMenu.SetActive(false);
-    }
+   
 
     void GenerateBuildMenu()
     {
-        Table BuildMenuTable = BuildMenu.GetComponent<Table>();
-        BuildMenuTable.reset();
-        BuildMenuTable.addTextColumn();
-        BuildMenuTable.addTextColumn();
-        BuildMenuTable.initialize();
+        ActiveMenu = Menu.Build;
+        
+        MenuTable.reset();
+        MenuTable.addTextColumn();
+        MenuTable.addTextColumn();
+        MenuTable.initialize();
 
         IEnumerable stationModules = typeof(StationModule).Assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(StationModule)));
         foreach (System.Type sType in stationModules)
@@ -84,21 +53,21 @@ public class Hud : MonoBehaviour
             {
                 d.elements.Add("Missing materials");
             }
-            BuildMenuTable.data.Add(d);
+            MenuTable.data.Add(d);
         }
 
-        BuildMenuTable.startRenderEngine();
-        ActivateBuildMenu();
+        MenuTable.startRenderEngine();
+        
     }
 
-    void GenerateShipMenu()
+    void GenerateMainMenu()
     {
-        Table ShipMenuTable = ShipMenu.GetComponent<Table>();
-        ShipMenuTable.reset();
-        ShipMenuTable.addTextColumn();
+        ActiveMenu = Menu.Main;        
+        MenuTable.reset();
+        MenuTable.addTextColumn();
        
 
-        ShipMenuTable.initialize();
+        MenuTable.initialize();
 
         Rewired.Player inputPlayer = ReInput.players.GetPlayer(0);
         IEnumerable actions = ReInput.mapping.ActionsInCategory("System");
@@ -108,38 +77,38 @@ public class Hud : MonoBehaviour
             ActionElementMap buttonMap = inputPlayer.controllers.maps.GetFirstButtonMapWithAction(action.id, true);
             Datum d = Datum.Body(action.name);
             d.elements.Add(GenerateMenuItem(buttonMap.elementIdentifierName, action.descriptiveName));
-            ShipMenuTable.data.Add(d);
+            MenuTable.data.Add(d);
         }
-        ShipMenuTable.startRenderEngine();        
-        ActivateShipMenu();
+        MenuTable.startRenderEngine();        
+        
     }
 
     void GenerateInfoMenu(IHasInfo infoObject)
     {
-        Info info = infoObject.GetInfo();
-        Table InfoTable = Info.GetComponent<Table>();
-        InfoTable.reset();
+        ActiveMenu = Menu.Info;
+        Info info = infoObject.GetInfo();        
+        MenuTable.reset();
 
-        Column c = InfoTable.addTextColumn();
+        Column c = MenuTable.addTextColumn();
         c.headerValue = info.Title;
-        InfoTable.addTextColumn();
-        InfoTable.initialize();
-
+        MenuTable.addTextColumn();
+        MenuTable.initialize();
 
         foreach (Tuple<string, string> item in info.Specs)
         {
             Datum d = Datum.Body(item.Item1);
             d.elements.Add(item.Item1);
             d.elements.Add(item.Item2);
-            InfoTable.data.Add(d);
+            MenuTable.data.Add(d);
         }
-        InfoTable.startRenderEngine();
-
-        ActivateInfoMenu();
+        MenuTable.startRenderEngine();
+                
     }
 
     void GenerateInventoryMenu()
     {
+        ActiveMenu = Menu.Inventory;
+        /*
         StringBuilder sb = new StringBuilder(32);
         sb.Append("<color=\"cyan\">Inventory</color>\n");
         foreach (Item i in NetworkManager.PlayerState.Ship.Cargo)
@@ -151,13 +120,13 @@ public class Hud : MonoBehaviour
             sb.Append("</color>\n");
         }
         Inventory.GetComponent<Text>().text = sb.ToString();
-        ActivateInventoryMenu();
+        ActivateInventoryMenu();*/
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        
         if (InputCollector.Inventory)
         {
             GenerateInventoryMenu();
@@ -167,6 +136,28 @@ public class Hud : MonoBehaviour
         {
             GenerateBuildMenu();
         }
+
+        
+        if (InputCollector.UIVerticle > 0)
+        {
+            MenuTable.moveSelectionUp();
+        }
+
+        if (InputCollector.UIVerticle < 0)
+        {
+            MenuTable.moveSelectionDown();
+        }
+
+        if (InputCollector.UIHorizontal > 0)
+        {
+            MenuTable.moveSelectionRight();
+        }
+
+        if (InputCollector.UIHorizontal < 0)
+        {
+            MenuTable.moveSelectionLeft();
+        }
+
 
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
         RaycastHit hit;
@@ -181,7 +172,7 @@ public class Hud : MonoBehaviour
                 Recticle.transform.position = new Vector3(ScreenPos.x, ScreenPos.y, 0);
                 if (InputCollector.SecondaryButton)
                 {
-                    if (!Info.activeSelf)
+                    if (ActiveMenu != Menu.Inventory)
                     {
                         IHasInfo i = o.GetComponent<IHasInfo>();
                         if (i != null)
@@ -191,7 +182,7 @@ public class Hud : MonoBehaviour
                     }
                     else
                     {
-                        GenerateShipMenu();
+                        GenerateMainMenu();
                     }
                 }
                

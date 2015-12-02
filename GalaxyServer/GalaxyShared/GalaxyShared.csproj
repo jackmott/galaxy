@@ -52,7 +52,7 @@
     <Compile Include="Networking\IMessageHandler.cs" />
     <Compile Include="SectorCoord.cs" />
     <Compile Include="Entities\Entities.cs" />
-    <Compile Include="Entities\Item.cs" />
+    <Compile Include="Items\Item.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Sector.cs" />
@@ -89,6 +89,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Entities\json\StationCoupler.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Items\json\IronOre.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
