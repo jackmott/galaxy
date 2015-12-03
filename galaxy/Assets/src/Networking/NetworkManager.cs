@@ -164,7 +164,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                         msg = Serializer.DeserializeWithLengthPrefix<GoToWarpMessage>(stream, PrefixStyle.Fixed32);
                         break;
                     case MsgType.DropOutOfWarpMessage:                                              
-                        msg = Serializer.DeserializeWithLengthPrefix<DropOutOfWarpMessage>(gs, PrefixStyle.Fixed32);
+                        msg = Serializer.DeserializeWithLengthPrefix<DropOutOfWarpMessage>(stream, PrefixStyle.Fixed32);
                         break;
                     case MsgType.Asteroid:
                         msg = Serializer.DeserializeWithLengthPrefix<Asteroid>(stream, PrefixStyle.Fixed32);
@@ -563,6 +563,11 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     }
 
     public void HandleMessage(InputMessage msg, object extra = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void HandleMessage(ConstructionMessage msg, object extra = null)
     {
         throw new NotImplementedException();
     }

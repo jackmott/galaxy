@@ -45,7 +45,7 @@ namespace GalaxyShared
             
             Vector3 start = Vector3.Zero;
             Matrix rotation = Matrix.CreateFromYawPitchRoll(OrbitAngle, 0, 0);
-            Pos = start + Vector3.Transform(Vector3.Forward * (Orbit + 1) * Planet.EARTH_CONSTANT * ORBIT_MULTIPLIER, rotation);
+            Pos = start + Vector3.Transform(Vector3.Forward * Orbit  * Planet.EARTH_CONSTANT * ORBIT_MULTIPLIER, rotation);
 
 
         }

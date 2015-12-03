@@ -22,11 +22,11 @@ namespace GalaxyShared
         [ProtoMember(5)]
         public ushort CargoVolume;
         [ProtoMember(6)]
-        public ushort MiningLaserRange;        
+        public byte MiningLaserRange;        
         [ProtoMember(7)]
         public List<Item> Cargo;
         [ProtoMember(8)]
-        public ushort MiningLaserPower = 1;
+        public byte MiningLaserPower = 1;
 
         public Ship()
         {

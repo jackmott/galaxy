@@ -84,8 +84,8 @@ public class Hud : MonoBehaviour
         foreach (InputAction action in actions)
         {
             ActionElementMap buttonMap = inputPlayer.controllers.maps.GetFirstButtonMapWithAction(action.id, true);
-            Datum d = Datum.Body(action.name);
-            d.elements.Add(GenerateMenuItem(buttonMap.elementIdentifierName, action.descriptiveName));
+            Datum d = Datum.Body(action.name);            
+            d.elements.Add(GenerateMenuItem(buttonMap.elementIdentifierName, action.descriptiveName),action);
             MenuTable.data.Add(d);
         }
         MenuTable.startRenderEngine();
@@ -181,6 +181,16 @@ public class Hud : MonoBehaviour
         if (InputCollector.UIHorizontal < 0)
         {
             MenuTable.moveSelectionLeft(false);
+        }
+
+        if (InputCollector.UISubmit)
+        {
+            Element e = MenuTable.GetSelectedElement();
+            InputAction action = (InputAction)e.GetPayload();
+            if (action.name == "Build")
+            {
+                Debug.Log("Build");
+            }
         }
 
 

@@ -112,10 +112,11 @@ public class ClientSolarSystem : MonoBehaviour
         GameObject resourceAsteroid = Resources.Load<GameObject>("Asteroid");
         foreach (Asteroid a in SolarSystem.Asteroids)
         {
+            a.Init();
             a.ParentSystem = SolarSystem;
             asteroidDictionary.Add(a.Hash, a);
             GameObject asteroidGO = (GameObject)Instantiate(resourceAsteroid, Utility.UVector(a.Pos), UnityEngine.Random.rotation);
-            asteroidGO.transform.localScale *= (float)a.Size * Planet.EARTH_CONSTANT;
+            asteroidGO.transform.localScale *= (float)(a.Size * Asteroid.CLIENT_SIZE_MULTIPLIER);
             ClientAsteroid ca = asteroidGO.GetComponent<ClientAsteroid>();
             Renderer r = asteroidGO.GetComponent<Renderer>();
             r.material.color = new Color(.5f, .2f, .1f);
@@ -125,7 +126,7 @@ public class ClientSolarSystem : MonoBehaviour
 
     }
 
-    public void UpdateAsteroid(int hash, ushort remaining)
+    public void UpdateAsteroid(int hash, byte remaining)
     {
         Asteroid a = null;
         asteroidDictionary.TryGetValue(hash, out a);

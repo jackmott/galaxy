@@ -15,5 +15,6 @@ namespace GalaxyShared
         void HandleMessage(Player msg, object extra = null);
         void HandleMessage(Ship msg, object extra = null);
         void HandleMessage(Asteroid msg, object extra = null);
+        void HandleMessage(ConstructionMessage msg, object extra = null);
     }
 }

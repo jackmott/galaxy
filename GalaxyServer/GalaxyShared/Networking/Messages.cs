@@ -1,10 +1,28 @@
 ﻿using ProtoBuf;
 using XnaGeometry;
 using System.IO;
-using System.IO.Compression;
+using System;
+using System.Collections.Generic;
 
 namespace GalaxyShared
 {
+    public enum MsgType
+    {
+        LoginMessage,
+        NewUserMessage,
+        LoginResultMessage,
+        NewUserResultMessage,
+        Player,
+        InputMessage,
+        PlayerStateMessage,
+        GoToWarpMessage,
+        DropOutOfWarpMessage,
+        Asteroid,
+        Ship,
+        MiningMessage,
+        ConstructionMessage
+    }
+
     public interface IMessage
     {
         void Proto(Stream stream, byte[] typeBuffer);
@@ -189,7 +207,7 @@ namespace GalaxyShared
         [ProtoMember(3)]
         public int AsteroidHash;
         [ProtoMember(4)]
-        public ushort Remaining;
+        public byte Remaining;
 
         public void Proto(Stream stream, byte[] typeBuffer)
         {
@@ -201,6 +219,28 @@ namespace GalaxyShared
         public void AcceptHandler(IMessageHandler handler, object o = null)
         {
             handler.HandleMessage(this, o);
+        }
+    }
+
+    [ProtoContract]
+    public struct ConstructionMessage : IMessage
+    {
+        bool Start;
+        bool End;
+        byte Progress;
+        byte Speed;
+        List<BuildRequirement> ResourcesNeeded;
+
+        public void AcceptHandler(IMessageHandler handler, object o = null)
+        {
+            handler.HandleMessage(this, o);
+        }
+
+        public void Proto(Stream stream, byte[] typeBuffer)
+        {
+            typeBuffer[0] = (byte)MsgType.ConstructionMessage;
+            stream.Write(typeBuffer, 0, 1);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
         }
     }
 

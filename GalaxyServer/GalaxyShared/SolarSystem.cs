@@ -26,7 +26,7 @@ namespace GalaxyShared
 
         public Sector ParentSector;        
                 
-        static readonly int[] PlanetCountDistribution = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+        static readonly int[] PlanetCountDistribution = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 8, 8, 9, 9, 9, 10,11};
         
 
 
@@ -64,8 +64,8 @@ namespace GalaxyShared
             FastRandom Rand = new FastRandom(Pos.X, Pos.Y, Pos.Z);
 
             List<int> availableOrbits = new List<int>();
-            int numOrbits = 50;
-            for (int i = 0; i < numOrbits; i++)
+            int numOrbits = 25;
+            for (int i = 1; i < numOrbits; i++)
             {
                 availableOrbits.Add(i);
             }
@@ -93,9 +93,9 @@ namespace GalaxyShared
                     int numAsteroids = Rand.Next(20 * orbit, 100 * orbit);
                     for (int i = 0; i < numAsteroids;i++)
                     {
-                        double magnitude = Rand.Next(500d, 5000d);
+                        double magnitude = Rand.Next(50d, 500d);
                         Vector3 posAdjust = new Vector3(Rand.Next(-magnitude, magnitude), Rand.Next(-magnitude, magnitude), Rand.Next(-magnitude, magnitude));                        
-                        Asteroids.Add(new Asteroid(this, orbit,Rand.Next(0.0f,(float)MathHelper.TwoPi),Rand.Next(.1f,1f),posAdjust,asteroidIndex));
+                        Asteroids.Add(new Asteroid(this, orbit,Rand.Next(0.0f,(float)MathHelper.TwoPi),(byte)Rand.Next(1,255),posAdjust,asteroidIndex));
                         asteroidIndex++;
                     }
 

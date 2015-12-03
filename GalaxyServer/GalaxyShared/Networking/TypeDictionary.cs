@@ -4,22 +4,7 @@ using System.Collections.Generic;
 namespace GalaxyShared
 {
 
-    public enum MsgType
-    {
-        LoginMessage,
-        NewUserMessage,
-        LoginResultMessage,
-        NewUserResultMessage,
-        Player,
-        InputMessage,
-        PlayerStateMessage,
-        GoToWarpMessage,
-        DropOutOfWarpMessage,
-        Asteroid,
-        Ship,
-        MiningMessage
-    }
-
+  
     //singleton
     public class TypeDictionary
     {

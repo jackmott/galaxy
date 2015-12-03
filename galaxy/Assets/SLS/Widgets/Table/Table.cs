@@ -141,6 +141,17 @@ namespace SLS.Widgets.Table
             setSelected(datum, column, doCallback);
         }
 
+        public Element GetSelectedElement()
+        {
+            if (_selectedColumn != null && _selectedDatum != null)
+            {
+                int x = _columns.IndexOf(_selectedColumn);
+                return _selectedDatum.elements[x];
+            }
+            return null;
+        }
+        
+
         public void moveSelectionUp(bool doCallback = true)
         {
             int x = _columns.IndexOf(_selectedColumn);
@@ -252,10 +263,24 @@ namespace SLS.Widgets.Table
         {
             this._isRunning = false;
             this._hasError = false;
+            this._hasHeader = false;
+            this._hasFooter = false;
+            this._hasColumnOverlay = false;
+            this._hasHeaderIcons = false;
             if (this._columns != null) this._columns.Clear();
             else this._columns = new List<Column>();
             this.headerDatum = null;
             this.footerDatum = null;
+            this.columnOverlayContent = null;
+            this.columnOverlayLines = null;
+            GameObject header = GameObject.Find("Header");
+            GameObject footer = GameObject.Find("Footer");
+            GameObject columnOverlay = GameObject.Find("ColumnOverlay");
+            if (header != null) Destroy(header);
+            if (footer != null) Destroy(footer);
+            if (columnOverlay != null) Destroy(columnOverlay);
+            
+            
         }
 
         public Column addTextColumn(string header = null, string footer = null,

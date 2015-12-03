@@ -200,7 +200,7 @@ namespace GalaxyServer
             foreach (Asteroid a in asteroids)
             {
                 Ray ray = new Ray(pos, Vector3.Transform(Vector3.Forward, player.Rotation));
-                BoundingSphere sphere = new BoundingSphere(a.Pos, a.Size*Planet.EARTH_CONSTANT*10f);
+                BoundingSphere sphere = new BoundingSphere(a.Pos, a.Size*Asteroid.SERVER_SIZE_MULTIPLIER);
                 double? result = ray.Intersects(sphere);
                 if (result != null)
                 {
@@ -349,6 +349,11 @@ namespace GalaxyServer
         }
 
         public void HandleMessage(Asteroid msg, object extra = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleMessage(ConstructionMessage msg, object extra = null)
         {
             throw new NotImplementedException();
         }
