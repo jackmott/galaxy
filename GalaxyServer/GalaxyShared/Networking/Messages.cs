@@ -179,9 +179,14 @@ namespace GalaxyShared
         [ProtoMember(2)]
         public Location Location;
         [ProtoMember(3)]
-        public int SystemIndex;
+        public string SystemKey;
         [ProtoMember(4)]
         public SolarSystem System;
+        [ProtoMember(5)]
+        public int SystemIndex;
+        [ProtoMember(6)]
+        public SectorCoord SectorCoord;
+       
 
         public void Proto(Stream stream, byte[] typeBuffer)
         {

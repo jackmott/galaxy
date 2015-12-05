@@ -183,6 +183,8 @@ public class Warp : MonoBehaviour {
 
         DropOutOfWarpMessage msg = new DropOutOfWarpMessage();
         msg.SystemIndex = system.Index;
+        msg.SystemKey = system.key();
+        msg.SectorCoord = system.ParentSector.Coord;
         NetworkManager.Send(msg);
         //tell the server we want to drop out of warp
     }

@@ -11,12 +11,53 @@ namespace GalaxyServer
 {
     public class LogicLayer : IMessageHandler
     {
+        private static object ClientMovementLock = new object();
+        public static ConcurrentDictionary<string, SolarSystem> LoadedSystems = new ConcurrentDictionary<string, SolarSystem>();
+        public static LinkedList<Client> ClientsInWarp = new LinkedList<Client>();
 
-        public static ConcurrentDictionary<Client, Player> PlayerTable = new ConcurrentDictionary<Client, Player>();
-        
-        
+
         public static readonly Vector3 SYSTEM_START_POS = new Vector3(0, 0, -5000);
 
+
+        public static void MoveClientToWarp(Client c)
+        {
+            lock (ClientMovementLock)
+            {
+                if (c.Player.SolarSystem != null)
+                {
+                    SolarSystem system = c.Player.SolarSystem;
+                    c.Player.SolarSystem.Clients.Remove(c);
+                    if (system.Clients.Count == 0) LoadedSystems.TryRemove(system.key(), out system);
+
+                }
+                c.Player.SolarSystem = null;
+                ClientsInWarp.AddLast(c);
+                c.Player.Location.InWarp = true;
+            }
+        }
+
+        public static void MoveClientToSystem(Client c, SolarSystem s)
+        {
+            lock (ClientMovementLock)
+            {
+                ClientsInWarp.Remove(c);
+                s.Clients.AddLast(c);
+                c.Player.SolarSystem = s;
+                c.Player.Location.InWarp = false;
+            }
+        }
+
+        public static void RemoveClientFromAll(Client c)
+        {
+            lock (ClientMovementLock)
+            {
+                if (c.Player.SolarSystem != null)
+                {
+                    c.Player.SolarSystem.Clients.Remove(c);
+                }
+                ClientsInWarp.Remove(c);
+            }
+        }
 
         public void HandleMessage(LoginMessage msg, object extra)
         {
@@ -24,7 +65,7 @@ namespace GalaxyServer
             Console.WriteLine("HandleLoginMessage");
 
             LoginMessage login = DataLayer.GetLogin(msg.UserName);
-            
+
             if (login.UserName != null && login.Password == msg.Password)
             {
                 Console.WriteLine("User " + login.UserName + " logged in");
@@ -57,14 +98,15 @@ namespace GalaxyServer
             }
 
             Console.WriteLine("About to send player data");
-            while (!PlayerTable.TryAdd(client, player)) { }
+            client.Player = player;
+            ClientsInWarp.AddLast(client);
             GalaxyServer.AddToSendQueue(client, player);
             Console.WriteLine("Player Data Sent");
 
         }
 
 
-        public  void HandleMessage(NewUserMessage msg,object extra)
+        public void HandleMessage(NewUserMessage msg, object extra)
         {
             Client client = (Client)extra;
             Console.WriteLine("HandleNewUserMessage");
@@ -84,73 +126,77 @@ namespace GalaxyServer
 
         }
 
-       
+
 
         public void HandleMessage(GoToWarpMessage msg, object extra)
         {
             Client client = (Client)extra;
-            Player player;
-            while (!PlayerTable.TryGetValue(client, out player)) { }
 
-            msg.Rotation = player.Rotation;
+            msg.Rotation = client.Player.Rotation;
 
-            Vector3 systemPos = player.Location.SystemPos;
+            Vector3 systemPos = client.Player.Location.SystemPos;
             Vector3 startPos = new Vector3(systemPos.X * Sector.EXPAND_FACTOR, systemPos.Y * Sector.EXPAND_FACTOR, systemPos.Z * Sector.EXPAND_FACTOR);
-            startPos += Vector3.Transform(Vector3.Forward * .3d, player.Rotation);
-            player.Location.Pos = startPos;
+            startPos += Vector3.Transform(Vector3.Forward * .3d, client.Player.Rotation);
+            client.Player.Location.Pos = startPos;
 
-            player.Location.InWarp = true;
-            msg.Location = player.Location;
-            
+            //client has left, clear em out
+            SolarSystem system = client.Player.SolarSystem;
+            MoveClientToWarp(client);
+
+            msg.Location = client.Player.Location;
+
             GalaxyServer.AddToSendQueue(client, msg);
 
         }
 
         public void HandleMessage(DropOutOfWarpMessage msg, object extra)
         {
-            
+
             Client client = (Client)extra;
-            Player player = GetPlayer(client);
+            Player player = client.Player;
             if (!player.Location.InWarp)
             {
                 Console.WriteLine("Drop out of warp msg received when not in warp");
                 return;
             }
-            int x = Convert.ToInt32(player.Location.Pos.X / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
-            int y = Convert.ToInt32(player.Location.Pos.Y / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
-            int z = Convert.ToInt32(player.Location.Pos.Z / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
-
-            
-            Sector sector = new Sector(new SectorCoord(x,y, z));
-            SolarSystem system = sector.GenerateSystem(msg.SystemIndex);
-
-            double distance = Vector3.Distance(player.Location.Pos, system.Pos * Sector.EXPAND_FACTOR);
-        
-            //give some wiggle room since server/client will not be perfectly in sync
-            if (system != null && distance <= Simulator.WARP_DISTANCE_THRESHOLD*2)
+            SolarSystem system;
+            //First see if system is loaded in memory already
+            if (!LoadedSystems.TryGetValue(msg.SystemKey, out system))
             {
-                //fill in the system with any deltas if it exists in DB
-                SolarSystem updatedSystem = DataLayer.GetSystem(system);
-                if (updatedSystem != null)
+                //If not check the data store
+                system = DataLayer.GetSystem(msg.SystemKey);
+
+                //If not, generate the system
+                if (system == null)
                 {
-                    system = updatedSystem;
-                }
-                else
-                {
+                    Sector sector = new Sector(msg.SectorCoord);
+                    system = sector.GenerateSystem(msg.SystemIndex);
+                    system.ParentSector = sector;
                     system.Generate();
                     DataLayer.AddSystem(system);
+                    Console.WriteLine("System Generated and Added to Redis");
+                } else
+                {
+                    Console.WriteLine("System Loaded From Reids");
                 }
+                system.Clients = new LinkedList<object>();
+            }
 
-                
+            double distance = Vector3.Distance(player.Location.Pos, system.Pos * Sector.EXPAND_FACTOR);
+            Console.WriteLine("Distance:" + distance);
+            //give some wiggle room since server/client will not be perfectly in sync
+            if (system != null && distance <= Simulator.WARP_DISTANCE_THRESHOLD * 2)
+            {
                 player.Location.Pos = SYSTEM_START_POS;
                 player.Location.SystemPos = system.Pos;
-                player.Location.SectorCoord = sector.Coord;
-                player.SolarSystem = system;
-                player.Location.InWarp = false;
+                player.Location.SectorCoord = system.ParentSector.Coord;
+
+                MoveClientToSystem(client, system);
+
                 msg.Location = player.Location;
                 msg.Rotation = player.Rotation;
                 msg.System = system;
-                GalaxyServer.AddToSendQueue(client,msg);
+                GalaxyServer.AddToSendQueue(client, msg);
                 return;
             }
 
@@ -161,9 +207,9 @@ namespace GalaxyServer
         public void HandleMessage(ConstructionMessage msg, object extra = null)
         {
             Client client = (Client)extra;
-            Player player = GetPlayer(client);
+            Player player = client.Player;
             Assembly a = typeof(StationModule).Assembly;
-            StationModule sm = (StationModule)Activator.CreateInstance(a.GetType("GalaxyShared."+msg.ClassName));
+            StationModule sm = (StationModule)Activator.CreateInstance(a.GetType("GalaxyShared." + msg.ClassName));
             sm.SetDataFromJSON();
             if (sm.CanBuild(player))
             {
@@ -175,19 +221,12 @@ namespace GalaxyServer
         }
 
 
-        public static Player GetPlayer(Client client)
-        {
-            Player player;
-            while (!PlayerTable.TryGetValue(client, out player)) { }
-            return player;
-        }
-
         public void HandleMessage(InputMessage input, object extra)
         {
             Client client = (Client)extra;
             lock (client.Inputs)
-            {               
-                client.Inputs.Enqueue(input);               
+            {
+                client.Inputs.Enqueue(input);
             }
         }
 
@@ -218,7 +257,7 @@ namespace GalaxyServer
             foreach (Asteroid a in asteroids)
             {
                 Ray ray = new Ray(pos, Vector3.Transform(Vector3.Forward, player.Rotation));
-                BoundingSphere sphere = new BoundingSphere(a.Pos, a.Size*Asteroid.SERVER_SIZE_MULTIPLIER);
+                BoundingSphere sphere = new BoundingSphere(a.Pos, a.Size * Asteroid.SERVER_SIZE_MULTIPLIER);
                 double? result = ray.Intersects(sphere);
                 if (result != null)
                 {
@@ -231,12 +270,12 @@ namespace GalaxyServer
             if (hit != null)
             {
                 hit.Remaining -= player.Ship.MiningLaserPower;
-                player.Ship.AddCargo(new Item(ItemType.IronOre,player.Ship.MiningLaserPower));
+                player.Ship.AddCargo(new Item(ItemType.IronOre, player.Ship.MiningLaserPower));
                 Console.WriteLine("hit!:" + hit.Remaining);
                 //    GalaxyServer.AddToSendQueue(client, hit);
                 MiningMessage miningState = new MiningMessage();
                 miningState.Add = true;
-                miningState.Item = new Item(ItemType.IronOre,player.Ship.MiningLaserPower);
+                miningState.Item = new Item(ItemType.IronOre, player.Ship.MiningLaserPower);
                 miningState.AsteroidHash = hit.Hash;
                 miningState.Remaining = hit.Remaining;
                 GalaxyServer.AddToSendQueue(client, miningState);
@@ -246,27 +285,19 @@ namespace GalaxyServer
         }
 
 
-        public static Stopwatch sw = new Stopwatch();
 
-        public static void DoPhysics()
+        public static void DoWarpPhysics()
         {
+            Stopwatch sw = new Stopwatch();
             int persistCounter = 0;
             while (true)
             {
                 sw.Restart();
-                foreach (Client client in LogicLayer.PlayerTable.Keys)
+
+                foreach (Client client in ClientsInWarp)
                 {
-                    Player player;
-                    while (!PlayerTable.TryGetValue(client, out player)) { }
-                    
-                    if (player.Location.InWarp)
-                    {
-                        ProcessTickForPlayerWarp(client, player);
-                    }
-                    else
-                    {
-                        ProcessTickForPlayer(client, player);
-                    }
+                    Player player = client.Player;
+                    ProcessTickForPlayerWarp(client, client.Player);
 
                     long deltaT = DateTime.Now.Subtract(client.LastSend).Milliseconds;
                     if (deltaT >= client.ClientSendRate)
@@ -287,7 +318,52 @@ namespace GalaxyServer
                         DataLayer.UpdateGalaxyPlayer(player);
                         persistCounter = 0;
                     }
+                }
+                persistCounter++;
+                sw.Stop();
+                Thread.Sleep(Convert.ToInt32(MathHelper.Clamp(NetworkUtils.SERVER_TICK_RATE - sw.ElapsedMilliseconds, 0, 100)));
 
+            }
+        }
+
+        public static void DoSystemPhysics()
+        {
+            Stopwatch sw = new Stopwatch();
+            int persistCounter = 0;
+            while (true)
+            {
+                sw.Restart();
+                foreach (SolarSystem system in LoadedSystems.Values)
+                {
+                    foreach (object o in system.Clients)
+                    {
+                        Client client = (Client)o;
+                        Player player = client.Player;
+
+
+                        ProcessTickForPlayer(client, player);
+
+
+                        long deltaT = DateTime.Now.Subtract(client.LastSend).Milliseconds;
+                        if (deltaT >= client.ClientSendRate)
+                        {
+
+                            PlayerStateMessage pState = new PlayerStateMessage();
+                            pState.PlayerPos = player.Location.Pos;
+                            pState.Rotation = player.Rotation;
+                            pState.Throttle = player.Throttle;
+                            pState.Seq = player.Seq;
+                            GalaxyServer.AddToSendQueue(client, pState);
+                            client.LastSend = DateTime.Now;
+                        }
+
+                        //Persist the player to the Database
+                        if (persistCounter * NetworkUtils.SERVER_TICK_RATE > DataLayer.PLAYER_STATE_PERSIST_RATE)
+                        {
+                            DataLayer.UpdateGalaxyPlayer(player);
+                            persistCounter = 0;
+                        }
+                    }
                 }
 
                 persistCounter++;
@@ -310,7 +386,7 @@ namespace GalaxyServer
             }
 
             player.Stopwatch.Stop();
-            Simulator.ContinuedPhysics(player,player.Stopwatch.ElapsedMilliseconds);
+            Simulator.ContinuedPhysics(player, player.Stopwatch.ElapsedMilliseconds);
             player.Stopwatch.Restart();
         }
 
@@ -325,16 +401,17 @@ namespace GalaxyServer
                 }
             }
             player.Stopwatch.Stop();
-            
+
             Simulator.ContinuedPhysicsWarp(player, player.Stopwatch.ElapsedMilliseconds);
             player.Stopwatch.Restart();
 
         }
 
-  
+
 
         //Stuff the server doesn't need to implement
-        public void HandleMessage(NewUserResultMessage msg, object extra) {
+        public void HandleMessage(NewUserResultMessage msg, object extra)
+        {
             throw new NotImplementedException();
         }
 
@@ -348,14 +425,14 @@ namespace GalaxyServer
             throw new NotImplementedException();
         }
 
-       
+
 
         public void HandleMessage(MiningMessage msg, object extra = null)
         {
             throw new NotImplementedException();
         }
 
-       
+
 
         public void HandleMessage(Player msg, object extra = null)
         {
@@ -372,6 +449,6 @@ namespace GalaxyServer
             throw new NotImplementedException();
         }
 
-        
+
     }
 }

@@ -24,6 +24,7 @@ namespace GalaxyShared
         [ProtoMember(6)]
         public List<Asteroid> Asteroids;
 
+        public LinkedList<object> Clients;
         public Sector ParentSector;        
                 
         static readonly int[] PlanetCountDistribution = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 8, 8, 9, 9, 9, 10,11};
@@ -104,5 +105,36 @@ namespace GalaxyShared
 
         }
 
+        public override bool Equals(System.Object obj)
+        {
+            // If parameter is null return false.
+            if (obj == null)
+            {
+                return false;
+            }
+
+            // If parameter cannot be cast to Point return false.
+            SolarSystem s = obj as SolarSystem;
+            if ((System.Object)s == null)
+            {
+                return false;
+            }
+
+            // Return true if the fields match:
+            return s.Pos.Equals(this.Pos);
+        }
+
+        public bool Equals(SolarSystem s)
+        {
+            // If parameter is null return false:
+            if ((object)s == null)
+            {
+                return false;
+            }
+
+            return s.Pos.Equals(this.Pos);
+        }
+
+       
     }
 }

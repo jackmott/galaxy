@@ -69,10 +69,9 @@ namespace GalaxyServer
 
 
 
-        public static SolarSystem GetSystem(SolarSystem system)
+        public static SolarSystem GetSystem(string key)
         {
-
-             return Get<SolarSystem>(SYSTEM+system.key());
+             return Get<SolarSystem>(SYSTEM+key);
         }
 
         public static void AddSystem(SolarSystem system)

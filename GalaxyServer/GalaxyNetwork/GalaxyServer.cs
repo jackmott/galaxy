@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using GalaxyShared;
 using ProtoBuf;
-using Newtonsoft;
-using Newtonsoft.Json;
-using System.Collections.Generic;
+
 
 
 namespace GalaxyServer
@@ -26,7 +24,7 @@ namespace GalaxyServer
         
         static int MessageThreads = 1;  //threads that process message data
         static int SendThreads = 1; //threads that send message data
-        static int PhysicsThreads = 1;
+        static int SystemPhysicsThreads = 1;
         static TypeDictionary TypeDictionary;
 
         static DataLayer D;
@@ -64,10 +62,11 @@ namespace GalaxyServer
                 Task.Factory.StartNew(() => SendMessages());
             }
 
-            for (int i = 0; i < PhysicsThreads; i++)
+            for (int i = 0; i < SystemPhysicsThreads; i++)
             {
-                Task.Factory.StartNew(() => LogicLayer.DoPhysics());
+                Task.Factory.StartNew(() => LogicLayer.DoSystemPhysics());
             }
+            Task.Factory.StartNew(() => LogicLayer.DoWarpPhysics());
 
             Console.ReadLine();
 
@@ -179,7 +178,7 @@ namespace GalaxyServer
                 catch (Exception ex)
                 {
                     Console.WriteLine("handle read exception"+ex);
-                    CleanUpClient(client);
+                    client.Cleanup();
                     return;
                 }
 
@@ -188,19 +187,7 @@ namespace GalaxyServer
 
         }
 
-        public static void CleanUpClient(Client client)
-        {
-            client.Cleanup();
-            Player p;
-            while (!LogicLayer.PlayerTable.TryRemove(client, out p))
-            {
-                if (!LogicLayer.PlayerTable.ContainsKey(client))
-                {
-                    return;
-                }
-            }
-        }
-
+    
 
 
         public static void AddToSendQueue(Client client, IMessage payload)
@@ -224,7 +211,7 @@ namespace GalaxyServer
                 catch (Exception)
                 {
                     Console.WriteLine("Send Loop Exception");
-                    CleanUpClient(m.Client);
+                    m.Client.Cleanup();
                 }
 
             }
