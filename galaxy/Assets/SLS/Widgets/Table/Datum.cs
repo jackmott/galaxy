@@ -248,9 +248,11 @@ namespace SLS.Widgets.Table
         public bool isHeader { get { return this._isHeader; } }
         public bool isFooter { get { return this._isFooter; } }
 
-        public static Datum Body(string uid)
+        private object payload;
+
+        public static Datum Body(string uid, object payload = null)
         {
-            Datum d = new Datum(uid);
+            Datum d = new Datum(uid,payload);
             return d;
         }
 
@@ -268,11 +270,17 @@ namespace SLS.Widgets.Table
             return d;
         }
 
-        private Datum(string uid)
+        private Datum(string uid, object payload = null)
         {
+            this.payload = payload;
             this.uid = uid;
             this.elements = new DatumElementList(this);
             this.isDirty = true;
+        }
+
+        public object GetPayload()
+        {
+            return payload;
         }
     }
 

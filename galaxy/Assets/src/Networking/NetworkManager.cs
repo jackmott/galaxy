@@ -8,7 +8,7 @@ using System.Threading;
 using System.Diagnostics;
 using ProtoBuf;
 using System.IO;
-using System.IO.Compression;
+
 
 public class NetworkManager : MonoBehaviour, IMessageHandler
 {
@@ -37,7 +37,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     public static int Seq = 1;
 
-    bool GoingToWarp = false;
+    public static bool GoingToWarp = false;
 
     enum Level { MainMenu, Warp, System };
     Level CurrentLevel;
@@ -174,6 +174,9 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                         break;
                     case MsgType.MiningMessage:
                         msg = Serializer.DeserializeWithLengthPrefix<MiningMessage>(stream, PrefixStyle.Fixed32);
+                        break;
+                    case MsgType.ConstructionMessage:
+                        msg = Serializer.DeserializeWithLengthPrefix<ConstructionMessage>(stream, PrefixStyle.Fixed32);
                         break;
                     default:
                         msg = null;
@@ -388,6 +391,17 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         }
     }
 
+    public void HandleMessage(ConstructionMessage msg, object extra = null)
+    {
+        if (msg.Progress == 0)
+        {
+            GameObject g = Resources.Load<GameObject>("Station/Construction");
+            GameObject constructionModule = (GameObject)Instantiate(g, Utility.UVector(PlayerState.Location.Pos), Utility.UQuaternion(PlayerState.Rotation));
+            constructionModule.transform.Translate(Vector3.forward * 3);
+        }
+    }
+
+
 
     private void SampleWarpInput()
     {
@@ -483,16 +497,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
 
 
-            if (InputCollector.JumpToWarp)
-            {
-                GoingToWarp = true;
-                GoToWarpMessage msg;
-                msg.Location = PlayerState.Location;
-                msg.Rotation = PlayerState.Rotation;
-                Send(msg);
-                //todo some sort of animation/sounds            
-            }
-            
+          
 
             if (InputCollector.SecondaryButton || InputCollector.PrimaryButton)
             {
@@ -545,6 +550,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     }
 
+ 
 
     //things the client doesn't need to implement
     public void HandleMessage(LoginMessage msg, object extra = null)
@@ -567,8 +573,5 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         throw new NotImplementedException();
     }
 
-    public void HandleMessage(ConstructionMessage msg, object extra = null)
-    {
-        throw new NotImplementedException();
-    }
+    
 }

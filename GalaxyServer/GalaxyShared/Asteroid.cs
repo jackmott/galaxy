@@ -26,42 +26,35 @@ namespace GalaxyShared
 
         //trick to shrink Asteroid down to packed float size:        
         public Vector3 Pos;
-        [ProtoMember(5, IsPacked = true, OverwriteList =true)]
-        private float[] PackedPos = new float[3];
-        
+       [ProtoMember(5,IsPacked = true,OverwriteList =true)]
+        private float[] PackedPos
+        {
+            get { return new float[] { (float)Pos.X, (float)Pos.Y, (float)Pos.Z }; }
+            set { Pos.X = value[0]; Pos.Y = value[1]; Pos.Z = value[2]; }
+        }
         public Asteroid(SolarSystem parentSystem, byte orbit, float orbitAngle, byte size, Vector3 posAdjust, int hash)
         {
             this.Hash = hash;
-            ParentSystem = parentSystem;
-           
-
+            ParentSystem = parentSystem;                   
            
             Size = size;
-
 
             Vector3 start = Vector3.Zero;                                    
             Matrix rotation = Matrix.CreateFromYawPitchRoll(orbitAngle,0,0);
             Pos = start + Vector3.Transform(Vector3.Forward *orbit*Planet.EARTH_CONSTANT*Planet.ORBIT_MULTIPLIER, rotation);
           
             Pos += posAdjust;
-            PackedPos[0] = (float)Pos.X;
-            PackedPos[1] = (float)Pos.Y;
-            PackedPos[2] = (float)Pos.Z;
+          
 
         }
         
 
         public Asteroid()
         {
-            
+         
         }
 
-        public void Init()
-        {
-            Pos.X = PackedPos[0];
-            Pos.Y = PackedPos[1];
-            Pos.Z = PackedPos[2];
-        }
+       
 
 
         public void Proto(Stream stream, byte[] typeBuffer)

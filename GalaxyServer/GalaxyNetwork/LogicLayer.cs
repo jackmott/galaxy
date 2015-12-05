@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using XnaGeometry;
+using System.Reflection;
 
 namespace GalaxyServer
 {
@@ -156,6 +157,23 @@ namespace GalaxyServer
             //todo else send some sort of nope msg?
 
         }
+
+        public void HandleMessage(ConstructionMessage msg, object extra = null)
+        {
+            Client client = (Client)extra;
+            Player player = GetPlayer(client);
+            Assembly a = typeof(StationModule).Assembly;
+            StationModule sm = (StationModule)Activator.CreateInstance(a.GetType("GalaxyShared."+msg.ClassName));
+            sm.SetDataFromJSON();
+            if (sm.CanBuild(player))
+            {
+                msg.Progress = 0;
+                msg.ResourcesNeeded = sm.BuildRequirements;
+                GalaxyServer.AddToSendQueue(client, msg);
+            }
+
+        }
+
 
         public static Player GetPlayer(Client client)
         {
@@ -313,6 +331,7 @@ namespace GalaxyServer
 
         }
 
+  
 
         //Stuff the server doesn't need to implement
         public void HandleMessage(NewUserResultMessage msg, object extra) {
@@ -353,9 +372,6 @@ namespace GalaxyServer
             throw new NotImplementedException();
         }
 
-        public void HandleMessage(ConstructionMessage msg, object extra = null)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

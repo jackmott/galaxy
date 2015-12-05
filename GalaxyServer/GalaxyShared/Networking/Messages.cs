@@ -225,11 +225,18 @@ namespace GalaxyShared
     [ProtoContract]
     public struct ConstructionMessage : IMessage
     {
-        bool Start;
-        bool End;
-        byte Progress;
-        byte Speed;
-        List<BuildRequirement> ResourcesNeeded;
+        [ProtoMember(1)]
+        public bool Start;
+        [ProtoMember(2)]
+        public bool End;
+        [ProtoMember(3)]
+        public byte Progress;
+        [ProtoMember(4)]
+        public byte Speed;
+        [ProtoMember(5)]
+        public string ClassName;
+        [ProtoMember(6)]
+        public List<BuildRequirement> ResourcesNeeded;
 
         public void AcceptHandler(IMessageHandler handler, object o = null)
         {

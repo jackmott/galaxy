@@ -166,6 +166,9 @@ namespace GalaxyServer
                         case MsgType.MiningMessage:
                             wrapper.Payload = Serializer.DeserializeWithLengthPrefix<MiningMessage>(m, PrefixStyle.Fixed32);
                             break;
+                        case MsgType.ConstructionMessage:
+                            wrapper.Payload = Serializer.DeserializeWithLengthPrefix<ConstructionMessage>(m, PrefixStyle.Fixed32);
+                            break;
                         default:
                             wrapper.Payload = null;
                             break;

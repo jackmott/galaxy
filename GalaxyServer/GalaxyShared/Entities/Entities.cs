@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
-using System.Linq;
+
 
 namespace GalaxyShared
 {
@@ -51,7 +51,7 @@ namespace GalaxyShared
         }
     }
 
-   
+    
 
     [ProtoContract]
     [ProtoInclude(101, typeof(StationCoupler))]
@@ -73,6 +73,8 @@ namespace GalaxyShared
             }
             return true;
         }
+
+       
         
                        
     }

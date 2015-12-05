@@ -111,8 +111,7 @@ public class ClientSolarSystem : MonoBehaviour
     {
         GameObject resourceAsteroid = Resources.Load<GameObject>("Asteroid");
         foreach (Asteroid a in SolarSystem.Asteroids)
-        {
-            a.Init();
+        {            
             a.ParentSystem = SolarSystem;
             asteroidDictionary.Add(a.Hash, a);
             GameObject asteroidGO = (GameObject)Instantiate(resourceAsteroid, Utility.UVector(a.Pos), UnityEngine.Random.rotation);

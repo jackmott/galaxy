@@ -18,10 +18,8 @@ public class Hud : MonoBehaviour
     private Text HeaderText;
 
     IHasInfo lastTargetedThing;
-
-   
+    
     enum Menu { Main, Build, Info, Inventory };
-
     Menu ActiveMenu;
     
     // Use this for initialization
@@ -51,7 +49,7 @@ public class Hud : MonoBehaviour
         {
             StationModule sm = (StationModule)System.Activator.CreateInstance(sType);
             sm.SetDataFromJSON();
-            Datum d = Datum.Body(sm.Name);
+            Datum d = Datum.Body(sm.Name,sm);
             d.elements.Add(sm.Name);
             if (sm.CanBuild(NetworkManager.PlayerState))
             {
@@ -61,6 +59,7 @@ public class Hud : MonoBehaviour
             {
                 d.elements.Add("Missing materials");
             }
+
             MenuTable.data.Add(d);
         }
 
@@ -151,18 +150,56 @@ public class Hud : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        InputAction action = null;
+        if (InputCollector.UISubmit)
+        {
+            
+            if (ActiveMenu == Menu.Main)
+            {
+                Element e = MenuTable.GetSelectedElement();
+                action = (InputAction)e.GetPayload();                
+            }
+            if (ActiveMenu == Menu.Build)
+            {
+                Datum d = MenuTable.selectedDatum;
+                StationModule sm = (StationModule)d.GetPayload();
+                if (sm.CanBuild(NetworkManager.PlayerState))
+                {
+                    ConstructionMessage cm = new ConstructionMessage();
+                    cm.ClassName = sm.GetType().Name;                    
+                    NetworkManager.Send(cm);
+                }
+            }
+
+
+        }
+
+
         if (InputCollector.Inventory)
         {
             GenerateInventoryMenu();
         }
 
-        if (InputCollector.Build)
+        if (InputCollector.Build || (action != null && action.name == "Build"))
         {
             GenerateBuildMenu();
         }
 
-        
+        if (InputCollector.JumpToWarp || (action != null && action.name == "Jump"))
+        {
+            if (!NetworkManager.PlayerState.Location.InWarp)
+            {
+                NetworkManager.GoingToWarp = true;
+                GoToWarpMessage msg;
+                msg.Location = NetworkManager.PlayerState.Location;
+                msg.Rotation = NetworkManager.PlayerState.Rotation;
+                NetworkManager.Send(msg);
+            }
+            
+        }
+
+
+
         if (InputCollector.UIVerticle > 0)
         {
             MenuTable.moveSelectionUp(false);
@@ -183,15 +220,7 @@ public class Hud : MonoBehaviour
             MenuTable.moveSelectionLeft(false);
         }
 
-        if (InputCollector.UISubmit)
-        {
-            Element e = MenuTable.GetSelectedElement();
-            InputAction action = (InputAction)e.GetPayload();
-            if (action.name == "Build")
-            {
-                Debug.Log("Build");
-            }
-        }
+       
 
 
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));

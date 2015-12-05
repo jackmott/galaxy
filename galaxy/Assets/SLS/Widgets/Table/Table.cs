@@ -273,6 +273,8 @@ namespace SLS.Widgets.Table
             this.footerDatum = null;
             this.columnOverlayContent = null;
             this.columnOverlayLines = null;
+            this.headerRect = null;
+            this.footerRect = null;            
             GameObject header = GameObject.Find("Header");
             GameObject footer = GameObject.Find("Footer");
             GameObject columnOverlay = GameObject.Find("ColumnOverlay");
