@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
-
+using XnaGeometry;
+using System;
 
 namespace GalaxyShared
 {
     
-
     [ProtoContract]
     [ProtoInclude(101, typeof(ConstructionModule))]
     [ProtoInclude(102, typeof(StationModule))]
@@ -15,27 +15,24 @@ namespace GalaxyShared
     public class Entity
     {
         [ProtoMember(1)]
-        public Location Location;
+        public Vector3 Pos;
         [ProtoMember(2)]
-        public string Name;
+        public Quaternion Rotation;
         [ProtoMember(3)]
+        public string Name;
+        [ProtoMember(4)]
         public string Description;
+        [ProtoMember(5)]
+        public Guid Guid;
 
         protected long LastUpdateMillis;
 
         public Entity()
         {
-
+            Guid = new Guid();
         }
 
-        //update anything internal based on server time
-        public virtual void UpdateState(long millis)
-        {
-            //update state
-        }
-
-       
-
+        
         public void SetDataFromJSON()
         {
             StreamReader sr;
@@ -56,25 +53,28 @@ namespace GalaxyShared
         [ProtoMember(1)]
         public List<BuildRequirement> RequirementsRemaining;
         [ProtoMember(2)]
-        public long BuildTimeRemaining;
+        public int BuildTimeRemaining;
+        [ProtoMember(3)]
+        public StationModule ResultingStationModule;
 
         
 
-        public ConstructionModule(long startMillis)
+        public ConstructionModule(long startMillis,Vector3 pos, Quaternion rotation,StationModule resultingStationModule) :base()
         {
+            Pos = pos;
+            Rotation = rotation;
+            ResultingStationModule = resultingStationModule;
             LastUpdateMillis = startMillis;
+            BuildTimeRemaining = resultingStationModule.BuildTime;
         }
 
-        public override void UpdateState(long millis)
+        public bool UpdateStateAndCheckIfDone(long millis)
         {
-            BuildTimeRemaining = millis - LastUpdateMillis;
+            BuildTimeRemaining = (int)(millis - LastUpdateMillis);
+            return BuildTimeRemaining <= 0;
         }
 
-        public bool IsDone()
-        {        
-            return BuildTimeRemaining <= 0;            
-        }
-
+        
     }
 
     
@@ -83,12 +83,18 @@ namespace GalaxyShared
     [ProtoInclude(101, typeof(StationCoupler))]
     [ProtoInclude(102, typeof(Bar))]
     [ProtoInclude(103, typeof(Dock))]    
-    public class StationModule : Entity
+    public class StationModule : Entity, IMessage
     {
         [ProtoMember(1)]
         public List<BuildRequirement> BuildRequirements;
         [ProtoMember(2)]
         public int BuildTime;
+
+       
+        public StationModule() : base()
+        {
+
+        }
 
         public bool CanBuild(Player p)
         {
@@ -99,10 +105,17 @@ namespace GalaxyShared
             }
             return true;
         }
+        public void Proto(Stream stream, byte[] typeBuffer)
+        {
+            typeBuffer[0] = (byte)MsgType.StationModule;
+            stream.Write(typeBuffer, 0, 1);
+            Serializer.SerializeWithLengthPrefix(stream, this, PrefixStyle.Fixed32);
+        }
 
-       
-        
-                       
+        public void AcceptHandler(IMessageHandler handler, object o = null)
+        {
+            handler.HandleMessage(this, o);
+        }
     }
 
     [ProtoContract]
@@ -120,6 +133,9 @@ namespace GalaxyShared
     [ProtoContract]
     public class Dock : StationModule
     {
-
+        public Dock() : base()
+        {
+            BuildTime = 5000;
+        }
     }
 }

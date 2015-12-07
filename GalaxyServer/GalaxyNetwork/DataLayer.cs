@@ -64,7 +64,7 @@ namespace GalaxyServer
 
         public static void AddSystem(SolarSystem system)
         {
-            Add(SYSTEM + system.key(), system);
+            Add(SYSTEM + system.Key(), system);
         }
 
         public static bool CreateNewLogin(string username,string password)

@@ -9,8 +9,8 @@ namespace GalaxyServer
     {
 
         public byte ClientSendRate = 50; //millis
-        public long LastSend = -10; //millis
-        public long LastPersist = -10; //millis
+        public long LastSend = GalaxyServer.Millis; //millis
+        public long LastPersist = GalaxyServer.Millis; //millis
 
         public Player Player;
 

@@ -25,10 +25,13 @@ namespace GalaxyShared
         public List<Asteroid> Asteroids;
         [ProtoMember(7)]
         public List<ConstructionModule> ConstructionModules;
+        [ProtoMember(8)]
+        public List<StationModule> StationModules;
 
-
+        public long LastStateUpdate = 0;
         public LinkedList<object> Clients;
-        public Sector ParentSector;        
+        public Sector ParentSector;
+        public const int UPDATE_RATE = 500; //ms
                 
         static readonly int[] PlanetCountDistribution = { 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 8, 8, 9, 9, 9, 10,11};
         
@@ -54,9 +57,10 @@ namespace GalaxyShared
             Planets = new List<Planet>();
             Asteroids = new List<Asteroid>();
             ConstructionModules = new List<ConstructionModule>();
+            StationModules = new List<StationModule>();
         }
 
-        public string key()
+        public string Key()
         {
             StringBuilder sb = new StringBuilder(32);
             sb.Append("S");

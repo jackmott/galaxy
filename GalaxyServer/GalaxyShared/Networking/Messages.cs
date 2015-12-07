@@ -20,7 +20,8 @@ namespace GalaxyShared
         Asteroid,
         Ship,
         MiningMessage,
-        ConstructionMessage
+        ConstructionMessage,
+        StationModule
     }
 
     public interface IMessage
@@ -235,13 +236,16 @@ namespace GalaxyShared
         [ProtoMember(2)]
         public bool End;
         [ProtoMember(3)]
-        public byte Progress;
+        public int TimeRemaining;
         [ProtoMember(4)]
         public byte Speed;
         [ProtoMember(5)]
         public string ClassName;
         [ProtoMember(6)]
         public List<BuildRequirement> ResourcesNeeded;
+        [ProtoMember(7)]
+        public Guid Guid;
+        
 
         public void AcceptHandler(IMessageHandler handler, object o = null)
         {

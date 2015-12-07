@@ -48,14 +48,19 @@
 public class Noise
 {
 
-    float FADE(float t)
+    int ix0, iy0, iz0, iw0, ix1, iy1, iz1, iw1;
+    float fx0, fy0, fz0, fw0, fx1, fy1, fz1, fw1;
+    float s, t, r, q;
+    float nxyz0, nxyz1, nxy0, nxy1, nx0, nx1, n0, n1;
+
+    static float FADE(float t)
     {
         return (t * t * t * (t * (t * 6 - 15) + 10));
     }
 
-   
 
-    float LERP(float t, float a, float b)
+
+    static float LERP(float t, float a, float b)
     {
         return ((a) + (t) * ((b) - (a)));
     }
@@ -82,9 +87,9 @@ public class Noise
      * float-valued 4D noise 64 times. We want this to fit in the cache!
      */
 
+   
 
-
-    short[] perm = {151,160,137,91,90,15,
+    static short[] perm = {151,160,137,91,90,15,
     131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
     190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
     88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
@@ -132,18 +137,18 @@ public class Noise
      * float SLnoise = (noise3(x,y,z) + 1.0) * 0.5;
      */
 
-    float grad1(int hash, float x)
+    float grad1(int h, float x)
     {
-        int h = hash & 15;
+        h = h & 15;
         float grad = 1.0f + (h & 7);  // Gradient value 1.0, 2.0, ..., 8.0
         if ((h & 8) == 1)
             grad = -grad;         // and a random sign for the gradient
         return (grad * x);           // Multiply the gradient with the distance
     }
 
-    float grad2(int hash, float x, float y)
+    float grad2(int h, float x, float y)
     {
-        int h = hash & 7;      // Convert low 3 bits of hash code
+        h = h & 7;      // Convert low 3 bits of hash code
         float u = h < 4 ? x : y;  // into 8 simple gradient directions,
         float v = h < 4 ? y : x;  // and compute the dot product with (x,y).
 
@@ -156,9 +161,9 @@ public class Noise
         return u + n;
     }
 
-    float grad3(int hash, float x, float y, float z)
+    float grad3(int h, float x, float y, float z)
     {
-        int h = hash & 15;     // Convert low 4 bits of hash code into 12 simple
+        h = h & 15;     // Convert low 4 bits of hash code into 12 simple
         float u = h < 8 ? x : y; // gradient directions, and compute dot product.
         float v = h < 4 ? y : h == 12 || h == 14 ? x : z; // Fix repeats at h = 12 to 15
         if ((h & 1) == 1)
@@ -170,9 +175,9 @@ public class Noise
         return u + v;
     }
 
-    float grad4(int hash, float x, float y, float z, float t)
+    float grad4(int h, float x, float y, float z, float t)
     {
-        int h = hash & 31;      // Convert low 5 bits of hash code into 32 simple
+        h = h & 31;      // Convert low 5 bits of hash code into 32 simple
         float u = h < 24 ? x : y; // gradient directions, and compute dot product.
         float v = h < 16 ? y : z;
         float w = h < 8 ? z : t;
@@ -194,11 +199,8 @@ public class Noise
      */
     public float noise1(float x)
     {
-        int ix0, ix1;
-        float fx0, fx1;
-        float s, n0, n1;
-
-        ix0 = x > 0 ? (int)x : (int)x-1;  //FASTFLOOR(x); // Integer part of x
+        
+        ix0 = x > 0 ? (int)x : (int)x - 1;  //FASTFLOOR(x); // Integer part of x
         fx0 = x - ix0;       // Fractional part of x
         fx1 = fx0 - 1.0f;
         ix1 = (ix0 + 1) & 0xff;
@@ -216,10 +218,7 @@ public class Noise
      */
     public float pnoise1(float x, int px)
     {
-        int ix0, ix1;
-        float fx0, fx1;
-        float s, n0, n1;
-
+        
         ix0 = x > 0 ? (int)x : (int)x - 1;  //FASTFLOOR(x); // Integer part of x
         fx0 = x - ix0;       // Fractional part of x
         fx1 = fx0 - 1.0f;
@@ -238,11 +237,7 @@ public class Noise
     /** 2D float Perlin noise.
      */
     public float noise2(float x, float y)
-    {
-        int ix0, iy0, ix1, iy1;
-        float fx0, fy0, fx1, fy1;
-        float s, t, nx0, nx1, n0, n1;
-
+    {       
 
         ix0 = (x > 0) ? (int)x : (int)(x - 1);
         iy0 = (y > 0) ? (int)y : (int)(y - 1);
@@ -274,10 +269,7 @@ public class Noise
      */
     public float pnoise2(float x, float y, int px, int py)
     {
-        int ix0, iy0, ix1, iy1;
-        float fx0, fy0, fx1, fy1;
-        float s, t, nx0, nx1, n0, n1;
-
+      
         ix0 = (x > 0) ? (int)x : (int)(x - 1);
         iy0 = (y > 0) ? (int)y : (int)(y - 1);
         fx0 = x - ix0;        // Fractional part of x
@@ -309,10 +301,7 @@ public class Noise
      */
     public float noise3(float x, float y, float z)
     {
-        int ix0, iy0, ix1, iy1, iz0, iz1;
-        float fx0, fy0, fz0, fx1, fy1, fz1;
-        float s, t, r;
-        float nxy0, nxy1, nx0, nx1, n0, n1;
+      
 
         ix0 = x > 0 ? (int)x : (int)x - 1;  //FASTFLOOR(x); // Integer part of x
         iy0 = y > 0 ? (int)y : (int)y - 1; //FASTFLOOR(y); // Integer part of y
@@ -362,11 +351,7 @@ public class Noise
      */
     public float pnoise3(float x, float y, float z, int px, int py, int pz)
     {
-        int ix0, iy0, ix1, iy1, iz0, iz1;
-        float fx0, fy0, fz0, fx1, fy1, fz1;
-        float s, t, r;
-        float nxy0, nxy1, nx0, nx1, n0, n1;
-
+        
         ix0 = x > 0 ? (int)x : (int)x - 1;  //FASTFLOOR(x); // Integer part of x
         iy0 = y > 0 ? (int)y : (int)y - 1; //FASTFLOOR(y); // Integer part of y
         iz0 = z > 0 ? (int)z : (int)z - 1; //FASTFLOOR(z); // Integer part of z
@@ -417,10 +402,7 @@ public class Noise
 
     public float noise4(float x, float y, float z, float w)
     {
-        int ix0, iy0, iz0, iw0, ix1, iy1, iz1, iw1;
-        float fx0, fy0, fz0, fw0, fx1, fy1, fz1, fw1;
-        float s, t, r, q;
-        float nxyz0, nxyz1, nxy0, nxy1, nx0, nx1, n0, n1;
+       
 
         ix0 = x > 0 ? (int)x : (int)x - 1;  //FASTFLOOR(x); // Integer part of x
         iy0 = y > 0 ? (int)y : (int)y - 1; //FASTFLOOR(y); // Integer part of y
@@ -502,10 +484,7 @@ public class Noise
     public float pnoise4(float x, float y, float z, float w,
               int px, int py, int pz, int pw)
     {
-        int ix0, iy0, iz0, iw0, ix1, iy1, iz1, iw1;
-        float fx0, fy0, fz0, fw0, fx1, fy1, fz1, fw1;
-        float s, t, r, q;
-        float nxyz0, nxyz1, nxy0, nxy1, nx0, nx1, n0, n1;
+       
 
         ix0 = x > 0 ? (int)x : (int)x - 1;  //FASTFLOOR(x); // Integer part of x
         iy0 = y > 0 ? (int)y : (int)y - 1; //FASTFLOOR(y); // Integer part of y

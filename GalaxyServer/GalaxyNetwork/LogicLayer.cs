@@ -26,7 +26,7 @@ namespace GalaxyServer
                 {
                     SolarSystem system = c.Player.SolarSystem;
                     c.Player.SolarSystem.Clients.Remove(c);
-                    if (system.Clients.Count == 0) LoadedSystems.TryRemove(system.key(), out system);
+                    if (system.Clients.Count == 0) LoadedSystems.TryRemove(system.Key(), out system);
 
                 }
                 c.Player.SolarSystem = null;
@@ -40,9 +40,9 @@ namespace GalaxyServer
             lock (ClientMovementLock)
             {
                 ClientsInWarp.Remove(c);
-                if (!LoadedSystems.ContainsKey(s.key()))
+                if (!LoadedSystems.ContainsKey(s.Key()))
                 {
-                    LoadedSystems.TryAdd(s.key(), s);
+                    LoadedSystems.TryAdd(s.Key(), s);
                 }
                 s.Clients.AddLast(c);
                 c.Player.SolarSystem = s;
@@ -216,7 +216,11 @@ namespace GalaxyServer
             sm.SetDataFromJSON();
             if (sm.CanBuild(player))
             {
-                msg.Progress = 0;
+                Vector3 pos = player.Location.Pos + Vector3.Transform(Vector3.Forward * 3, player.Rotation);
+                ConstructionModule cm = new ConstructionModule(GalaxyServer.Millis,pos,player.Rotation,new Dock());
+                player.SolarSystem.ConstructionModules.Add(cm);
+                msg.TimeRemaining = cm.BuildTimeRemaining;
+                msg.Guid = cm.Guid;
                 msg.ResourcesNeeded = sm.BuildRequirements;
                 GalaxyServer.AddToSendQueue(client, msg);
             }
@@ -334,9 +338,40 @@ namespace GalaxyServer
             }
         }
 
+       
         private static void ProcessSystemConstructionModules(SolarSystem system)
         {
+            bool SendUpdate = GalaxyServer.Millis - system.LastStateUpdate >= SolarSystem.UPDATE_RATE;
+            for (int i = system.ConstructionModules.Count-1; i >= 0; i--)
+            {
+                ConstructionModule c = system.ConstructionModules[i];                
+                if (c.UpdateStateAndCheckIfDone(GalaxyServer.Millis))
+                {
+                    //If we are done, remove it and replace with a station module
+                    system.ConstructionModules.RemoveAt(i);
+                    system.StationModules.Add(c.ResultingStationModule);
 
+                    ConstructionMessage cm = new ConstructionMessage();
+                    cm.TimeRemaining = 0;
+                    cm.Guid = c.Guid;
+                    cm.Start = false;                    
+                    foreach (Client client in system.Clients)
+                    {
+                        GalaxyServer.AddToSendQueue(client, cm);
+                    }
+                    
+                } else if (SendUpdate)
+                {
+                    ConstructionMessage cm = new ConstructionMessage();
+                    cm.TimeRemaining = c.BuildTimeRemaining;
+                    cm.Guid = c.Guid;
+                    cm.Start = false;
+                    foreach (Client client in system.Clients)
+                    {
+                     
+                    }
+                }
+            }
         }
         
         private static void ProcessSystemPlayers(SolarSystem system)
@@ -442,6 +477,9 @@ namespace GalaxyServer
             throw new NotImplementedException();
         }
 
-
+        public void HandleMessage(StationModule sm, object extra = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -12,7 +12,7 @@ using System.IO;
 
 public class NetworkManager : MonoBehaviour, IMessageHandler
 {
-
+    
     public InputCollector InputCollector;
    
 
@@ -23,7 +23,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     bool shutdown = false;
 
-    public static float throttle = 0;
+    
     public static List<InputMessage> InputsToSend;
     public static List<InputMessage> BufferedInputs;
 
@@ -37,13 +37,10 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             return MasterClock.ElapsedMilliseconds;
         }
     }
+
     public static long LastStateSend = 0;
-
     public static Player PlayerState = null;
-
-
     public static int Seq = 1;
-
     public static bool GoingToWarp = false;
 
     enum Level { MainMenu, Warp, System };
@@ -570,5 +567,8 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         throw new NotImplementedException();
     }
 
-    
+    public void HandleMessage(StationModule sm, object extra = null)
+    {
+        throw new NotImplementedException();
+    }
 }

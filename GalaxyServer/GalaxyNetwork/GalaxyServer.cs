@@ -20,12 +20,12 @@ namespace GalaxyServer
         static BlockingCollection<MessageWrapper> OutgoingMessages;
 
         private static Stopwatch MasterClock;
-      
+        private static long StartMillis = DateTime.Now.Subtract(new DateTime(2000, 1, 1)).Milliseconds;
         public static long Millis
         {
             get
             {
-                return MasterClock.ElapsedMilliseconds;
+                return MasterClock.ElapsedMilliseconds + StartMillis;
             }
         }
         
@@ -70,6 +70,7 @@ namespace GalaxyServer
 
             MasterClock = new Stopwatch();
             MasterClock.Start();
+
             for (int i = 0; i < SystemPhysicsThreads; i++)
             {
                 Task.Factory.StartNew(() => LogicLayer.DoPhysics());
