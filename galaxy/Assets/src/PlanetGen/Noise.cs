@@ -53,13 +53,7 @@ public class Noise
         return (t * t * t * (t * (t * 6 - 15) + 10));
     }
 
-    int FASTFLOOR(float x)
-    {
-        if (x >= 0)
-            return (int)x;
-        return (int)(x - 1);
-
-    }
+   
 
     float LERP(float t, float a, float b)
     {
@@ -204,7 +198,7 @@ public class Noise
         float fx0, fx1;
         float s, n0, n1;
 
-        ix0 = FASTFLOOR(x); // Integer part of x
+        ix0 = x > 0 ? (int)x : (int)x-1;  //FASTFLOOR(x); // Integer part of x
         fx0 = x - ix0;       // Fractional part of x
         fx1 = fx0 - 1.0f;
         ix1 = (ix0 + 1) & 0xff;
@@ -226,7 +220,7 @@ public class Noise
         float fx0, fx1;
         float s, n0, n1;
 
-        ix0 = FASTFLOOR(x); // Integer part of x
+        ix0 = x > 0 ? (int)x : (int)x - 1;  //FASTFLOOR(x); // Integer part of x
         fx0 = x - ix0;       // Fractional part of x
         fx1 = fx0 - 1.0f;
         ix1 = ((ix0 + 1) % px) & 0xff; // Wrap to 0..px-1 *and* wrap to 0..255
@@ -320,9 +314,9 @@ public class Noise
         float s, t, r;
         float nxy0, nxy1, nx0, nx1, n0, n1;
 
-        ix0 = FASTFLOOR(x); // Integer part of x
-        iy0 = FASTFLOOR(y); // Integer part of y
-        iz0 = FASTFLOOR(z); // Integer part of z
+        ix0 = x > 0 ? (int)x : (int)x - 1;  //FASTFLOOR(x); // Integer part of x
+        iy0 = y > 0 ? (int)y : (int)y - 1; //FASTFLOOR(y); // Integer part of y
+        iz0 = z > 0 ? (int)z : (int)z - 1; //FASTFLOOR(z); // Integer part of z
         fx0 = x - ix0;        // Fractional part of x
         fy0 = y - iy0;        // Fractional part of y
         fz0 = z - iz0;        // Fractional part of z
@@ -373,9 +367,9 @@ public class Noise
         float s, t, r;
         float nxy0, nxy1, nx0, nx1, n0, n1;
 
-        ix0 = FASTFLOOR(x); // Integer part of x
-        iy0 = FASTFLOOR(y); // Integer part of y
-        iz0 = FASTFLOOR(z); // Integer part of z
+        ix0 = x > 0 ? (int)x : (int)x - 1;  //FASTFLOOR(x); // Integer part of x
+        iy0 = y > 0 ? (int)y : (int)y - 1; //FASTFLOOR(y); // Integer part of y
+        iz0 = z > 0 ? (int)z : (int)z - 1; //FASTFLOOR(z); // Integer part of z
         fx0 = x - ix0;        // Fractional part of x
         fy0 = y - iy0;        // Fractional part of y
         fz0 = z - iz0;        // Fractional part of z
@@ -428,10 +422,10 @@ public class Noise
         float s, t, r, q;
         float nxyz0, nxyz1, nxy0, nxy1, nx0, nx1, n0, n1;
 
-        ix0 = FASTFLOOR(x); // Integer part of x
-        iy0 = FASTFLOOR(y); // Integer part of y
-        iz0 = FASTFLOOR(z); // Integer part of y
-        iw0 = FASTFLOOR(w); // Integer part of w
+        ix0 = x > 0 ? (int)x : (int)x - 1;  //FASTFLOOR(x); // Integer part of x
+        iy0 = y > 0 ? (int)y : (int)y - 1; //FASTFLOOR(y); // Integer part of y
+        iz0 = z > 0 ? (int)z : (int)z - 1; //FASTFLOOR(z); // Integer part of z
+        iw0 = w > 0 ? (int)w : (int)w - 1; //FASTFLOOR(w); // Integer part of w
         fx0 = x - ix0;        // Fractional part of x
         fy0 = y - iy0;        // Fractional part of y
         fz0 = z - iz0;        // Fractional part of z
@@ -513,10 +507,10 @@ public class Noise
         float s, t, r, q;
         float nxyz0, nxyz1, nxy0, nxy1, nx0, nx1, n0, n1;
 
-        ix0 = FASTFLOOR(x); // Integer part of x
-        iy0 = FASTFLOOR(y); // Integer part of y
-        iz0 = FASTFLOOR(z); // Integer part of y
-        iw0 = FASTFLOOR(w); // Integer part of w
+        ix0 = x > 0 ? (int)x : (int)x - 1;  //FASTFLOOR(x); // Integer part of x
+        iy0 = y > 0 ? (int)y : (int)y - 1; //FASTFLOOR(y); // Integer part of y
+        iz0 = z > 0 ? (int)z : (int)z - 1; //FASTFLOOR(z); // Integer part of z
+        iw0 = w > 0 ? (int)w : (int)w - 1; //FASTFLOOR(w); // Integer part of w
         fx0 = x - ix0;        // Fractional part of x
         fy0 = y - iy0;        // Fractional part of y
         fz0 = z - iz0;        // Fractional part of z

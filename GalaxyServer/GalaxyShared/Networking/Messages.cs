@@ -274,7 +274,7 @@ namespace GalaxyShared
         [ProtoMember(7)]
         public bool SecondaryButton;
 
-        public double DeltaTime; //ms
+        public int DeltaTime; //ms
         public bool ClientOnly;
 
         public void Proto(Stream stream, byte[] typeBuffer)

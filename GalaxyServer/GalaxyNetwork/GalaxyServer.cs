@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using GalaxyShared;
 using ProtoBuf;
-
-
+using System.Diagnostics;
 
 namespace GalaxyServer
 {
@@ -20,7 +19,15 @@ namespace GalaxyServer
         static ConcurrentQueue<MessageWrapper> OutgoingMessageQueue;
         static BlockingCollection<MessageWrapper> OutgoingMessages;
 
-
+        private static Stopwatch MasterClock;
+      
+        public static long Millis
+        {
+            get
+            {
+                return MasterClock.ElapsedMilliseconds;
+            }
+        }
         
         static int MessageThreads = 1;  //threads that process message data
         static int SendThreads = 1; //threads that send message data
@@ -38,10 +45,9 @@ namespace GalaxyServer
 
         public GalaxyServer()
         {
-
+            
             MessageQueue = new ConcurrentQueue<MessageWrapper>();
             Messages = new BlockingCollection<MessageWrapper>(MessageQueue);
-
             OutgoingMessageQueue = new ConcurrentQueue<MessageWrapper>();
             OutgoingMessages = new BlockingCollection<MessageWrapper>(OutgoingMessageQueue);
 
@@ -62,11 +68,13 @@ namespace GalaxyServer
                 Task.Factory.StartNew(() => SendMessages());
             }
 
+            MasterClock = new Stopwatch();
+            MasterClock.Start();
             for (int i = 0; i < SystemPhysicsThreads; i++)
             {
-                Task.Factory.StartNew(() => LogicLayer.DoSystemPhysics());
+                Task.Factory.StartNew(() => LogicLayer.DoPhysics());
             }
-            Task.Factory.StartNew(() => LogicLayer.DoWarpPhysics());
+            
 
             Console.ReadLine();
 

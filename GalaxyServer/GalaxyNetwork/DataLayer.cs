@@ -1,10 +1,7 @@
-﻿
-using StackExchange.Redis;
-using System.Runtime.Serialization.Formatters.Binary;
+﻿using StackExchange.Redis;
+using ProtoBuf;
 using System.IO;
 using GalaxyShared;
-using XnaGeometry;
-using ProtoBuf;
 using System;
 
 namespace GalaxyServer
@@ -13,26 +10,17 @@ namespace GalaxyServer
     public class DataLayer
     {
         
-
-
         private const string LOGIN = "login:";
         private const string GALAXY_PLAYER = "galaxyplayer:";
         private const string SYSTEM = "system:";
-
         public const long PLAYER_STATE_PERSIST_RATE = 10000;//ms
 
         private static IDatabase DB;
         
-
-
         public DataLayer()
         {
-
             ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost");
-            DB = redis.GetDatabase();
-            
-            
-
+            DB = redis.GetDatabase();                        
         }
 
         //Gets object from redis
@@ -67,8 +55,8 @@ namespace GalaxyServer
             return Get<LoginMessage>(LOGIN+username);
         }
 
-
-
+       
+        
         public static SolarSystem GetSystem(string key)
         {
              return Get<SolarSystem>(SYSTEM+key);

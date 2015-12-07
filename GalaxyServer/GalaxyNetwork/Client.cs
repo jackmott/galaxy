@@ -8,8 +8,9 @@ namespace GalaxyServer
     public class Client
     {
 
-        public int ClientSendRate = 50; //ms
-        public DateTime LastSend = new DateTime(1970, 1, 1); //long long ago
+        public byte ClientSendRate = 50; //millis
+        public long LastSend = -10; //millis
+        public long LastPersist = -10; //millis
 
         public Player Player;
 

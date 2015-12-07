@@ -23,6 +23,9 @@ namespace GalaxyShared
         public List<Planet> Planets;
         [ProtoMember(6)]
         public List<Asteroid> Asteroids;
+        [ProtoMember(7)]
+        public List<ConstructionModule> ConstructionModules;
+
 
         public LinkedList<object> Clients;
         public Sector ParentSector;        
@@ -32,7 +35,8 @@ namespace GalaxyShared
 
 
         public SolarSystem(int index, Sector parentSector, Vector3 pos, FastRandom rand)
-        {            
+        {
+            InitLists();
             ParentSector = parentSector;
             ParentSectorCoord = parentSector.Coord;
             Index = index;
@@ -42,7 +46,14 @@ namespace GalaxyShared
 
         public SolarSystem()
         {
+            InitLists();
+        }
+
+        private void InitLists()
+        {
+            Planets = new List<Planet>();
             Asteroids = new List<Asteroid>();
+            ConstructionModules = new List<ConstructionModule>();
         }
 
         public string key()
@@ -73,8 +84,7 @@ namespace GalaxyShared
             
             int numPlanets = PlanetCountDistribution[Rand.Next(0, PlanetCountDistribution.Length)];
 
-            Planets = new List<Planet>();
-            Asteroids = new List<Asteroid>();
+          
             for (int i = 0; i < numPlanets; i++)
             {
                 int orbitIndex = Rand.Next(0, availableOrbits.Count); 
@@ -105,35 +115,7 @@ namespace GalaxyShared
 
         }
 
-        public override bool Equals(System.Object obj)
-        {
-            // If parameter is null return false.
-            if (obj == null)
-            {
-                return false;
-            }
-
-            // If parameter cannot be cast to Point return false.
-            SolarSystem s = obj as SolarSystem;
-            if ((System.Object)s == null)
-            {
-                return false;
-            }
-
-            // Return true if the fields match:
-            return s.Pos.Equals(this.Pos);
-        }
-
-        public bool Equals(SolarSystem s)
-        {
-            // If parameter is null return false:
-            if ((object)s == null)
-            {
-                return false;
-            }
-
-            return s.Pos.Equals(this.Pos);
-        }
+       
 
        
     }

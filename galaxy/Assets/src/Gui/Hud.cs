@@ -189,11 +189,7 @@ public class Hud : MonoBehaviour
         {
             if (!NetworkManager.PlayerState.Location.InWarp)
             {
-                NetworkManager.GoingToWarp = true;
-                GoToWarpMessage msg;
-                msg.Location = NetworkManager.PlayerState.Location;
-                msg.Rotation = NetworkManager.PlayerState.Rotation;
-                NetworkManager.Send(msg);
+                NetworkManager.GoToWarp();
             }
             
         }

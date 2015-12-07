@@ -2,7 +2,6 @@
 using GalaxyShared;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using XnaGeometry;
 using System.Reflection;
@@ -41,6 +40,10 @@ namespace GalaxyServer
             lock (ClientMovementLock)
             {
                 ClientsInWarp.Remove(c);
+                if (!LoadedSystems.ContainsKey(s.key()))
+                {
+                    LoadedSystems.TryAdd(s.key(), s);
+                }
                 s.Clients.AddLast(c);
                 c.Player.SolarSystem = s;
                 c.Player.Location.InWarp = false;
@@ -163,13 +166,12 @@ namespace GalaxyServer
             //First see if system is loaded in memory already
             if (!LoadedSystems.TryGetValue(msg.SystemKey, out system))
             {
+                Sector sector = new Sector(msg.SectorCoord);
                 //If not check the data store
                 system = DataLayer.GetSystem(msg.SystemKey);
-
                 //If not, generate the system
                 if (system == null)
-                {
-                    Sector sector = new Sector(msg.SectorCoord);
+                {                    
                     system = sector.GenerateSystem(msg.SystemIndex);
                     system.ParentSector = sector;
                     system.Generate();
@@ -179,6 +181,7 @@ namespace GalaxyServer
                 {
                     Console.WriteLine("System Loaded From Reids");
                 }
+                system.ParentSector = sector;
                 system.Clients = new LinkedList<object>();
             }
 
@@ -285,90 +288,81 @@ namespace GalaxyServer
         }
 
 
-
-        public static void DoWarpPhysics()
+        private static void SendStateUpdate(Client client)
         {
-            Stopwatch sw = new Stopwatch();
-            int persistCounter = 0;
-            while (true)
+            if (GalaxyServer.Millis - client.LastSend > client.ClientSendRate)
             {
-                sw.Restart();
+                Player player = client.Player;
+                PlayerStateMessage pState = new PlayerStateMessage();
+                pState.PlayerPos = player.Location.Pos;
+                pState.Rotation = player.Rotation;
+                pState.Throttle = player.Throttle;
+                pState.Seq = player.Seq;
+                GalaxyServer.AddToSendQueue(client, pState);
+                player.Seq++;
+                client.LastSend = GalaxyServer.Millis;
+            }
+        }
 
+        private static void Persist(Client client)
+        {
+            if (GalaxyServer.Millis - client.LastPersist > DataLayer.PLAYER_STATE_PERSIST_RATE)
+            {
+                DataLayer.UpdateGalaxyPlayer(client.Player);
+                client.LastPersist = GalaxyServer.Millis;
+            }
+        }
+
+        private static void ProcessWarpPlayers()
+        {           
                 foreach (Client client in ClientsInWarp)
                 {
                     Player player = client.Player;
                     ProcessTickForPlayerWarp(client, client.Player);
+                    SendStateUpdate(client);
+                    Persist(client);
+                }                        
+        }
 
-                    long deltaT = DateTime.Now.Subtract(client.LastSend).Milliseconds;
-                    if (deltaT >= client.ClientSendRate)
-                    {
-
-                        PlayerStateMessage pState = new PlayerStateMessage();
-                        pState.PlayerPos = player.Location.Pos;
-                        pState.Rotation = player.Rotation;
-                        pState.Throttle = player.Throttle;
-                        pState.Seq = player.Seq;
-                        GalaxyServer.AddToSendQueue(client, pState);
-                        client.LastSend = DateTime.Now;
-                    }
-
-                    //Persist the player to the Database
-                    if (persistCounter * NetworkUtils.SERVER_TICK_RATE > DataLayer.PLAYER_STATE_PERSIST_RATE)
-                    {
-                        DataLayer.UpdateGalaxyPlayer(player);
-                        persistCounter = 0;
-                    }
-                }
-                persistCounter++;
-                sw.Stop();
-                Thread.Sleep(Convert.ToInt32(MathHelper.Clamp(NetworkUtils.SERVER_TICK_RATE - sw.ElapsedMilliseconds, 0, 100)));
-
+        private static void ProcessSystemStuff()
+        {
+            foreach (SolarSystem system in LoadedSystems.Values)
+            {
+                ProcessSystemPlayers(system);
+                ProcessSystemConstructionModules(system);
+                
             }
         }
 
-        public static void DoSystemPhysics()
+        private static void ProcessSystemConstructionModules(SolarSystem system)
         {
-            Stopwatch sw = new Stopwatch();
-            int persistCounter = 0;
+
+        }
+        
+        private static void ProcessSystemPlayers(SolarSystem system)
+        {
+            foreach (object o in system.Clients)
+            {
+                Client client = (Client)o;
+                Player player = client.Player;
+
+                ProcessTickForPlayer(client, player);
+                SendStateUpdate(client);
+                Persist(client);
+
+            }
+        }
+        //player physics will update once per tick
+        public static void DoPhysics()
+        {
+            
             while (true)
             {
-                sw.Restart();
-                foreach (SolarSystem system in LoadedSystems.Values)
-                {
-                    foreach (object o in system.Clients)
-                    {
-                        Client client = (Client)o;
-                        Player player = client.Player;
-
-
-                        ProcessTickForPlayer(client, player);
-
-
-                        long deltaT = DateTime.Now.Subtract(client.LastSend).Milliseconds;
-                        if (deltaT >= client.ClientSendRate)
-                        {
-
-                            PlayerStateMessage pState = new PlayerStateMessage();
-                            pState.PlayerPos = player.Location.Pos;
-                            pState.Rotation = player.Rotation;
-                            pState.Throttle = player.Throttle;
-                            pState.Seq = player.Seq;
-                            GalaxyServer.AddToSendQueue(client, pState);
-                            client.LastSend = DateTime.Now;
-                        }
-
-                        //Persist the player to the Database
-                        if (persistCounter * NetworkUtils.SERVER_TICK_RATE > DataLayer.PLAYER_STATE_PERSIST_RATE)
-                        {
-                            DataLayer.UpdateGalaxyPlayer(player);
-                            persistCounter = 0;
-                        }
-                    }
-                }
-
-                persistCounter++;
-                sw.Stop();
-                Thread.Sleep(Convert.ToInt32(MathHelper.Clamp(NetworkUtils.SERVER_TICK_RATE - sw.ElapsedMilliseconds, 0, 100)));
+                long millis = GalaxyServer.Millis;
+                ProcessSystemStuff();
+                ProcessWarpPlayers();
+                millis = GalaxyServer.Millis - millis;
+                Thread.Sleep(Math.Max(0,(int)(NetworkUtils.SERVER_TICK_RATE - millis)));
             }
 
         }
@@ -385,9 +379,9 @@ namespace GalaxyServer
                 }
             }
 
-            player.Stopwatch.Stop();
-            Simulator.ContinuedPhysics(player, player.Stopwatch.ElapsedMilliseconds);
-            player.Stopwatch.Restart();
+            
+            Simulator.ContinuedPhysics(player,GalaxyServer.Millis - player.LastPhysicsUpdate);
+            player.LastPhysicsUpdate = GalaxyServer.Millis;
         }
 
         public static void ProcessTickForPlayerWarp(Client client, Player player)
@@ -400,11 +394,10 @@ namespace GalaxyServer
                     Simulator.ProcessInputWarp(player, input);
                 }
             }
-            player.Stopwatch.Stop();
-
-            Simulator.ContinuedPhysicsWarp(player, player.Stopwatch.ElapsedMilliseconds);
-            player.Stopwatch.Restart();
-
+            
+            Simulator.ContinuedPhysicsWarp(player, GalaxyServer.Millis - player.LastPhysicsUpdate);
+            player.LastPhysicsUpdate = GalaxyServer.Millis;
+            
         }
 
 

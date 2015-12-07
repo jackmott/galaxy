@@ -179,8 +179,6 @@ public class Warp : MonoBehaviour {
 
     public void DropOutOfWarp(SolarSystem system)
     {
-
-
         DropOutOfWarpMessage msg = new DropOutOfWarpMessage();
         msg.SystemIndex = system.Index;
         msg.SystemKey = system.key();
@@ -188,6 +186,7 @@ public class Warp : MonoBehaviour {
         NetworkManager.Send(msg);
         //tell the server we want to drop out of warp
     }
+
 
    
 }

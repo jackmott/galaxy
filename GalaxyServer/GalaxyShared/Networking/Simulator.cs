@@ -11,12 +11,9 @@ namespace GalaxyShared
     {
         public const double WARP_DISTANCE_THRESHOLD = 0.2d;
 
-       
-
-       
-     
-        public static void ContinuedPhysics(Player player, double deltaTime)
-        {            
+                   
+        public static void ContinuedPhysics(Player player, long deltaTime)
+        {                        
             double speed = player.Ship.TopSpeed * GetGravityInfluence(player);
             player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle*speed * deltaTime/1000d, player.Rotation);
         }
@@ -40,7 +37,7 @@ namespace GalaxyShared
 
        
 
-        public static void ContinuedPhysicsWarp(Player player,double deltaTime)
+        public static void ContinuedPhysicsWarp(Player player,long deltaTime)
         {
            
             player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle * player.Ship.TopSpeed * (deltaTime / 1500000d), player.Rotation);

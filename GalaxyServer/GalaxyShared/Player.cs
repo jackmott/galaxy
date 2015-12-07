@@ -1,7 +1,7 @@
 ﻿using XnaGeometry;
 using ProtoBuf;
 using System.IO;
-using System.Diagnostics;
+
 
 namespace GalaxyShared
 {
@@ -23,14 +23,13 @@ namespace GalaxyShared
         
         public SolarSystem SolarSystem;
 
-        public Stopwatch Stopwatch;
+        public long LastPhysicsUpdate = -10;
 
 
         //new player
         public Player(string userName)
         {
-            Stopwatch = new Stopwatch();
-            Stopwatch.Start();
+            
             UserName = userName;
             Location.SectorCoord = new SectorCoord(0, 0, 0);
             Sector s = new Sector(Location.SectorCoord);
@@ -45,8 +44,7 @@ namespace GalaxyShared
 
         public Player()
         {
-            Stopwatch = new Stopwatch();
-            Stopwatch.Start();
+          
         }
 
        

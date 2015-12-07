@@ -6,9 +6,12 @@ using Newtonsoft.Json;
 
 namespace GalaxyShared
 {
+    
+
     [ProtoContract]
     [ProtoInclude(101, typeof(ConstructionModule))]
     [ProtoInclude(102, typeof(StationModule))]
+    [ProtoInclude(103, typeof(Ship))]
     public class Entity
     {
         [ProtoMember(1)]
@@ -18,10 +21,20 @@ namespace GalaxyShared
         [ProtoMember(3)]
         public string Description;
 
+        protected long LastUpdateMillis;
+
         public Entity()
         {
 
         }
+
+        //update anything internal based on server time
+        public virtual void UpdateState(long millis)
+        {
+            //update state
+        }
+
+       
 
         public void SetDataFromJSON()
         {
@@ -43,12 +56,25 @@ namespace GalaxyShared
         [ProtoMember(1)]
         public List<BuildRequirement> RequirementsRemaining;
         [ProtoMember(2)]
-        public int BuildTimeRemaining;
+        public long BuildTimeRemaining;
 
-        public ConstructionModule()
+        
+
+        public ConstructionModule(long startMillis)
         {
-            
+            LastUpdateMillis = startMillis;
         }
+
+        public override void UpdateState(long millis)
+        {
+            BuildTimeRemaining = millis - LastUpdateMillis;
+        }
+
+        public bool IsDone()
+        {        
+            return BuildTimeRemaining <= 0;            
+        }
+
     }
 
     

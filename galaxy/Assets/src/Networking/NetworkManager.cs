@@ -29,8 +29,15 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     private GameObject Ship;
 
-    Stopwatch SendStopwatch = new Stopwatch();
-   
+    private static Stopwatch MasterClock = new Stopwatch();
+    public static long Millis
+    {
+        get
+        {
+            return MasterClock.ElapsedMilliseconds;
+        }
+    }
+    public static long LastStateSend = 0;
 
     public static Player PlayerState = null;
 
@@ -57,10 +64,8 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         stream = socket.GetStream();
         NetworkThread = new Thread(new ThreadStart(NetworkReadLoop));
         NetworkThread.Start();
-
-
         
-        SendStopwatch.Start();
+        MasterClock.Start();
 
     }
     // Use this for initialization
@@ -109,7 +114,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                
             
 
-            if (SendStopwatch.ElapsedMilliseconds >= NetworkUtils.CLIENT_BUFFER_TIME)
+            if (Millis-LastStateSend >= NetworkUtils.CLIENT_BUFFER_TIME)
             {
                 if (InputsToSend.Count > 0)
                 {
@@ -119,8 +124,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                     }
                     InputsToSend.Clear();
                 }
-                SendStopwatch.Reset();
-                SendStopwatch.Start();
+                LastStateSend = Millis;
             }
         }
 
@@ -347,6 +351,15 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         }
     }
 
+    public static void GoToWarp()
+    {        
+        GoingToWarp = true;
+        GoToWarpMessage msg;
+        msg.Location = PlayerState.Location;
+        msg.Rotation = PlayerState.Rotation;
+        Send(msg);
+    }
+
     public void HandleMessage(PlayerStateMessage p, object extra = null)
     {
         lock (BufferedInputs)
@@ -405,14 +418,11 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     private void SampleWarpInput()
     {
-        if (PlayerState.Stopwatch.ElapsedMilliseconds >= NetworkUtils.SERVER_TICK_RATE)
+        int deltaT = (int)(Millis - PlayerState.LastPhysicsUpdate);
+        if (deltaT >= NetworkUtils.SERVER_TICK_RATE)
         {
-
-
+            
             bool anyInput = false;
-
-
-
             InputMessage input = new InputMessage();
 
 
@@ -428,16 +438,11 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                 anyInput = true;
             }
 
-
-
-
-            PlayerState.Stopwatch.Stop();
-
             if (anyInput)
             {
                 input.ClientOnly = false;
                 input.Seq = Seq;
-                input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
+                input.DeltaTime = deltaT;
                 Simulator.ProcessInput(PlayerState, input);
                 Seq++;
             }
@@ -445,7 +450,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             {
                 input.ClientOnly = true;
                 input.Seq = Seq;
-                input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
+                input.DeltaTime = deltaT;
             }
 
             lock (BufferedInputs)
@@ -458,14 +463,9 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                 InputsToSend.Add(input);
             }
 
-            Simulator.ContinuedPhysicsWarp(PlayerState, PlayerState.Stopwatch.ElapsedMilliseconds);
-            PlayerState.Stopwatch.Reset();
-            PlayerState.Stopwatch.Start();
-
-
-
-
-
+            Simulator.ContinuedPhysicsWarp(PlayerState, deltaT);
+            PlayerState.LastPhysicsUpdate = Millis;
+            
 
             Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
             Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
@@ -475,8 +475,8 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     private void SampleSystemInput()
     {
-
-        if (PlayerState.Stopwatch.ElapsedMilliseconds >= NetworkUtils.SERVER_TICK_RATE)
+        int deltaT = (int)(Millis - PlayerState.LastPhysicsUpdate);
+        if (deltaT >= NetworkUtils.SERVER_TICK_RATE)         
         {
 
             bool anyInput = false;
@@ -506,14 +506,13 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                 input.SecondaryButton = InputCollector.SecondaryButton;
                 input.PrimaryButton = InputCollector.PrimaryButton;
             }
-
-            PlayerState.Stopwatch.Stop();
+         
 
             if (anyInput)
             {
                 input.ClientOnly = false;
                 input.Seq = Seq;
-                input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
+                input.DeltaTime = deltaT;
                 Simulator.ProcessInput(PlayerState, input);
                 Seq++;
 
@@ -522,7 +521,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             {
                 input.ClientOnly = true;
                 input.Seq = Seq;
-                input.DeltaTime = PlayerState.Stopwatch.ElapsedMilliseconds;
+                input.DeltaTime = deltaT;
             }
 
             lock (BufferedInputs)
@@ -537,10 +536,8 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             }
 
 
-            Simulator.ContinuedPhysics(PlayerState, PlayerState.Stopwatch.ElapsedMilliseconds);
-            PlayerState.Stopwatch.Reset();
-            PlayerState.Stopwatch.Start();
-
+            Simulator.ContinuedPhysics(PlayerState, deltaT);
+            PlayerState.LastPhysicsUpdate = Millis;
 
             Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
             Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
