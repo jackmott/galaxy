@@ -403,7 +403,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     public void HandleMessage(ConstructionMessage msg, object extra = null)
     {
-        if (msg.Progress == 0)
+        if (msg.Start)
         {
             GameObject g = Resources.Load<GameObject>("Station/Construction");
             GameObject constructionModule = (GameObject)Instantiate(g, Utility.UVector(PlayerState.Location.Pos), Utility.UQuaternion(PlayerState.Rotation));
