@@ -47,6 +47,7 @@
 
 public class Noise
 {
+    public Color[] Gradient;
 
     int ix0, iy0, iz0, iw0, ix1, iy1, iz1, iw1;
     float fx0, fy0, fz0, fw0, fx1, fy1, fz1, fw1;
@@ -589,21 +590,35 @@ public class Noise
         return Mathf.Clamp(sum * (1f - (1f / alpha)) * 1.4f, 0, 1);
     }
 
-    public float fbm3(float x, float y, float z, int octaves, float lacunarity, float gain)
+    //private static float[] fmb3Offset = new float[] {0f,     0f, .0737f, .1189f, .1440f, .1530f};
+    //private static float[] fmb3Scale = new float[]  {0f, 1.066f, .8584f, .8120f, .8083f, .8049f };    
+    private static float[] fmb3Offset = new float[] { 0f, 0f, .0737f, .1189f, .1440f, .1530f };
+    private static float[] fmb3Scale = new float[] { 0f, 1.066f, .8584f, .8120f, .8083f, .8049f };
+    public Color fbm3(float x, float y, float z, int octaves, float lacunarity, float gain)
     {
+   
         float sum = 0f;
         float frequency = 1;
         float amplitude = 1;
 
-        for (int i = 1; i <= octaves; i++)
+        
+        for (int i = 0; i < 1; i++)
         {
             sum += frequency * noise3(x * amplitude, y * amplitude, z * amplitude);
             frequency /= lacunarity;
             amplitude *= gain;
         }
 
-        return sum;
+        sum = (sum - fmb3Offset[octaves]) * fmb3Scale[octaves];
+        //clamp it
+        if (sum > 1) sum = 1;
+        if (sum < 0) sum = 0;
+        //look it up in the gradient and return the color
+        return Gradient[(int)(sum * (Gradient.Length-1))];
+        
     }
+
+   
 
     public Color[] rescaleAndColorArray(float[] a, float min, float max, Color[] colors)
     {

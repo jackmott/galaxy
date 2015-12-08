@@ -23,7 +23,7 @@ public class ClientPlanet : MonoBehaviour,IHasInfo {
         PlanetTextureGenerator lowDetailGenerator = new PlanetTextureGenerator(Planet, LOW_TEXTURE_WIDTH, LOW_TEXTURE_WIDTH/2);
         lowDetailGenerator.generatePlanet();
         Texture2D planetTex = new Texture2D(LOW_TEXTURE_WIDTH, LOW_TEXTURE_WIDTH/2, TextureFormat.ARGB32, false);
-        planetTex.SetPixels(lowDetailGenerator.GetPlanetColors());
+        planetTex.SetPixels(lowDetailGenerator.GetPlanetColors());        
         planetTex.Apply();
         Material material = transform.FindChild("LowPlanet").gameObject.GetComponent<Renderer>().material;
         material.mainTexture = planetTex;

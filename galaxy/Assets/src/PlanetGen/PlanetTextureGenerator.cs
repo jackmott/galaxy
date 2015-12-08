@@ -8,7 +8,7 @@ public class PlanetTextureGenerator
     
     int width;
     int height;
-    float[] floatColors;
+    
 
     public string NormalMap;
     FastRandom rand;
@@ -21,9 +21,8 @@ public class PlanetTextureGenerator
     float lacunarity;
     float stretch;
     public float rotationRate;
-    
-    
 
+            
     private bool ready = false;
     Noise noise;
 
@@ -33,13 +32,21 @@ public class PlanetTextureGenerator
     public PlanetTextureGenerator(Planet p,int width, int height)
     {
 
-        rand = new FastRandom(p.Pos.X, p.Pos.Y, p.Pos.Z);            
-        floatColors = new float[width * height];
+        rand = new FastRandom(p.Pos.X, p.Pos.Y, p.Pos.Z);
+        colors = new Color[width * height];
         noise = new Noise();
         this.width = width;
         this.height = height;
     }
     
+    public PlanetTextureGenerator(int width, int height)
+    {
+        rand = new FastRandom(100f,100f,100f);
+        colors = new Color[width * height];
+        noise = new Noise();
+        this.width = width;
+        this.height = height;
+    }
 
     //generate random planets, forever
     public void start()
@@ -94,7 +101,7 @@ public class PlanetTextureGenerator
     {
        
         NormalMap = planetNormals[rand.Next( 0, planetNormals.Length)];
-        octaves =rand.Next( 1, 8);
+        octaves =rand.Next( 1, 5);
         gain =rand.Next( 2f, 7.0f);
         lacunarity =rand.Next( 2f, 7.0f);        
         stretch =rand.Next( 0f, 10f);        
@@ -152,16 +159,15 @@ public class PlanetTextureGenerator
     {
         Debug.Log("generate3dperlin() pg");
 
-        float pi = 3.14159265359f;
-        float twopi = pi * 2.0f;
+        const float pi = 3.14159265359f;
+        const float twopi = pi * 2.0f;
 
         float offsetx = (float)rand.Next(-200f, 200f);
         float offsety = (float)rand.Next(-200f, 200f);
 
-        float min = 999;
-        float max = -999;
         
-        float x3d, y3d, z3d, theta, phi, color;
+
+        float x3d, y3d, z3d, theta, phi;
         phi = 0;
         int count = 0;
 
@@ -169,6 +175,8 @@ public class PlanetTextureGenerator
 
         float piOverHeight = pi / (float)height;
         float twoPiOverWidth = twopi / (float)width;
+
+        noise.Gradient = colorRamp.Gradient;
 
         for (int y = 0; y < height; y++)
         {
@@ -187,19 +195,16 @@ public class PlanetTextureGenerator
                 x3d = Mathf.Cos(theta) * sinPhi;
                 y3d = Mathf.Sin(theta) * sinPhi;
 
-                color = noise.fbm3(x3d * 2 + offsetx, y3d * 2 + offsety, z3d, octaves, gain, lacunarity);
-
-                if (color < min) min = color;
-                if (color > max) max = color;
-
-                floatColors[count] = color;
+                colors[count] = noise.fbm3(x3d * 2 + offsetx, y3d * 2 + offsety, z3d, octaves, gain, lacunarity);
+             
                 count++;
 
             }
         }
-
+       
+        
         //GameObject.Find("Water").renderer.material.color = planetInfo.colorRamp.colors[0];
-        colors = noise.rescaleAndColorArray(floatColors, min, max, colorRamp.Gradient);
+        //colors = noise.rescaleAndColorArray(floatColors, min, max, colorRamp.Gradient);
 
         ready = true;
         Debug.Log("ENDgenerate3dperlin() pg");

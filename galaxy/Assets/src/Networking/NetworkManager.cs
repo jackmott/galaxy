@@ -46,11 +46,14 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     enum Level { MainMenu, Warp, System };
     Level CurrentLevel;
 
-    StreamWriter log;
+    
 
     void Awake()
     {
-        log = File.CreateText("log.txt");
+
+      
+
+        
 
         messageQueue = new Queue();
         InputsToSend = new List<InputMessage>();
