@@ -44,18 +44,12 @@ Shader "Noise/MyShader"
 {
 	Properties 
 	{
-
 		_Octaves ("Octaves", Float) = 8.0
-		_Lacunarity("Lacunarity", Range(1.0, 10.0)) = 1.0
-		_Persistence("Persistence", Range(0, 10.0)) = 1.0
-		_Frequency("Frequency",Range(0.0,20.0)) = 1.0		
+		_Frequency ("Frequency", Float) = 1.0
 		_Amplitude ("Amplitude", Float) = 1.0
-		_Type ("Type", Float) = 1.0
-				
+		_Lacunarity ("Lacunarity", Float) = 1.92
+		_Persistence ("Persistence", Float) = 0.8
 		_Offset ("Offset", Vector) = (0.0, 0.0, 0.0, 0.0)
-		_LowColor("Low Color", Color) = (0.0, 0.0, 0.0, 1.0)
-		_HighColor("High Color", Color) = (1.0, 1.0, 1.0, 1.0)
-		_BumpMap("Bumpmap", 2D) = "bump" {}
 
 	}
 
@@ -71,12 +65,13 @@ Shader "Noise/MyShader"
 		//	SOMELARGEFLOAT should be in the range of 400.0->1000.0 and needs to be hand picked.  Only some give good results.
 		//	3D Noise is achieved by offsetting the SOMELARGEFLOAT value by the Z coordinate
 		//
-		void FAST32_hash_3D( 	float3 gridcell,
-								float3 v1_mask,		//	user definable v1 and v2.  ( 0's and 1's )
-								float3 v2_mask,
-								out float4 hash_0,
-								out float4 hash_1,
-								out float4 hash_2	)		//	generates 3 random numbers for each of the 4 3D cell corners.  cell corners:  v0=0,0,0  v3=1,1,1  the other two are user definable
+		   void FAST32_hash_3D( 	float3 gridcell,
+								out float4 lowz_hash_0,
+								out float4 lowz_hash_1,
+								out float4 lowz_hash_2,
+								out float4 highz_hash_0,
+								out float4 highz_hash_1,
+								out float4 highz_hash_2	)		//	generates 3 random numbers for each of the 8 cell corners
 		{
 			//    gridcell is assumed to be an integer coordinate
 		
@@ -89,171 +84,100 @@ Shader "Noise/MyShader"
 		
 			//	truncate the domain
 			gridcell.xyz = gridcell.xyz - floor(gridcell.xyz * ( 1.0 / DOMAIN )) * DOMAIN;
-			float3 gridcell_inc1 = step( gridcell, float3( DOMAIN - 1.5, DOMAIN - 1.5, DOMAIN - 1.5) ) * ( gridcell + 1.0 );
+			float3 gridcell_inc1 = step( gridcell, float3( DOMAIN - 1.5, DOMAIN - 1.5, DOMAIN - 1.5 ) ) * ( gridcell + 1.0 );
 		
-			//	compute x*x*y*y for the 4 corners
+			//	calculate the noise
 			float4 P = float4( gridcell.xy, gridcell_inc1.xy ) + OFFSET.xyxy;
 			P *= P;
-			float4 V1xy_V2xy = lerp( P.xyxy, P.zwzw, float4( v1_mask.xy, v2_mask.xy ) );		//	apply mask for v1 and v2
-			P = float4( P.x, V1xy_V2xy.xz, P.z ) * float4( P.y, V1xy_V2xy.yw, P.w );
-		
-			//	get the lowz and highz mods
-			float3 lowz_mods = float3( 1.0 / ( SOMELARGEFLOATS.xyz + gridcell.zzz * ZINC.xyz ) );
-			float3 highz_mods = float3( 1.0 / ( SOMELARGEFLOATS.xyz + gridcell_inc1.zzz * ZINC.xyz ) );
-		
-			//	apply mask for v1 and v2 mod values
-		    v1_mask = ( v1_mask.z < 0.5 ) ? lowz_mods : highz_mods;
-		    v2_mask = ( v2_mask.z < 0.5 ) ? lowz_mods : highz_mods;
-		
-			//	compute the final hash
-			hash_0 = frac( P * float4( lowz_mods.x, v1_mask.x, v2_mask.x, highz_mods.x ) );
-			hash_1 = frac( P * float4( lowz_mods.y, v1_mask.y, v2_mask.y, highz_mods.y ) );
-			hash_2 = frac( P * float4( lowz_mods.z, v1_mask.z, v2_mask.z, highz_mods.z ) );
+			P = P.xzxz * P.yyww;
+			float3 lowz_mod = float3( 1.0 / ( SOMELARGEFLOATS.xyz + gridcell.zzz * ZINC.xyz ) );
+			float3 highz_mod = float3( 1.0 / ( SOMELARGEFLOATS.xyz + gridcell_inc1.zzz * ZINC.xyz ) );
+			lowz_hash_0 = frac( P * lowz_mod.xxxx );
+			highz_hash_0 = frac( P * highz_mod.xxxx );
+			lowz_hash_1 = frac( P * lowz_mod.yyyy );
+			highz_hash_1 = frac( P * highz_mod.yyyy );
+			lowz_hash_2 = frac( P * lowz_mod.zzzz );
+			highz_hash_2 = frac( P * highz_mod.zzzz );
 		}
 		//
-		//	Given an arbitrary 3D point this calculates the 4 vectors from the corners of the simplex pyramid to the point
-		//	It also returns the integer grid index information for the corners
+		//	PerlinSurflet3D_Deriv
+		//	Perlin Surflet 3D noise with derivatives
+		//	returns float4( value, xderiv, yderiv, zderiv )
 		//
-		void Simplex3D_GetCornerVectors( 	float3 P,					//	input point
-											out float3 Pi,			//	integer grid index for the origin
-											out float3 Pi_1,			//	offsets for the 2nd and 3rd corners.  ( the 4th = Pi + 1.0 )
-											out float3 Pi_2,
-											out float4 v1234_x,		//	vectors from the 4 corners to the intput point
-											out float4 v1234_y,
-											out float4 v1234_z )
+		float4 PerlinSurflet3D_Deriv( float3 P )
 		{
-			//
-			//	Simplex math from Stefan Gustavson's and Ian McEwan's work at...
-			//	http://github.com/ashima/webgl-noise
-			//
+			//	establish our grid cell and unit position
+			float3 Pi = floor(P);
+			float3 Pf = P - Pi;
+			float3 Pf_min1 = Pf - 1.0;
 		
-			//	simplex math constants
-			const float SKEWFACTOR = 1.0/3.0;
-			const float UNSKEWFACTOR = 1.0/6.0;
-			const float SIMPLEX_CORNER_POS = 0.5;
-			const float SIMPLEX_PYRAMID_HEIGHT = 0.70710678118654752440084436210485;	// sqrt( 0.5 )	height of simplex pyramid.
-		
-			P *= SIMPLEX_PYRAMID_HEIGHT;		// scale space so we can have an approx feature size of 1.0  ( optional )
-		
-			//	Find the vectors to the corners of our simplex pyramid
-			Pi = floor( P + dot( P, float3( SKEWFACTOR, SKEWFACTOR, SKEWFACTOR) ) );
-			float3 x0 = P - Pi + dot(Pi, float3( UNSKEWFACTOR, UNSKEWFACTOR, UNSKEWFACTOR ) );
-			float3 g = step(x0.yzx, x0.xyz);
-			float3 l = 1.0 - g;
-			Pi_1 = min( g.xyz, l.zxy );
-			Pi_2 = max( g.xyz, l.zxy );
-			float3 x1 = x0 - Pi_1 + UNSKEWFACTOR;
-			float3 x2 = x0 - Pi_2 + SKEWFACTOR;
-			float3 x3 = x0 - SIMPLEX_CORNER_POS;
-		
-			//	pack them into a parallel-friendly arrangement
-			v1234_x = float4( x0.x, x1.x, x2.x, x3.x );
-			v1234_y = float4( x0.y, x1.y, x2.y, x3.y );
-			v1234_z = float4( x0.z, x1.z, x2.z, x3.z );
-		}
-		//
-		//	Calculate the weights for the 3D simplex surflet
-		//
-		float4 Simplex3D_GetSurfletWeights( 	float4 v1234_x,
-											float4 v1234_y,
-											float4 v1234_z )
-		{
-			//	perlins original implementation uses the surlet falloff formula of (0.6-x*x)^4.
-			//	This is buggy as it can cause discontinuities along simplex faces.  (0.5-x*x)^3 solves this and gives an almost identical curve
-		
-			//	evaluate surflet. f(x)=(0.5-x*x)^3
-			float4 surflet_weights = v1234_x * v1234_x + v1234_y * v1234_y + v1234_z * v1234_z;
-			surflet_weights = max(0.5 - surflet_weights, 0.0);		//	0.5 here represents the closest distance (squared) of any simplex pyramid corner to any of its planes.  ie, SIMPLEX_PYRAMID_HEIGHT^2
-			return surflet_weights*surflet_weights*surflet_weights;
-		}
-		//
-		//	SimplexPerlin3D  ( simplex gradient noise )
-		//	Perlin noise over a simplex (tetrahedron) grid
-		//	Return value range of -1.0->1.0
-		//	http://briansharpe.files.wordpress.com/2012/01/simplexperlinsample.jpg
-		//
-		//	Implementation originally based off Stefan Gustavson's and Ian McEwan's work at...
-		//	http://github.com/ashima/webgl-noise
-		//
-		float SimplexPerlin3D(float3 P)
-		{
-			//	calculate the simplex vector and index math
-			float3 Pi;
-			float3 Pi_1;
-			float3 Pi_2;
-			float4 v1234_x;
-			float4 v1234_y;
-			float4 v1234_z;
-			Simplex3D_GetCornerVectors( P, Pi, Pi_1, Pi_2, v1234_x, v1234_y, v1234_z );
-		
-			//	generate the random vectors
+			//	calculate the hash.
 			//	( various hashing methods listed in order of speed )
-			float4 hash_0;
-			float4 hash_1;
-			float4 hash_2;
-			FAST32_hash_3D( Pi, Pi_1, Pi_2, hash_0, hash_1, hash_2 );
-			hash_0 -= 0.49999;
-			hash_1 -= 0.49999;
-			hash_2 -= 0.49999;
+			float4 hashx0, hashy0, hashz0, hashx1, hashy1, hashz1;
+			FAST32_hash_3D( Pi, hashx0, hashy0, hashz0, hashx1, hashy1, hashz1 );
 		
-			//	evaluate gradients
-			float4 grad_results = rsqrt( hash_0 * hash_0 + hash_1 * hash_1 + hash_2 * hash_2 ) * ( hash_0 * v1234_x + hash_1 * v1234_y + hash_2 * v1234_z );
+			//	calculate the gradients
+			float4 grad_x0 = hashx0 - 0.49999;
+			float4 grad_y0 = hashy0 - 0.49999;
+			float4 grad_z0 = hashz0 - 0.49999;
+			float4 norm_0 = rsqrt( grad_x0 * grad_x0 + grad_y0 * grad_y0 + grad_z0 * grad_z0 );
+			grad_x0 *= norm_0;
+			grad_y0 *= norm_0;
+			grad_z0 *= norm_0;
+			float4 grad_x1 = hashx1 - 0.49999;
+			float4 grad_y1 = hashy1 - 0.49999;
+			float4 grad_z1 = hashz1 - 0.49999;
+			float4 norm_1 = rsqrt( grad_x1 * grad_x1 + grad_y1 * grad_y1 + grad_z1 * grad_z1 );
+			grad_x1 *= norm_1;
+			grad_y1 *= norm_1;
+			grad_z1 *= norm_1;
+			float4 grad_results_0 = float2( Pf.x, Pf_min1.x ).xyxy * grad_x0 + float2( Pf.y, Pf_min1.y ).xxyy * grad_y0 + Pf.zzzz * grad_z0;
+			float4 grad_results_1 = float2( Pf.x, Pf_min1.x ).xyxy * grad_x1 + float2( Pf.y, Pf_min1.y ).xxyy * grad_y1 + Pf_min1.zzzz * grad_z1;
 		
-			//	Normalization factor to scale the final result to a strict 1.0->-1.0 range
-			//	x = sqrt( 0.75 ) * 0.5
-			//	NF = 1.0 / ( x * ( ( 0.5 ? x*x ) ^ 3 ) * 2.0 )
-			//	http://briansharpe.wordpress.com/2012/01/13/simplex-noise/#comment-36
-			const float FINAL_NORMALIZATION = 37.837227241611314102871574478976;
+			//	get lengths in the x+y plane
+			float3 Pf_sq = Pf*Pf;
+			float3 Pf_min1_sq = Pf_min1*Pf_min1;
+			float4 vecs_len_sq = float2( Pf_sq.x, Pf_min1_sq.x ).xyxy + float2( Pf_sq.y, Pf_min1_sq.y ).xxyy;
 		
-			//	sum with the surflet and return
-			return dot( Simplex3D_GetSurfletWeights( v1234_x, v1234_y, v1234_z ), grad_results ) * FINAL_NORMALIZATION;
+			//	evaluate the surflet
+			float4 m_0 = vecs_len_sq + Pf_sq.zzzz;
+			m_0 = max(1.0 - m_0, 0.0);
+			float4 m2_0 = m_0*m_0;
+			float4 m3_0 = m_0*m2_0;
+		
+			float4 m_1 = vecs_len_sq + Pf_min1_sq.zzzz;
+			m_1 = max(1.0 - m_1, 0.0);
+			float4 m2_1 = m_1*m_1;
+			float4 m3_1 = m_1*m2_1;
+		
+			//	calc the deriv
+			float4 temp_0 = -6.0 * m2_0 * grad_results_0;
+			float xderiv_0 = dot( temp_0, float2( Pf.x, Pf_min1.x ).xyxy ) + dot( m3_0, grad_x0 );
+			float yderiv_0 = dot( temp_0, float2( Pf.y, Pf_min1.y ).xxyy ) + dot( m3_0, grad_y0 );
+			float zderiv_0 = dot( temp_0, Pf.zzzz ) + dot( m3_0, grad_z0 );
+		
+			float4 temp_1 = -6.0 * m2_1 * grad_results_1;
+			float xderiv_1 = dot( temp_1, float2( Pf.x, Pf_min1.x ).xyxy ) + dot( m3_1, grad_x1 );
+			float yderiv_1 = dot( temp_1, float2( Pf.y, Pf_min1.y ).xxyy ) + dot( m3_1, grad_y1 );
+			float zderiv_1 = dot( temp_1, Pf_min1.zzzz ) + dot( m3_1, grad_z1 );
+		
+			const float FINAL_NORMALIZATION = 2.3703703703703703703703703703704;	//	scales the final result to a strict 1.0->-1.0 range
+			return float4( dot( m3_0, grad_results_0 ) + dot( m3_1, grad_results_1 ) , float3(xderiv_0,yderiv_0,zderiv_0) + float3(xderiv_1,yderiv_1,zderiv_1) ) * FINAL_NORMALIZATION;
 		}
-		float SimplexNormal(float3 p, int octaves, float3 offset, float frequency, float amplitude, float lacunarity, float persistence)
+		float PerlinDerivedIQ(float3 p, int octaves, float3 offset, float frequency, float amplitude, float lacunarity, float persistence)
 		{
-			float sum = 0;
-			for (int i = 0; i < octaves; i++)
-			{				
-				sum += SimplexPerlin3D((p + offset) * frequency)*amplitude;
-				frequency *= lacunarity;
-				amplitude *= persistence;
-			}
-			return sum;
+		   float sum = 0;
+		   float3 dsum = float3(0.0, 0.0, 0.0);
+		   for (int i = 0; i < octaves; i++)
+		   {
+			    float4 n = PerlinSurflet3D_Deriv((p + offset) * frequency);
+			    dsum += n.yzw;
+			    sum += amplitude * n.x / (1 + dot(dsum, dsum));
+			    frequency *= lacunarity;
+			    amplitude *= persistence;
+		   }
+		   return sum;
 		}
-		float Turbulence(float3 p, int octaves, float3 offset, float frequency, float amplitude, float lacunarity, float persistence)
-		{
-			float sum = 0;
-			
-			for (int i = 0; i < octaves; i++)
-			{
-				sum += abs(SimplexPerlin3D((p + offset)*frequency))*amplitude;
-				frequency = frequency * lacunarity;
-				amplitude = amplitude * persistence;
-
-			}
-			return sum;
-		}
-		float ridge(float h, float offset)
-		{
-			h = abs(h);
-			h = offset - h;
-			h = h * h;
-			return h;
-		}
-		float ridgedmf(float3 p, int octaves, float3 offset, float frequency, float amplitude, float lacunarity, float persistence)
-		{
-			float sum = 0;
-			float prev = 1.0;
-			for (int i = 0; i < octaves; i++)
-			{
-				float n = ridge(SimplexPerlin3D(p*frequency), offset);
-				sum += n*amplitude*prev;
-				prev = n;
-				frequency *= lacunarity;
-				amplitude *= persistence;
-			}
-			return sum;
-		}
-
 
 	ENDCG
 
@@ -274,16 +198,11 @@ Shader "Noise/MyShader"
 		float3 _Offset;
 		float _Lacunarity;
 		float _Persistence;
-		fixed _Type;
-		fixed4 _LowColor;
-		fixed4 _HighColor;
-		sampler2D _BumpMap;
 
 
 		struct Input 
 		{
 			float3 pos;
-			float2 uv_BumpMap;
 
 		};
 
@@ -295,29 +214,13 @@ Shader "Noise/MyShader"
 
 		void surf (Input IN, inout SurfaceOutput o) 
 		{
-			float h = 1;
-			if (_Type == 1)
-			{
-				h = SimplexNormal(IN.pos, _Octaves, _Offset, _Frequency, _Amplitude, _Lacunarity, _Persistence);
-			}
-			else if (_Type == 2)
-			{
-				h = Turbulence(IN.pos, _Octaves, _Offset, _Frequency, _Amplitude, _Lacunarity, _Persistence);
-			}
-			else if (_Type == 3)
-			{
-				h = ridgedmf(IN.pos, _Octaves, _Offset, _Frequency, _Amplitude, _Lacunarity, _Persistence);
-			}
-
+			float h = PerlinDerivedIQ(IN.pos, _Octaves, _Offset, _Frequency, _Amplitude, _Lacunarity, _Persistence);
 			
 			h = h * 0.5 + 0.5;
 			
-			float4 color = float4(0.0, 0.0, 0.0, 0.0);
-			color = lerp(_LowColor ,_HighColor, h);
+			float4 color = float4(h, h, h, h);
 
-			
 			o.Albedo = color.rgb;
-			o.Normal = UnpackNormal(tex2D(_BumpMap, IN.uv_BumpMap));
 			o.Alpha = 1.0;
 		}
 		ENDCG

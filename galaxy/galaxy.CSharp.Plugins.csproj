@@ -282,7 +282,7 @@
     <None Include="Assets\Shaders\ImprovedPerlinNoise3D.shader" />
     <None Include="Assets\Shaders\ImprovedPerlinNoise4D.shader" />
     <None Include="Assets\Shaders\MyShader.shader" />
-    <None Include="Assets\Shaders\PerlinShader.shader" />
+    <None Include="Assets\Shaders\PerlinBumpmap.shader" />
     <None Include="Assets\Shaders\StandardPerlin.shader" />
     <None Include="Assets\Turbulence-Library\Readme.txt" />
     <None Include="Assets\primitives.v1\readme.txt" />

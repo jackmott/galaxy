@@ -38,7 +38,7 @@ namespace GalaxyShared
         public float Gain;
         [ProtoMember(12)]
         public byte  Octaves;
-
+        
         public Planet() { }
         public Planet(SolarSystem parentSystem, int orbit)
         {
@@ -54,6 +54,8 @@ namespace GalaxyShared
             Frequency = rand.Next(1f, 20f);
             Gain = rand.Next(0f, 2f);
             Octaves = (byte) rand.Next(1, 4);
+
+            
             
             Vector3 start = Vector3.Zero;
             Matrix rotation = Matrix.CreateFromYawPitchRoll(OrbitAngle, 0, 0);
@@ -61,5 +63,7 @@ namespace GalaxyShared
 
 
         }
+
+       
     }
 }

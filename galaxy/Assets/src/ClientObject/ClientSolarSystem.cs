@@ -46,7 +46,7 @@ public class ClientSolarSystem : MonoBehaviour
         flare.color = c;
 
         l.color = Color.Lerp(Color.white, c,.5f);
-        star.GetComponent<Renderer>().material.SetColor("_EmissionColor", c);
+        
 
 
         GeneratePlanets();
