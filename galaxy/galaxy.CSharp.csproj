@@ -57,12 +57,6 @@
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
@@ -87,6 +81,12 @@
     <Reference Include="Rewired_Core">
       <HintPath>Assets\Rewired\Internal\Libraries\Runtime\Rewired_Core.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="galaxy.CSharp.Plugins.csproj">
+      <Project>{0F93E89D-D197-492B-EE5C-FA132A0D9E85}</Project>
+      <Name>galaxy.CSharp.Plugins</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Rewired\Extras\ControlMapper\Examples\ControlMapperDemo\Scripts\ControlMapperDemoMessage.cs" />
@@ -152,6 +152,10 @@
     <Compile Include="Assets\src\Networking\ClientWrapper.cs" />
     <Compile Include="Assets\src\Networking\ClientWrapperPool.cs" />
     <Compile Include="Assets\src\Networking\NetworkManager.cs" />
+    <Compile Include="Assets\src\Perlin\ExampleGPU_2D.cs" />
+    <Compile Include="Assets\src\Perlin\ExampleGPU_3D.cs" />
+    <Compile Include="Assets\src\Perlin\ExampleGPU_4D.cs" />
+    <Compile Include="Assets\src\Perlin\Rotate.cs" />
     <Compile Include="Assets\src\PlanetGen\ColorRamp.cs" />
     <Compile Include="Assets\src\PlanetGen\Noise.cs" />
     <Compile Include="Assets\src\PlanetGen\PlanetTextureGenerator.cs" />
@@ -250,6 +254,7 @@
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Fresnel\SFN_Fresnel_NRM.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Fresnel\SFN_Fresnel_NRM_EXP.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Fresnel\SFN_Fresnel_REQONLY.shader" />
+    <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Get\SFN_Get.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_HalfVector\SFN_HalfVector.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_HsvToRgb\SFN_HsvToRgb.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Hue\SFN_Hue.shader" />
@@ -320,6 +325,7 @@
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_SceneDepth\SFN_SceneDepth.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_ScreenParameters\SFN_ScreenParameters.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_ScreenPos\SFN_ScreenPos.shader" />
+    <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Set\SFN_Set.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Sign\SFN_Sign.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Sin\SFN_Sin.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Smoothstep\SFN_Smoothstep.shader" />
@@ -357,8 +363,13 @@
     <None Include="Assets\ShaderForge\Editor\InternalResources\Shader Presets\PresetSprite.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\Shader Presets\PresetUnlit.shader" />
     <None Include="Assets\ShaderForge\Readme.txt" />
-    <None Include="Assets\Shaders\Billboard.shader" />
-    <None Include="Assets\Shaders\Outline.shader" />
+    <None Include="Assets\Shaders\ImprovedPerlinNoise2D.shader" />
+    <None Include="Assets\Shaders\ImprovedPerlinNoise3D.shader" />
+    <None Include="Assets\Shaders\ImprovedPerlinNoise4D.shader" />
+    <None Include="Assets\Shaders\MyShader.shader" />
+    <None Include="Assets\Shaders\PerlinShader.shader" />
+    <None Include="Assets\Shaders\StandardPerlin.shader" />
+    <None Include="Assets\Turbulence-Library\Readme.txt" />
     <None Include="Assets\primitives.v1\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />

@@ -6,68 +6,38 @@ using Tuple;
 
 public class ClientPlanet : MonoBehaviour,IHasInfo {
 
-    public Planet Planet;
-    public PlanetTextureGenerator pg;
-
-    public int TEXTURE_WIDTH = 2048;
-    public int LOW_TEXTURE_WIDTH = 256;
+    public Planet Planet;        
     public int ROTATION_RATE = 10;
-    
 
+   
 	// Use this for initialization
 	void Start () {
 
-        LODGroup lodGroup = GetComponent<LODGroup>();
-        lodGroup.RecalculateBounds();
-        //low detail
-        PlanetTextureGenerator lowDetailGenerator = new PlanetTextureGenerator(Planet, LOW_TEXTURE_WIDTH, LOW_TEXTURE_WIDTH/2);
-        lowDetailGenerator.generatePlanet();
-        Texture2D planetTex = new Texture2D(LOW_TEXTURE_WIDTH, LOW_TEXTURE_WIDTH/2, TextureFormat.ARGB32, false);
-        planetTex.SetPixels(lowDetailGenerator.GetPlanetColors());        
-        planetTex.Apply();
-        Material material = transform.FindChild("LowPlanet").gameObject.GetComponent<Renderer>().material;
-        material.mainTexture = planetTex;
-        material = transform.FindChild("HighPlanet").gameObject.GetComponent<Renderer>().material;
-        material.mainTexture = planetTex;
+        ImprovedPerlinNoise perlin = new ImprovedPerlinNoise(1);
+        perlin.LoadResourcesFor3DNoise();
+        GetComponent<Renderer>().material.SetTexture("_PermTable2D", perlin.GetPermutationTable2D());
+        GetComponent<Renderer>().material.SetTexture("_Gradient3D", perlin.GetGradient3D());
 
-        
-        
-        //high detail
-        pg = new PlanetTextureGenerator(Planet, TEXTURE_WIDTH, TEXTURE_WIDTH / 2);
-        Thread t = new Thread(new ThreadStart(pg.start));
-        t.Priority = System.Threading.ThreadPriority.Lowest;
-        t.Start();
 
     }
 	
 	// Update is called once per frame
 	void Update () {
-        if (Planet != null)
-        {
-           transform.Rotate(Vector3.up, (float)(ROTATION_RATE* Planet.RotationRate * Time.deltaTime));
-        }
-        if (pg != null && pg.IsReady())
-        {
-            SetPlanetTexture();
-        }
-        	
-	}
+        
+           transform.Rotate(Vector3.up, (float)(ROTATION_RATE* 10 * Time.deltaTime));
+        
+        
+        
+       // GetComponent<Renderer>().material.SetFloat("_Frequency", Planet.Frequency/5.0f);
+      //  GetComponent<Renderer>().material.SetFloat("_Lacunarity", Planet.Lacunarity);
+       // GetComponent<Renderer>().material.SetFloat("_Gain", Planet.Gain);
+      //  GetComponent<Renderer>().material.SetInt("_Octaves", Planet.Octaves);
 
-    
 
-    public void SetPlanetTexture()
-    {
-        Texture2D planetTex = new Texture2D(TEXTURE_WIDTH,TEXTURE_WIDTH/2, TextureFormat.ARGB32, false);                
-        planetTex.SetPixels(pg.GetPlanetColors());
-        planetTex.Apply();
-        Texture2D normalMap = Resources.Load<Texture2D>("PlanetNormals/" + pg.NormalMap);
-        Material material = transform.FindChild("HighPlanet").gameObject.GetComponent<Renderer>().material;
-        material.SetTexture("_BumpMap", normalMap);
-        material.mainTexture = planetTex;
-        pg.Finished();
     }
 
-
+    
+    
     public Info GetInfo()
     {
         Info info;

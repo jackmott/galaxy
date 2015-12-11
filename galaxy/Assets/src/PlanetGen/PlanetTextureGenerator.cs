@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using GalaxyShared;
-
+using System;
+using System.Runtime.InteropServices;
 
 public class PlanetTextureGenerator
 {
@@ -29,12 +30,18 @@ public class PlanetTextureGenerator
     static string[] planetNormals = { "Cracked", "Dark Dunes", "Drifting Continents", "Extreme", "Frozen Rock", "Gas Giant", "Hilly", "Hurricanes", "Lava Crust", "Lava Valleys", "Lush Green", "Mountains", "Mud Ice And Water", "Rocky", "Sand" };
 
 
+    [DllImport("PerlinNoiseLibrary")]
+    private static extern IntPtr GetSphericalPerlinNoise(int width, int height, int octaves, float lacunarity, float gain, float stretch, float offsetx, float offsety);
+    [DllImport("PerlinNoiseLibrary")]
+    private static extern void CleanUpSphericalPerlinNoise(IntPtr resultArray);
+
+
     public PlanetTextureGenerator(Planet p,int width, int height)
     {
-
-        rand = new FastRandom(p.Pos.X, p.Pos.Y, p.Pos.Z);
+        if (p == null) rand = new FastRandom(99,64663, 124, 124);
+        else  rand = new FastRandom(p.Pos.X, p.Pos.Y, p.Pos.Z);
         colors = new Color[width * height];
-        noise = new Noise();
+        noise = new Noise();        
         this.width = width;
         this.height = height;
     }
@@ -73,7 +80,8 @@ public class PlanetTextureGenerator
     public void generatePlanet()
     {
         RandomInfo();
-        Generate3DPerlinMap();
+        Generate3DPerlinMapNativeSIMD();
+        //Generate3DPerlinMap();
     }
 
     
@@ -99,24 +107,25 @@ public class PlanetTextureGenerator
 
     private void RandomInfo()
     {
-       
+        
         NormalMap = planetNormals[rand.Next( 0, planetNormals.Length)];
-        octaves =rand.Next( 1, 5);
-        gain =rand.Next( 2f, 7.0f);
-        lacunarity =rand.Next( 2f, 7.0f);        
-        stretch =rand.Next( 0f, 10f);        
+        octaves = rand.Next( 1, 6);
+        gain =rand.Next( 1f, 7.0f);
+        lacunarity =rand.Next( 1f, 7.0f);        
+        stretch =rand.Next( 0f, 10f);
 
-        int numColors =rand.Next(3, 15);
+
+        int numColors = 15; // rand.Next(3, 15);
         Color[] colors = new Color[numColors];
         float[] ranges = new float[numColors - 1];
         float percentRemaining = 1f;
-        float minPercent = 0f;
-        float alpha = 0;
+        float minPercent = 1f;
+        
 
         for (int i = 0; i < colors.Length; i++)
         {
-            colors[i] = new Color(rand.Next(0f, 1f), rand.Next(0f, 1f), rand.Next(0f, 1f), alpha);
-            alpha = 1;
+            colors[i] = new Color(rand.Next(0f, 1f), rand.Next(0f, 1f), rand.Next(0f, 1f), 1f);
+            
         }
 
         for (int i = 0; i < ranges.Length - 1; i++)
@@ -139,19 +148,8 @@ public class PlanetTextureGenerator
            // }
 
         }
-        ranges[ranges.Length - 1] = percentRemaining;
-
-        float sum = 0;
-        for (int i = 0; i < ranges.Length; i++)
-        {
-
-            sum += ranges[i];
-        }
-
-        
+        ranges[ranges.Length - 1] = percentRemaining;               
         colorRamp = new ColorRamp(colors, ranges);
-
-
 
     }
 
@@ -162,8 +160,11 @@ public class PlanetTextureGenerator
         const float pi = 3.14159265359f;
         const float twopi = pi * 2.0f;
 
-        float offsetx = (float)rand.Next(-200f, 200f);
-        float offsety = (float)rand.Next(-200f, 200f);
+        //float offsetx = (float)rand.Next(-200f, 200f);
+        //float offsety = (float)rand.Next(-200f, 200f);
+
+        float offsetx = 0;
+        float offsety = 0;
 
         
 
@@ -176,8 +177,8 @@ public class PlanetTextureGenerator
         float piOverHeight = pi / (float)height;
         float twoPiOverWidth = twopi / (float)width;
 
-        noise.Gradient = colorRamp.Gradient;
 
+        noise.Gradient = colorRamp.Gradient;
         for (int y = 0; y < height; y++)
         {
 
@@ -195,8 +196,7 @@ public class PlanetTextureGenerator
                 x3d = Mathf.Cos(theta) * sinPhi;
                 y3d = Mathf.Sin(theta) * sinPhi;
 
-                colors[count] = noise.fbm3(x3d * 2 + offsetx, y3d * 2 + offsety, z3d, octaves, gain, lacunarity);
-             
+                colors[count] = noise.fbm3(x3d*2  + offsetx, y3d*2  + offsety, z3d*2, octaves, gain, lacunarity);               
                 count++;
 
             }
@@ -206,6 +206,36 @@ public class PlanetTextureGenerator
         //GameObject.Find("Water").renderer.material.color = planetInfo.colorRamp.colors[0];
         //colors = noise.rescaleAndColorArray(floatColors, min, max, colorRamp.Gradient);
 
+        ready = true;
+        Debug.Log("ENDgenerate3dperlin() pg");
+    }
+
+
+    private void Generate3DPerlinMapNativeSIMD()
+    {
+        Debug.Log("generate3dperlin() pg");
+
+
+
+        //  float offsetx = (float)rand.Next(-200f, 200f);
+        //        float offsety = (float)rand.Next(-200f, 200f);
+        float offsetx = 0;
+        float offsety = 0;
+        IntPtr ptrNativeData = IntPtr.Zero;
+
+        ptrNativeData = GetSphericalPerlinNoise(width, height, octaves, lacunarity, gain, stretch, offsetx, offsety);
+
+        float[] floatColor = new float[width*height];
+        IntPtr p = ptrNativeData;
+
+        Marshal.Copy(p, floatColor, 0, width * height);
+        CleanUpSphericalPerlinNoise(ptrNativeData);
+        for (int i = 0; i < width*height; i++)
+        {                               
+            colors[i] = colorRamp.Gradient[(int)Mathf.Clamp((floatColor[i]  * (colorRamp.Gradient.Length - 1)),0,255)];                        
+        }
+      
+                        
         ready = true;
         Debug.Log("ENDgenerate3dperlin() pg");
     }

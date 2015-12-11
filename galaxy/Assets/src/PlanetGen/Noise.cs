@@ -56,7 +56,7 @@ public class Noise
 
     static float FADE(float t)
     {
-        return (t * t * t * (t * (t * 6 - 15) + 10));
+        return (t * t * t * (t * (t * 6f - 15f) + 10f));
     }
 
 
@@ -167,10 +167,10 @@ public class Noise
         h = h & 15;     // Convert low 4 bits of hash code into 12 simple
         float u = h < 8 ? x : y; // gradient directions, and compute dot product.
         float v = h < 4 ? y : h == 12 || h == 14 ? x : z; // Fix repeats at h = 12 to 15
-        if ((h & 1) == 1)
+        if ((h & 1) != 0)
             u = -u;
 
-        if ((h & 2) == 1)
+        if ((h & 2) != 0)
             v = -v;
 
         return u + v;
@@ -344,7 +344,7 @@ public class Noise
 
         n1 = LERP(t, nx0, nx1);
 
-        return Mathf.Clamp(LERP(s, n0, n1) * .7f + .5f, 0f, 1f);
+        return LERP(s, n0, n1) * .936f;
     }
 
     //---------------------------------------------------------------------
@@ -602,7 +602,7 @@ public class Noise
         float amplitude = 1;
 
         
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < octaves; i++)
         {
             sum += frequency * noise3(x * amplitude, y * amplitude, z * amplitude);
             frequency /= lacunarity;

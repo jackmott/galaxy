@@ -30,7 +30,14 @@ namespace GalaxyShared
         public string Name = "Unnamed";
         [ProtoMember(8)]
         public string ClaimedBy = "Unclaimed";
-
+        [ProtoMember(9)]
+        public float Lacunarity;
+        [ProtoMember(10)]
+        public float Frequency;
+        [ProtoMember(11)]
+        public float Gain;
+        [ProtoMember(12)]
+        public byte  Octaves;
 
         public Planet() { }
         public Planet(SolarSystem parentSystem, int orbit)
@@ -42,6 +49,11 @@ namespace GalaxyShared
             RotationRate = rand.Next(.01f, .1f);
             OrbitAngle = rand.Next(0f, (float)MathHelper.TwoPi);
             Size = rand.Next(2.5f, 14f);
+
+            Lacunarity = rand.Next(1f, 10f);
+            Frequency = rand.Next(1f, 20f);
+            Gain = rand.Next(0f, 2f);
+            Octaves = (byte) rand.Next(1, 4);
             
             Vector3 start = Vector3.Zero;
             Matrix rotation = Matrix.CreateFromYawPitchRoll(OrbitAngle, 0, 0);

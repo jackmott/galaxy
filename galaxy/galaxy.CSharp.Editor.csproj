@@ -87,30 +87,6 @@
     <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
       <HintPath>Library\UnityAssemblies\SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.EditorTestsRunner">
-      <HintPath>Library\UnityAssemblies\UnityEditor.EditorTestsRunner.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.Networking">
-      <HintPath>Library\UnityAssemblies\UnityEditor.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>Library\UnityAssemblies\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.UI">
-      <HintPath>Library\UnityAssemblies\UnityEditor.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.Advertisements">
-      <HintPath>Library\UnityAssemblies\UnityEditor.Advertisements.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.TreeEditor">
-      <HintPath>Library\UnityAssemblies\UnityEditor.TreeEditor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
     <Reference Include="GalaxyShared">
       <HintPath>Assets\Plugins\GalaxyShared\GalaxyShared.dll</HintPath>
     </Reference>
@@ -138,14 +114,15 @@
     <Reference Include="Rewired_Core">
       <HintPath>Assets\Rewired\Internal\Libraries\Runtime\Rewired_Core.dll</HintPath>
     </Reference>
-    <Reference Include="ShaderForge 1">
-      <HintPath>Assets\ShaderForge\Editor\ShaderForge 1.dll</HintPath>
-    </Reference>
     <Reference Include="ShaderForge">
       <HintPath>Assets\ShaderForge\Editor\ShaderForge.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="galaxy.CSharp.Plugins.csproj">
+      <Project>{0F93E89D-D197-492B-EE5C-FA132A0D9E85}</Project>
+      <Name>galaxy.CSharp.Plugins</Name>
+    </ProjectReference>
     <ProjectReference Include="galaxy.CSharp.csproj">
       <Project>{3F2C7102-3953-E63A-F5FC-44E6C86F812A}</Project>
       <Name>galaxy.CSharp</Name>
@@ -166,6 +143,9 @@
     <Compile Include="Assets\SLS\Widgets\Table\Editor\TableEditor.cs" />
     <Compile Include="Assets\ShaderForge\Editor\InternalResources\Inspectors\ShaderForgeInspector.cs" />
     <Compile Include="Assets\ShaderForge\Editor\InternalResources\Inspectors\ShaderForgeMaterialInspector.cs" />
+    <Compile Include="Assets\Turbulence-Library\Editor\NoiseCreator.cs" />
+    <Compile Include="Assets\Turbulence-Library\Editor\NoiseStrings2D.cs" />
+    <Compile Include="Assets\Turbulence-Library\Editor\NoiseStrings3D.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\MyStuff\SciFiSpaceStation3\CustomHardSurfaceShader.shader" />
@@ -251,6 +231,7 @@
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Fresnel\SFN_Fresnel_NRM.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Fresnel\SFN_Fresnel_NRM_EXP.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Fresnel\SFN_Fresnel_REQONLY.shader" />
+    <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Get\SFN_Get.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_HalfVector\SFN_HalfVector.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_HsvToRgb\SFN_HsvToRgb.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Hue\SFN_Hue.shader" />
@@ -321,6 +302,7 @@
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_SceneDepth\SFN_SceneDepth.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_ScreenParameters\SFN_ScreenParameters.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_ScreenPos\SFN_ScreenPos.shader" />
+    <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Set\SFN_Set.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Sign\SFN_Sign.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Sin\SFN_Sin.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\GPU Rendering\SFN_Smoothstep\SFN_Smoothstep.shader" />
@@ -358,8 +340,13 @@
     <None Include="Assets\ShaderForge\Editor\InternalResources\Shader Presets\PresetSprite.shader" />
     <None Include="Assets\ShaderForge\Editor\InternalResources\Shader Presets\PresetUnlit.shader" />
     <None Include="Assets\ShaderForge\Readme.txt" />
-    <None Include="Assets\Shaders\Billboard.shader" />
-    <None Include="Assets\Shaders\Outline.shader" />
+    <None Include="Assets\Shaders\ImprovedPerlinNoise2D.shader" />
+    <None Include="Assets\Shaders\ImprovedPerlinNoise3D.shader" />
+    <None Include="Assets\Shaders\ImprovedPerlinNoise4D.shader" />
+    <None Include="Assets\Shaders\MyShader.shader" />
+    <None Include="Assets\Shaders\PerlinShader.shader" />
+    <None Include="Assets\Shaders\StandardPerlin.shader" />
+    <None Include="Assets\Turbulence-Library\Readme.txt" />
     <None Include="Assets\primitives.v1\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
