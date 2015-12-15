@@ -25,7 +25,7 @@ namespace FastNoise
     {
 
         [DllImport("FastNoise")]
-        private static unsafe extern float* GetSphereSurfaceNoiseSIMD(int width, int height, int octaves, float lacunarity, float frequency, float gain, float offset, int noiseType, out float outMin, out float outMax);
+        private static unsafe extern float* GetSphereSurfaceNoiseSIMD(int width, int height, int octaves, float lacunarity, float frequency, float gain, float offset, int noiseType, float* outMin, float* outMax);
         [DllImport("FastNoise")]
         private static unsafe extern void CleanUpNoiseSIMD(float* resultArray);
 
@@ -750,7 +750,7 @@ namespace FastNoise
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            float* floatColors = GetSphereSurfaceNoiseSIMD(width, height, settings.Octaves, settings.Lacunarity, settings.Frequency, settings.Gain, settings.Offset, (int)settings.NoiseType, out min, out max);
+            float* floatColors = GetSphereSurfaceNoiseSIMD(width, height, settings.Octaves, settings.Lacunarity, settings.Frequency, settings.Gain, settings.Offset, (int)settings.NoiseType, &min, &max);
             
                 sw.Stop();
             UnityEngine.Debug.Log("rawcall:" + sw.ElapsedMilliseconds);
@@ -764,7 +764,7 @@ namespace FastNoise
 
 
             //normalizing to [0..1]
-            float offset = 0.0f - min;
+            float offset = -min;
             float scale = 1.0f / (max - min);
 
             sw.Reset();
@@ -780,11 +780,15 @@ namespace FastNoise
             int size = width * height;
             for (int i = 0; i < size; i++)
             {
-                float n = (floatColors[i] + offset) * scale * l;
+                float n = (floatColors[i] + offset+.001f) * scale * l;
                 int low = (int)n;
                 float remainder = n - low;
                 int lowIndex = low % l;
                 int highIndex = (lowIndex + 1) % l;
+                if (lowIndex < 0 || lowIndex >= l || highIndex < 0 || highIndex >= l )
+                {
+                    UnityEngine.Debug.Log("low:" + lowIndex + " high:" + highIndex+" n:"+n+" scale:"+scale+" offsaet:"+offset);
+                }
                 colors[i] = Color.Lerp(GradientLookup[lowIndex], GradientLookup[highIndex], remainder);
 
             }

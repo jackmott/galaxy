@@ -4,7 +4,7 @@ using GalaxyShared;
 using Tuple;
 using FastNoise;
 using System.Diagnostics;
-using System;
+
 
 public class ClientPlanet : MonoBehaviour, IHasInfo
 {
@@ -19,13 +19,10 @@ public class ClientPlanet : MonoBehaviour, IHasInfo
     void Start()
     {
 
-        DateTime d = new DateTime(200, 1, 1);
-        long m = DateTime.Now.Subtract(d).Milliseconds;
+        rand = new FastRandom(Planet.Pos.X, Planet.Pos.Y, Planet.Pos.Z);
 
-        rand = new FastRandom(transform.localPosition.x*m, transform.localPosition.y, transform.localPosition.z);
+        NoiseMaker noise = new NoiseMaker(Planet.Octaves,Planet.Lacunarity,Planet.Gain,rand.Next(0.0f,2.0f),Planet.Frequency,(NoiseMaker.NoiseType) rand.Next(0,2));
 
-
-        NoiseMaker noise = new NoiseMaker(rand.Next(1,10), rand.Next(1,10), rand.Next(.1f,2.0f), 1, rand.Next(1,10),(NoiseMaker.NoiseType) rand.Next(0,2));
         Stopwatch s = new Stopwatch();
         s.Start();
         GetComponent<Renderer>().material.SetTexture("_MainTex",noise.GetTextureForSphere(4096,2048,TextureFormat.ARGB32, true,Color.black, Color.red,GenerateColorGradient()));
@@ -56,7 +53,7 @@ public class ClientPlanet : MonoBehaviour, IHasInfo
     void Update()
     {
 
-      //  transform.Rotate(Vector3.up, (float)(ROTATION_RATE * Planet.RotationRate * Time.deltaTime));
+        transform.Rotate(Vector3.up, (float)(ROTATION_RATE * Planet.RotationRate * Time.deltaTime));
 
       
 
@@ -65,7 +62,7 @@ public class ClientPlanet : MonoBehaviour, IHasInfo
     public Color[] GenerateColorGradient()
     {
               
-        int numColors = rand.Next(3, 10);
+        int numColors = rand.Next(2, 10);
         Color[] colors = new Color[numColors];
         for (int i = 0; i < colors.Length; i++)
         {

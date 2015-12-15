@@ -51,9 +51,9 @@ namespace GalaxyShared
             Size = rand.Next(2.5f, 14f);
 
             Lacunarity = rand.Next(1f, 10f);
-            Frequency = rand.Next(1f, 20f);
-            Gain = rand.Next(0f, 2f);
-            Octaves = (byte) rand.Next(1, 4);
+            Frequency = rand.Next(1f, 10f);
+            Gain = rand.Next(0.1f, 2f);
+            Octaves = (byte) rand.Next(1, 5);
 
             
             
