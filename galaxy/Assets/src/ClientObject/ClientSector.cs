@@ -45,8 +45,8 @@ public class ClientSector  {
         foreach (SolarSystem system in Sector.Systems)
         {
             particles[i].position = Utility.UVector(system.Pos*Sector.EXPAND_FACTOR);
-            particles[i].size = system.Star.Size / 37.5f;
-            particles[i].color = new Color(system.Star.Color.R / 255f, system.Star.Color.G / 255f, system.Star.Color.B / 255f);                  
+            particles[i].startSize = system.Star.Size / 37.5f;
+            particles[i].startColor = new Color(system.Star.Color.R / 255f, system.Star.Color.G / 255f, system.Star.Color.B / 255f);                  
             i++;
         }
 

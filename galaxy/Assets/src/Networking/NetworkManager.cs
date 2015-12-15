@@ -8,7 +8,7 @@ using System.Threading;
 using System.Diagnostics;
 using ProtoBuf;
 using System.IO;
-
+using UnityEngine.SceneManagement;
 
 public class NetworkManager : MonoBehaviour, IMessageHandler
 {
@@ -278,7 +278,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         {
             BufferedInputs.Clear();
         }
-        Application.LoadLevel((int)Level.Warp);
+        SceneManager.LoadScene((int)Level.Warp);        
 
     }
 
@@ -286,7 +286,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     {
         //Warp.ClosestSector.ParticleSystem.Clear();
         ClientSolarSystem.Cubemap = new Cubemap(4096, TextureFormat.ARGB32, false);
-        bool work = Camera.main.RenderToCubemap(ClientSolarSystem.Cubemap);
+        Camera.main.RenderToCubemap(ClientSolarSystem.Cubemap);
         PlayerState.Location = msg.Location;
         PlayerState.Rotation = msg.Rotation;
         PlayerState.SolarSystem = msg.System;
@@ -294,14 +294,15 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         {
             BufferedInputs.Clear();
         }
-        Application.LoadLevel((int)Level.System);
+        SceneManager.LoadScene((int)Level.System);
+        
     }
 
     public void HandleMessage(Player player, object extra = null)
     {
         UnityEngine.Debug.Log("handle player message");
         PlayerState = player;
-        Application.LoadLevel("Warp");
+        SceneManager.LoadScene((int)Level.Warp);
     }
 
     public void HandleMessage(Ship ship, object extra = null)

@@ -622,9 +622,13 @@ namespace Rewired.UI.ControlMapper {
                 actionName = action.descriptiveName;
             } else if(action.type == InputActionType.Axis) {
                 if(fieldInfo.axisRange == AxisRange.Full) actionName = action.descriptiveName;
-                else if(fieldInfo.axisRange == AxisRange.Positive) actionName = action.positiveDescriptiveName;
-                else if(fieldInfo.axisRange == AxisRange.Negative) actionName = action.negativeDescriptiveName;
-                else throw new System.NotImplementedException();
+                else if(fieldInfo.axisRange == AxisRange.Positive) {
+                    if(string.IsNullOrEmpty(action.positiveDescriptiveName)) actionName = action.descriptiveName + " +";
+                    else actionName = action.positiveDescriptiveName;
+                } else if(fieldInfo.axisRange == AxisRange.Negative) {
+                    if(string.IsNullOrEmpty(action.negativeDescriptiveName)) actionName = action.descriptiveName + " -";
+                    else actionName = action.negativeDescriptiveName;
+                } else throw new System.NotImplementedException();
             } else throw new System.NotImplementedException();
 
             ControllerMap map = GetControllerMap(fieldInfo.controllerType);
@@ -1577,12 +1581,14 @@ namespace Rewired.UI.ControlMapper {
                                 inputGrid.AddActionLabel(set.mapCategoryId, action.id, AxisRange.Full, label);
                                 yPos -= _inputRowHeight;
 
-                                label = CreateLabel(action.positiveDescriptiveName, columnXform, new Vector2(0, yPos));
+                                string positiveDescriptiveName = !string.IsNullOrEmpty(action.positiveDescriptiveName) ? action.positiveDescriptiveName : action.descriptiveName + " +";
+                                label = CreateLabel(positiveDescriptiveName, columnXform, new Vector2(0, yPos));
                                 label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
                                 inputGrid.AddActionLabel(set.mapCategoryId, action.id, AxisRange.Positive, label);
                                 yPos -= _inputRowHeight;
 
-                                label = CreateLabel(action.negativeDescriptiveName, columnXform, new Vector2(0, yPos));
+                                string negativeDescriptiveName = !string.IsNullOrEmpty(action.negativeDescriptiveName) ? action.negativeDescriptiveName : action.descriptiveName + " -";
+                                label = CreateLabel(negativeDescriptiveName, columnXform, new Vector2(0, yPos));
                                 label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, _inputRowHeight);
                                 inputGrid.AddActionLabel(set.mapCategoryId, action.id, AxisRange.Negative, label);
                                 yPos -= _inputRowHeight;

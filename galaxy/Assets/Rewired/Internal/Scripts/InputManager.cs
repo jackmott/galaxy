@@ -56,7 +56,7 @@ namespace Rewired {
 #if UNITY_STANDALONE
 
 #endif
-            
+
 #if UNITY_ANDROID
             platform = Platform.Android;
 #if !UNITY_EDITOR
@@ -85,6 +85,10 @@ namespace Rewired {
 
 #if UNITY_IOS
             platform = Platform.iOS;
+#endif
+
+#if UNITY_TVOS
+            platform = Platform.tvOS;
 #endif
 
 #if UNITY_PS3

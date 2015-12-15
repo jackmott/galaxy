@@ -7,12 +7,16 @@ public class ClientStar : MonoBehaviour, IHasInfo {
     Star Star;
 	// Use this for initialization
 	void Start () {
-        
-                                
-        GetComponent<Renderer>().material.SetTexture("_ColorGradient", GenerateColorGradient());
+
+       /* ImprovedPerlinNoise perlin = new ImprovedPerlinNoise(5);
+        perlin.LoadResourcesFor3DNoise();
+        GetComponent<Renderer>().material.SetTexture("_PermTable2D", perlin.GetPermutationTable2D());
+        GetComponent<Renderer>().material.SetTexture("_Gradient3D", perlin.GetGradient3D());
         GetComponent<Renderer>().material.SetFloat("_Frequency", 10);
         GetComponent<Renderer>().material.SetFloat("_Lacunarity", 3);
-        GetComponent<Renderer>().material.SetFloat("_Persistence", 2);
+        GetComponent<Renderer>().material.SetFloat("_Gain", .33f);
+        */
+
         
 
     }

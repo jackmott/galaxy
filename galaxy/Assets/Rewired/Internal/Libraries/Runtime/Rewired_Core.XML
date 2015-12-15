@@ -1516,6 +1516,59 @@
             </summary>
             <returns>Raw gyroscope data</returns>
         </member>
+        <member name="M:Rewired.ControllerExtensions.DualShock4Extension.GetTouchId(System.Int32)">
+            <summary>
+            Gets the touch id for the touch at the specified index.
+            </summary>
+            <param name="index"></param>
+            <returns>Touch id. Returns -1 if there is no current touch at the specified index.</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.DualShock4Extension.GetTouchPosition(System.Int32,UnityEngine.Vector2@)">
+            <summary>
+            Gets the touch position for a particular index normalized to a 0 - 1 range. (Left = 0, Top = 0)
+            </summary>
+            <param name="index">The index of the touch for which to return position.</param>
+            <param name="position">X/Y position of the touch [0 - 1]</param>
+            <returns>True if the touch at index is currently touching. False if there is no touch at index.</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.DualShock4Extension.GetTouchPositionByTouchId(System.Int32,UnityEngine.Vector2@)">
+            <summary>
+            Gets the touch position for a particular touch id normalized to a 0 - 1 range. (Left = 0, Top = 0)
+            </summary>
+            <param name="touchId">The id of the touch for which to return position.</param>
+            <param name="position">X/Y position of the touch [0 - 1]</param>
+            <returns>True if the touch at touchId is currently touching. False if there is no touch at touchId.</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.DualShock4Extension.GetTouchPositionAbsolute(System.Int32,UnityEngine.Vector2@)">
+            <summary>
+            Gets the touch position for a particular index in absolute units as returned by the device. (Left = 0, Top = 0)
+            </summary>
+            <param name="index">The index of the touch for which to return position.</param>
+            <param name="position">X/Y position of the touch in absolute units.</param>
+            <returns>True if the touch at index is currently touching. False if there is no touch at index.</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.DualShock4Extension.GetTouchPositionAbsoluteByTouchId(System.Int32,UnityEngine.Vector2@)">
+            <summary>
+            Gets the touch position for a particular touch id in absolute units as returned by the device. (Left = 0, Top = 0)
+            </summary>
+            <param name="touchId">The id of the touch for which to return position.</param>
+            <param name="position">X/Y position of the touch in absolute units.</param>
+            <returns>True if the touch at touchId is currently touching. False if there is no touch at touchId.</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.DualShock4Extension.IsTouching(System.Int32)">
+            <summary>
+            Determines if the current touch id is valid for any currently active touch.
+            </summary>
+            <param name="index">The index of the touch</param>
+            <returns>True/False</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.DualShock4Extension.IsTouchingByTouchId(System.Int32)">
+            <summary>
+            Determines if the current touch id is valid for any currently active touch.
+            </summary>
+            <param name="touchId">The id of the touch</param>
+            <returns>True/False</returns>
+        </member>
         <member name="P:Rewired.ControllerExtensions.DualShock4Extension.vibrationMotorCount">
             <summary>
             The number of vibration motors in this controller.
@@ -1534,6 +1587,11 @@
         <member name="P:Rewired.ControllerExtensions.DualShock4Extension.lightColorBlue">
             <summary>
             Light color blue channel.
+            </summary>
+        </member>
+        <member name="P:Rewired.ControllerExtensions.DualShock4Extension.maxTouches">
+            <summary>
+            Number of simultaneous touches supported by this device.
             </summary>
         </member>
         <member name="P:Rewired.ControllerExtensions.DualShock4Extension.batteryLevel">
@@ -1590,6 +1648,197 @@
             <summary>
             Enable or disable speaker.
             </summary>
+        </member>
+        <member name="T:Rewired.ControllerExtensions.SteamControllerExtension">
+            <summary>
+            Allows access to controller-specific functions.
+            </summary>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetActionSetHandle(System.String)">
+            <summary>
+            Get the handle for a Steam Action Set.
+            </summary>
+            <param name="actionSetName">Name of the Steam action set</param>
+            <returns>Handle</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetAnalogActionHandle(System.String)">
+            <summary>
+            Get the handle for a Steam analog Action.
+            </summary>
+            <param name="actionName">Name of the Steam action</param>
+            <returns>Handle</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetDigitalActionHandle(System.String)">
+            <summary>
+            Get the handle for a Steam digital Action.
+            </summary>
+            <param name="actionName">Name of the Steam action</param>
+            <returns>Handle</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetActionSetName(System.UInt64)">
+            <summary>
+            Get the name for a Steam Action Set.
+            </summary>
+            <param name="actionSetHandle">Handle of the Steam action set</param>
+            <returns>Steam Action name</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetAnalogActionName(System.UInt64)">
+            <summary>
+            Get the name for a Steam analog Action.
+            </summary>
+            <param name="actionHandle">Handle of the Steam action</param>
+            <returns>Steam Action name</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetDigitalActionName(System.UInt64)">
+            <summary>
+            Get the name for a Steam digital Action.
+            </summary>
+            <param name="actionHandle">Handle of the Steam action</param>
+            <returns>Steam Action name</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetAnalogActionValue(System.String)">
+            <summary>
+            Get the current value of an analog Steam action.
+            </summary>
+            <param name="actionName">Name of the Steam action</param>
+            <returns>X/Y value</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetAnalogActionValue(System.UInt64)">
+            <summary>
+            Get the current value of an analog Steam action.
+            </summary>
+            <param name="actionHandle">Handle of the Steam action</param>
+            <returns>X/Y value</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetDigitalActionValue(System.String)">
+            <summary>
+            Get the current value of a digital Steam action.
+            </summary>
+            <param name="actionName">Name of the Steam action</param>
+            <returns>True/False</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetDigitalActionValue(System.UInt64)">
+            <summary>
+            Get the current value of a digital Steam action.
+            </summary>
+            <param name="actionHandle">Handle of the Steam action</param>
+            <returns>True/False</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.SetActiveActionSet(System.UInt64)">
+            <summary>
+            Set the current active Steam action set.
+            </summary>
+            <param name="actionSetHandle">Handle of the Steam action set</param>
+            <returns>Success/Failure</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.SetActiveActionSet(System.String)">
+            <summary>
+            Set the current active Steam action set.
+            </summary>
+            <param name="actionSetName">Name of the Steam action set</param>
+            <returns>Success/Failure</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetActiveActionSetHandle">
+            <summary>
+            Get the current active Steam action set handle.
+            </summary>
+            <returns>Action set handle</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetActiveActionSetName">
+            <summary>
+            Get the current active Steam action set name.
+            </summary>
+            <returns>Action set name</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.ShowBindingPanel">
+            <summary>
+            Show the Steam control binding panel for the current controller.
+            </summary>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.SetHapticPulse(Rewired.ControllerExtensions.SteamControllerPadType,System.Single)">
+            <summary>
+            Set a haptic pulse in a pad.
+            </summary>
+            <param name="targePad">Target pad</param>
+            <param name="durationSeconds">Duration of pulse in seconds</param>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.SetHapticPulse(Rewired.ControllerExtensions.SteamControllerPadType,System.UInt16)">
+            <summary>
+            Set a haptic pulse in a pad.
+            </summary>
+            <param name="targePad">Target pad</param>
+            <param name="durationMicroSeconds">Duration of pulse in micro seconds</param>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetDigitalActionOrigins(System.String,System.String)">
+            <summary>
+            Get the origins for a Steam digital action.
+            </summary>
+            <param name="actionSetName">Action set name</param>
+            <param name="actionName">Action name</param>
+            <returns>List of action origins</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetDigitalActionOrigins(System.UInt64,System.UInt64)">
+            <summary>
+            Get the origins for a Steam digital action.
+            </summary>
+            <param name="actionSetHandle">Action set handle</param>
+            <param name="actionHandle">Action handle</param>
+            <returns>List of action origins</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetAnalogActionOrigins(System.String,System.String)">
+            <summary>
+            Get the origins for a Steam analog action.
+            </summary>
+            <param name="actionSetName">Action set name</param>
+            <param name="actionName">Action name</param>
+            <returns>List of action origins</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetAnalogActionOrigins(System.UInt64,System.UInt64)">
+            <summary>
+            Get the origins for a Steam analog action.
+            </summary>
+            <param name="actionSetHandle">Action set handle</param>
+            <param name="actionHandle">Action handle</param>
+            <returns>List of action origins</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetDigitalActionOriginGlyphs(System.UInt64,System.UInt64)">
+            <summary>
+            Get a list of glyphs for a Steam digital action.
+            </summary>
+            <param name="actionSetHandle">Action set handle</param>
+            <param name="actionHandle">Action handle</param>
+            <returns>List of glyphs</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetDigitalActionOriginGlyphs(System.String,System.String)">
+            <summary>
+            Get a list of glyphs for a Steam digital action.
+            </summary>
+            <param name="actionSetName">Action set name</param>
+            <param name="actionName">Action name</param>
+            <returns>List of glyphs</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetAnalogActionOriginGlyphs(System.UInt64,System.UInt64)">
+            <summary>
+            Get a list of glyphs for a Steam analog action.
+            </summary>
+            <param name="actionSetHandle">Action set handle</param>
+            <param name="actionHandle">Action handle</param>
+            <returns>List of glyphs</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetAnalogActionOriginGlyphs(System.String,System.String)">
+            <summary>
+            Get a list of glyphs for a Steam digital action.
+            </summary>
+            <param name="actionSetName">Action set name</param>
+            <param name="actionName">Action name</param>
+            <returns>List of glyphs</returns>
+        </member>
+        <member name="M:Rewired.ControllerExtensions.SteamControllerExtension.GetActionOriginGlyph(Rewired.ControllerExtensions.SteamControllerActionOrigin)">
+            <summary>
+            Get a glyph for a particular Steam action origin.
+            </summary>
+            <param name="actionOrigin">Origin of the action</param>
+            <returns>Glyph</returns>
         </member>
         <member name="T:Rewired.Joystick">
             <summary>
@@ -1966,6 +2215,15 @@
             <exclude></exclude>
         </member>
         <member name="T:Rewired.Data.Mapping.HardwareJoystickMap.Platform_SDL2.Axis">
+            <exclude></exclude>
+        </member>
+        <member name="T:Rewired.Data.Mapping.HardwareJoystickMap.Platform_Steam">
+            <exclude></exclude>
+        </member>
+        <member name="T:Rewired.Data.Mapping.HardwareJoystickMap.Platform_Steam.MatchingCriteria">
+            <exclude></exclude>
+        </member>
+        <member name="T:Rewired.Data.Mapping.HardwareJoystickMap.Platform_Steam.Elements">
             <exclude></exclude>
         </member>
         <member name="T:Rewired.Data.Mapping.HardwareJoystickTemplateMap">

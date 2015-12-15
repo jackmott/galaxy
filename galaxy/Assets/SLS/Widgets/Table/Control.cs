@@ -239,8 +239,10 @@ public class Control {
       this.table.footerRow.rt.sizeDelta = new Vector2
         (this.table.footerRow.rt.sizeDelta.x, useFooterH);
     }
-    this.table.bodyRect.rt.offsetMin = new Vector2(0, useFooterH);
-    this.table.bodyRect.rt.offsetMax = new Vector2(0, useHeaderH * -1f);
+
+    //unity5.3 not allowing this
+    //this.table.bodyRect.rt.offsetMin = new Vector2(0, useFooterH);
+    //this.table.bodyRect.rt.offsetMax = new Vector2(0, useHeaderH * -1f);
 
     //Debug.Log("set br offsets: " + this.table.bodySizer.rect.width + " vs " + this.table.bodyRect.rt.rect.width);
 

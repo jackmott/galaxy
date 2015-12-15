@@ -15,8 +15,7 @@ Shader "Noise/ImprovedPerlinNoise3D"
 			#include "UnityCG.cginc"
 			
 			uniform sampler2D _PermTable2D, _Gradient3D;
-		    uniform float _Frequency, _Lacunarity, _Gain;
-			uniform int _Octaves;
+			uniform float _Frequency, _Lacunarity, _Gain;
 			
 			struct v2f 
 			{
@@ -130,13 +129,13 @@ Shader "Noise/ImprovedPerlinNoise3D"
 			half4 frag (v2f i) : COLOR
 			{
 				//uncomment this for fractal noise
-				float n = fBm(i.uv.xyz, _Octaves);
+				float n = fBm(i.uv.xyz, 4);
 
 				//uncomment this for turbulent noise
-				//float n = turbulence(i.uv.xyz,  _Octaves);
+				//float n = turbulence(i.uv.xyz, 4);
 				
 				//uncomment this for ridged multi fractal
-				//float n = ridgedmf(i.uv.xyz,  _Octaves, 1.0);
+				//float n = ridgedmf(i.uv.xyz, 4, 1.0);
 			
 			    return half4(n,n,n,1);
 			}

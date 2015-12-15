@@ -55,9 +55,12 @@ MonoBehaviour:
       productName:
       - Saitek Pro Flight Rudder Pedals
       - Saitek Pro Flight Combat Rudder Pedals
+      - "Mad Catz Pro Flight Cessna Rudder Pedals\r\nMad Catz Pro Flight Cessna Rudder
+        Pedals"
       productGUID:
       - 076306a3-0000-0000-0000-504944564944
       - 076406a3-0000-0000-0000-504944564944
+      - 076506a3-0000-0000-0000-504944564944
       productId: 63070000
       deviceType: 20
     elements:
@@ -132,10 +135,11 @@ MonoBehaviour:
       productName:
       - Saitek Pro Flight Rudder Pedals
       - Saitek Pro Flight Combat Rudder Pedals
+      - "Mad Catz Pro Flight Cessna Rudder Pedals\r"
       manufacturer:
       - Saitek
-      productId: 6307000064070000
-      vendorId: a3060000a3060000
+      productId: 630700006407000065070000
+      vendorId: a3060000a3060000a3060000
     elements:
       compoundElements: []
       axes:
@@ -204,10 +208,12 @@ MonoBehaviour:
       productName:
       - Saitek Pro Flight Rudder Pedals
       - Saitek Pro Flight Combat Rudder Pedals
+      - "Mad Catz Pro Flight Cessna Rudder Pedals\r"
       systemName: []
       productGUID:
       - 076306a3-0000-0000-0000-504944564944
       - 076406a3-0000-0000-0000-504944564944
+      - 076506a3-0000-0000-0000-504944564944
     elements:
       compoundElements: []
       axes:
@@ -267,6 +273,7 @@ MonoBehaviour:
       productName:
       - Saitek Pro Flight Rudder Pedals
       - Saitek Pro Flight Combat Rudder Pedals
+      - "Mad Catz Pro Flight Cessna Rudder Pedals\r"
     elements:
       compoundElements: []
       axes:
@@ -276,6 +283,8 @@ MonoBehaviour:
         axisDeadZone: .0500000007
         sourceButton: 0
         sourceKeyCode: 0
+        customCalculation: {fileID: 0}
+        customCalculationSourceData: []
         invert: 0
         sourceAxisRange: 0
         buttonAxisContribution: 0
@@ -289,6 +298,8 @@ MonoBehaviour:
         axisDeadZone: 0
         sourceButton: 0
         sourceKeyCode: 0
+        customCalculation: {fileID: 0}
+        customCalculationSourceData: []
         invert: 0
         sourceAxisRange: 0
         buttonAxisContribution: 0
@@ -302,6 +313,8 @@ MonoBehaviour:
         axisDeadZone: .0500000007
         sourceButton: 0
         sourceKeyCode: 0
+        customCalculation: {fileID: 0}
+        customCalculationSourceData: []
         invert: 0
         sourceAxisRange: 0
         buttonAxisContribution: 0
@@ -320,6 +333,7 @@ MonoBehaviour:
       productName:
       - Saitek Saitek Pro Flight Rudder Pedals
       - Saitek Saitek Pro Flight Combat Rudder Pedals
+      - "Mad Catz Pro Flight Cessna Rudder Pedals\r"
     elements:
       compoundElements: []
       axes:
@@ -329,6 +343,8 @@ MonoBehaviour:
         axisDeadZone: .0500000007
         sourceButton: 0
         sourceKeyCode: 0
+        customCalculation: {fileID: 0}
+        customCalculationSourceData: []
         invert: 0
         sourceAxisRange: 0
         buttonAxisContribution: 0
@@ -342,6 +358,8 @@ MonoBehaviour:
         axisDeadZone: .0500000007
         sourceButton: 0
         sourceKeyCode: 0
+        customCalculation: {fileID: 0}
+        customCalculationSourceData: []
         invert: 0
         sourceAxisRange: 0
         buttonAxisContribution: 0
@@ -355,6 +373,8 @@ MonoBehaviour:
         axisDeadZone: .0500000007
         sourceButton: 0
         sourceKeyCode: 0
+        customCalculation: {fileID: 0}
+        customCalculationSourceData: []
         invert: 0
         sourceAxisRange: 0
         buttonAxisContribution: 0
@@ -373,6 +393,7 @@ MonoBehaviour:
       productName:
       - Saitek Saitek Pro Flight Rudder Pedals
       - Saitek Saitek Pro Flight Combat Rudder Pedals
+      - "Mad Catz Pro Flight Cessna Rudder Pedals\r"
     elements:
       compoundElements: []
       axes:
@@ -382,6 +403,8 @@ MonoBehaviour:
         axisDeadZone: .0500000007
         sourceButton: 0
         sourceKeyCode: 0
+        customCalculation: {fileID: 0}
+        customCalculationSourceData: []
         invert: 0
         sourceAxisRange: 0
         buttonAxisContribution: 0
@@ -395,6 +418,8 @@ MonoBehaviour:
         axisDeadZone: .0500000007
         sourceButton: 0
         sourceKeyCode: 0
+        customCalculation: {fileID: 0}
+        customCalculationSourceData: []
         invert: 0
         sourceAxisRange: 0
         buttonAxisContribution: 0
@@ -408,6 +433,8 @@ MonoBehaviour:
         axisDeadZone: .0500000007
         sourceButton: 0
         sourceKeyCode: 0
+        customCalculation: {fileID: 0}
+        customCalculationSourceData: []
         invert: 0
         sourceAxisRange: 0
         buttonAxisContribution: 0

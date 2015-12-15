@@ -96,11 +96,11 @@ public class ClientSolarSystem : MonoBehaviour
 
      
 
-            int vertexCount = Convert.ToInt32(100f * (p.Orbit / 5f));
+          /*  int vertexCount = Convert.ToInt32(100f * (p.Orbit / 5f));
             VectorLine orbitLine = new VectorLine("OrbitLine", new List<Vector3>(vertexCount), 1.0f, LineType.Continuous);
             orbitLine.material = LineMaterial;
             orbitLine.MakeCircle(Vector3.zero, Vector3.up, Vector3.Distance(Vector3.zero, Utility.UVector(p.Pos)));
-            orbitLine.Draw3DAuto();
+            orbitLine.Draw3DAuto();*/
 
         }
 

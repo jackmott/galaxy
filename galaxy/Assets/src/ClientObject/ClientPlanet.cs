@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using GalaxyShared;
 using Tuple;
+using FastNoise;
+using System.Diagnostics;
+using System;
 
 public class ClientPlanet : MonoBehaviour, IHasInfo
 {
@@ -15,17 +18,34 @@ public class ClientPlanet : MonoBehaviour, IHasInfo
     // Use this for initialization
     void Start()
     {
-        rand = new FastRandom(Planet.Pos.X, Planet.Pos.Y, Planet.Pos.Z);
 
+        DateTime d = new DateTime(200, 1, 1);
+        long m = DateTime.Now.Subtract(d).Milliseconds;
+
+        rand = new FastRandom(transform.localPosition.x*m, transform.localPosition.y, transform.localPosition.z);
+
+
+        NoiseMaker noise = new NoiseMaker(rand.Next(1,10), rand.Next(1,10), rand.Next(.1f,2.0f), 1, rand.Next(1,10),(NoiseMaker.NoiseType) rand.Next(0,2));
+        Stopwatch s = new Stopwatch();
+        s.Start();
+        GetComponent<Renderer>().material.SetTexture("_MainTex",noise.GetTextureForSphere(4096,2048,TextureFormat.ARGB32, true,Color.black, Color.red,GenerateColorGradient()));
+        s.Stop();
+        UnityEngine.Debug.Log(s.ElapsedMilliseconds);
+      
+        /*
         string normalName = planetNormals[rand.Next(0, planetNormals.Length)];
         Texture2D normalMap = Resources.Load<Texture2D>("PlanetNormals/" + normalName);
 
-        GetComponent<Renderer>().material.SetTexture("_BumpMap", normalMap);
-        GetComponent<Renderer>().material.SetTexture("_ColorGradient", GenerateColorGradient());                
+        //GetComponent<Renderer>().material.SetTexture("_BumpMap", normalMap);
+        //GetComponent<Renderer>().material.SetTexture("_ColorGradient", GenerateColorGradient());                
+        ImprovedPerlinNoise perlin = new ImprovedPerlinNoise(rand.Next(1, 1000));
+        perlin.LoadResourcesFor3DNoise();
+        GetComponent<Renderer>().material.SetTexture("_PermTable2D", perlin.GetPermutationTable2D());
+        GetComponent<Renderer>().material.SetTexture("_Gradient3D", perlin.GetGradient3D());
         GetComponent<Renderer>().material.SetFloat("_Frequency", Planet.Frequency / 5.0f);
         GetComponent<Renderer>().material.SetFloat("_Lacunarity", Planet.Lacunarity);
-        GetComponent<Renderer>().material.SetFloat("_Persistence", Planet.Gain);
-
+        GetComponent<Renderer>().material.SetFloat("_Gain", Planet.Gain);
+        */
 
     }
 
@@ -36,16 +56,16 @@ public class ClientPlanet : MonoBehaviour, IHasInfo
     void Update()
     {
 
-        transform.Rotate(Vector3.up, (float)(ROTATION_RATE * Planet.RotationRate * Time.deltaTime));
+      //  transform.Rotate(Vector3.up, (float)(ROTATION_RATE * Planet.RotationRate * Time.deltaTime));
 
       
 
     }
 
-    public Texture2D GenerateColorGradient()
+    public Color[] GenerateColorGradient()
     {
               
-        int numColors = rand.Next(1, 6);
+        int numColors = rand.Next(3, 10);
         Color[] colors = new Color[numColors];
         for (int i = 0; i < colors.Length; i++)
         {
@@ -58,9 +78,9 @@ public class ClientPlanet : MonoBehaviour, IHasInfo
             ranges[i] = rand.Next(1, 100);
             colorCount += ranges[i];
         }
-        
 
-        Texture2D result = new Texture2D(colorCount, 1, TextureFormat.ARGB32, false);
+
+        Color[] result = new Color[colorCount];
         int colorIndex = 0;
         for (int i = 0; i < colors.Length-1;i++)
         {
@@ -69,18 +89,14 @@ public class ClientPlanet : MonoBehaviour, IHasInfo
             
             for (int j = 0; j < ranges[i]; j++)
             {                
-                result.SetPixel(colorIndex, 0, Color.Lerp(start, end, (float)j / (float)ranges[i]));
+                result[colorIndex] = Color.Lerp(start, end, (float)j / (float)ranges[i]);
                 colorIndex++;
             }
         }
-        
-        result.Apply();
+                
         return result;
 
     }
-
-
-
 
     public Info GetInfo()
     {
