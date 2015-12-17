@@ -19,19 +19,18 @@ public class ClientPlanet : MonoBehaviour, IHasInfo
     void Start()
     {
 
-        rand = new FastRandom(Planet.Pos.X, Planet.Pos.Y, Planet.Pos.Z);
+        rand = new FastRandom(transform.position.x, transform.position.y, transform.position.z);
 
-        NoiseMaker noise = new NoiseMaker(Planet.Octaves,Planet.Lacunarity,Planet.Gain,rand.Next(0.0f,2.0f),Planet.Frequency,(NoiseMaker.NoiseType) rand.Next(0,2));
+        //NoiseMaker noise = new NoiseMaker(Planet.Octaves,Planet.Lacunarity,Planet.Gain,rand.Next(0.0f,2.0f),Planet.Frequency,(NoiseMaker.NoiseType) rand.Next(0,2));
+        NoiseMaker noise = new NoiseMaker(rand.Next(3, 5), rand.Next(1f, 3f), rand.Next(0.1f, 10f), rand.Next(0f, 10f), 5, NoiseMaker.NoiseType.FBM);
 
-        Stopwatch s = new Stopwatch();
-        s.Start();
-        GetComponent<Renderer>().material.SetTexture("_MainTex",noise.GetTextureForSphere(4096,2048,TextureFormat.ARGB32, true,Color.black, Color.red,GenerateColorGradient()));
-        s.Stop();
-        UnityEngine.Debug.Log(s.ElapsedMilliseconds);
-      
+        
+        GetComponent<Renderer>().material.SetTexture("_MainTex",noise.GetTextureForSphere(4096,2048,TextureFormat.ARGB32, true,Color.black, Color.red));
+        
+
+
         /*
-        string normalName = planetNormals[rand.Next(0, planetNormals.Length)];
-        Texture2D normalMap = Resources.Load<Texture2D>("PlanetNormals/" + normalName);
+       
 
         //GetComponent<Renderer>().material.SetTexture("_BumpMap", normalMap);
         //GetComponent<Renderer>().material.SetTexture("_ColorGradient", GenerateColorGradient());                
@@ -47,16 +46,29 @@ public class ClientPlanet : MonoBehaviour, IHasInfo
     }
 
 
-
+    float time = 99999;
 
     // Update is called once per frame
     void Update()
     {
 
-        transform.Rotate(Vector3.up, (float)(ROTATION_RATE * Planet.RotationRate * Time.deltaTime));
+          transform.Rotate(Vector3.up, (float)(ROTATION_RATE * 2 * Time.deltaTime));
+        if (time > 3)
+        {
+            NoiseMaker noise = new NoiseMaker(rand.Next(1,7), rand.Next(1f, 7f), rand.Next(0.1f, 2f), rand.Next(0f, 10f), rand.Next(.1f, 5f),(NoiseMaker.NoiseType)rand.Next(0,3));
+            string normalName = planetNormals[rand.Next(0, planetNormals.Length)];
+            Texture2D normalMap = Resources.Load<Texture2D>("PlanetNormals/" + normalName);
+            GetComponent<Renderer>().material.SetTexture("_BumpMap", normalMap);
+            
+           
+            GetComponent<Renderer>().material.SetTexture("_MainTex", noise.GetTextureForSphere(4096, 2048, TextureFormat.ARGB32, true, Color.black, Color.red, GenerateColorGradient()));
+           
+           
+            time = 0;
+        }
 
-      
-
+        time = time + Time.deltaTime;
+        
     }
 
     public Color[] GenerateColorGradient()
@@ -72,7 +84,7 @@ public class ClientPlanet : MonoBehaviour, IHasInfo
         int colorCount = 0;
         for (int i = 0; i < ranges.Length;i++)
         {
-            ranges[i] = rand.Next(1, 100);
+            ranges[i] = rand.Next(1, 255);
             colorCount += ranges[i];
         }
 

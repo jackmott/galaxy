@@ -29,7 +29,7 @@ namespace FastNoise
         [DllImport("FastNoise")]
         private static unsafe extern void CleanUpNoiseSIMD(float* resultArray);
 
-        public enum NoiseType { FBM, TURBULENCE, RIDGE, PLAIN };
+        public enum NoiseType { FBM, TURBULENCE, RIDGE, PLAIN, BILLOWY,RIDGE2 };
 
         public Color[] Gradient;
 
@@ -748,12 +748,11 @@ namespace FastNoise
             float min = 0;
             float max = 0;
 
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+           
             float* floatColors = GetSphereSurfaceNoiseSIMD(width, height, settings.Octaves, settings.Lacunarity, settings.Frequency, settings.Gain, settings.Offset, (int)settings.NoiseType, &min, &max);
             
-                sw.Stop();
-            UnityEngine.Debug.Log("rawcall:" + sw.ElapsedMilliseconds);
+           
+           
 
             if (GradientLookup == null)
             {
@@ -767,42 +766,40 @@ namespace FastNoise
             float offset = -min;
             float scale = 1.0f / (max - min);
 
-            sw.Reset();
-            sw.Start();
+            
             Texture2D texture = new Texture2D(width, height, format, mipmap);
             Color[] colors = new Color[width * height];
-            sw.Stop();
-            UnityEngine.Debug.Log("tex create:" + sw.ElapsedMilliseconds);
-
-            sw.Reset();
-            sw.Start();
+            
             int l = GradientLookup.Length;
+            scale = scale * l;
             int size = width * height;
             for (int i = 0; i < size; i++)
             {
-                float n = (floatColors[i] + offset+.001f) * scale * l;
+                float n = (floatColors[i] + offset ) * scale;
                 int low = (int)n;
                 float remainder = n - low;
                 int lowIndex = low % l;
-                int highIndex = (lowIndex + 1) % l;
-                if (lowIndex < 0 || lowIndex >= l || highIndex < 0 || highIndex >= l )
-                {
-                    UnityEngine.Debug.Log("low:" + lowIndex + " high:" + highIndex+" n:"+n+" scale:"+scale+" offsaet:"+offset);
-                }
-                colors[i] = Color.Lerp(GradientLookup[lowIndex], GradientLookup[highIndex], remainder);
-
-            }
-            sw.Stop();
-            UnityEngine.Debug.Log("iterate:" + sw.ElapsedMilliseconds);
+                //    int highIndex = (lowIndex + 1) % l;
+                colors[i] = GradientLookup[lowIndex];//FastLerp(GradientLookup[lowIndex], GradientLookup[highIndex], remainder);
+            
+            }            
+                      
             CleanUpNoiseSIMD(floatColors);
-
-            sw.Reset();
-            sw.Start();
+           
             texture.SetPixels(colors);
             texture.Apply();
-            sw.Stop();
-            UnityEngine.Debug.Log("tex set and apply:" + sw.ElapsedMilliseconds);
+           
+           
             return texture;
+        }
+        //ignores alpha, no bounds checking. because we live on the edge, here in perlin land
+        public static Color FastLerp(Color c1, Color c2, float value)
+        {
+
+            return new Color(c1.r + (c2.r - c1.r) * value,
+                                c1.g + (c2.g - c1.g) * value,
+                                c1.b + (c2.b - c1.b) * value);
+                                
         }
 
     }
