@@ -50,11 +50,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     void Awake()
     {
-
-      
-
-        
-
+              
         messageQueue = new Queue();
         InputsToSend = new List<InputMessage>();
         BufferedInputs = new List<InputMessage>();
@@ -278,7 +274,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         {
             BufferedInputs.Clear();
         }
-        SceneManager.LoadScene((int)Level.Warp);        
+        SceneManager.LoadScene("Warp",LoadSceneMode.Single);        
 
     }
 
@@ -294,7 +290,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         {
             BufferedInputs.Clear();
         }
-        SceneManager.LoadScene((int)Level.System);
+        SceneManager.LoadScene("SolarSystem", LoadSceneMode.Single);
         
     }
 
@@ -302,7 +298,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     {
         UnityEngine.Debug.Log("handle player message");
         PlayerState = player;
-        SceneManager.LoadScene((int)Level.Warp);
+        SceneManager.LoadScene("Warp", LoadSceneMode.Single);
     }
 
     public void HandleMessage(Ship ship, object extra = null)

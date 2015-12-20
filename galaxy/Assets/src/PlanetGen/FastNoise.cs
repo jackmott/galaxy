@@ -25,11 +25,12 @@ namespace FastNoise
     {
 
         [DllImport("FastNoise")]
-        private static unsafe extern float* GetSphereSurfaceNoiseSIMD(int width, int height, int octaves, float lacunarity, float frequency, float gain, float offset, int noiseType, float* outMin, float* outMax);
+        private static unsafe extern float* GetSphereSurfaceNoiseSIMD(int width, int height, int octaves, float lacunarity, float frequency, float gain, float offset,int fractalType, int noiseType, float* outMin, float* outMax);
         [DllImport("FastNoise")]
         private static unsafe extern void CleanUpNoiseSIMD(float* resultArray);
 
-        public enum NoiseType { FBM, TURBULENCE, RIDGE, PLAIN, BILLOWY,RIDGE2 };
+        public enum FractalType { FBM, TURBULENCE, RIDGE, PLAIN };
+        public enum NoiseType { PERLIN, SIMPLEX };
 
         public Color[] Gradient;
 
@@ -41,16 +42,17 @@ namespace FastNoise
             public float Offset;
             public float Frequency;
             public NoiseType NoiseType;
+            public FractalType FractalType;
         }
 
         private Settings settings;
 
-        public NoiseMaker(int octaves, float lacunarity, float gain, float offset, float frequency, NoiseType noiseType)
+        public NoiseMaker(int octaves, float lacunarity, float gain, float offset, float frequency,FractalType fractalType, NoiseType noiseType)
         {
-            SetNoiseSettings(octaves, lacunarity, gain, offset, frequency, noiseType);
+            SetNoiseSettings(octaves, lacunarity, gain, offset, frequency, fractalType,noiseType);
         }
 
-        public void SetNoiseSettings(int octaves, float lacunarity, float gain, float offset, float frequency, NoiseType noiseType)
+        public void SetNoiseSettings(int octaves, float lacunarity, float gain, float offset, float frequency,FractalType fractalType, NoiseType noiseType)
         {
             settings.Octaves = octaves;
             settings.Lacunarity = lacunarity;
@@ -58,6 +60,7 @@ namespace FastNoise
             settings.Offset = offset;
             settings.Frequency = frequency;
             settings.NoiseType = noiseType;
+            settings.FractalType = fractalType;
         }
 
 
@@ -742,32 +745,20 @@ namespace FastNoise
         /// <param name="HighColor">Ending color for the gradient</param>
         /// <param name="GradientLookup">Optional custom gradient lookup table. High and Low color are ignored if this is supplied</param>
         /// <returns></returns>
-        public unsafe Texture2D GetTextureForSphere(int width, int height, TextureFormat format, bool mipmap, Color LowColor, Color HighColor, Color[] GradientLookup = null)
+        public unsafe Color[] GetColorForSphere(int width, int height, Color[] GradientLookup = null)
         {
 
             float min = 0;
             float max = 0;
 
            
-            float* floatColors = GetSphereSurfaceNoiseSIMD(width, height, settings.Octaves, settings.Lacunarity, settings.Frequency, settings.Gain, settings.Offset, (int)settings.NoiseType, &min, &max);
-            
-           
-           
-
-            if (GradientLookup == null)
-            {
-                GradientLookup = new Color[2];
-                GradientLookup[0] = LowColor;
-                GradientLookup[1] = HighColor;
-            }
-
+            float* floatColors = GetSphereSurfaceNoiseSIMD(width, height, settings.Octaves, settings.Lacunarity, settings.Frequency, settings.Gain, settings.Offset,(int)settings.FractalType, (int)settings.NoiseType, &min, &max);
+                                            
 
             //normalizing to [0..1]
             float offset = -min;
             float scale = 1.0f / (max - min);
-
-            
-            Texture2D texture = new Texture2D(width, height, format, mipmap);
+                        
             Color[] colors = new Color[width * height];
             
             int l = GradientLookup.Length;
@@ -775,7 +766,7 @@ namespace FastNoise
             int size = width * height;
             for (int i = 0; i < size; i++)
             {
-                float n = (floatColors[i] + offset ) * scale;
+                float n =  (floatColors[i] + offset ) * scale;
                 int low = (int)n;
                 float remainder = n - low;
                 int lowIndex = low % l;
@@ -785,12 +776,9 @@ namespace FastNoise
             }            
                       
             CleanUpNoiseSIMD(floatColors);
-           
-            texture.SetPixels(colors);
-            texture.Apply();
-           
-           
-            return texture;
+
+
+            return colors;
         }
         //ignores alpha, no bounds checking. because we live on the edge, here in perlin land
         public static Color FastLerp(Color c1, Color c2, float value)

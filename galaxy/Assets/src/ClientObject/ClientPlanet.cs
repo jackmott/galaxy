@@ -3,86 +3,73 @@ using System.Collections.Generic;
 using GalaxyShared;
 using Tuple;
 using FastNoise;
-using System.Diagnostics;
-
+using System.Threading;
 
 public class ClientPlanet : MonoBehaviour, IHasInfo
 {
 
     public Planet Planet;
     public int ROTATION_RATE = 10;
-
-    static string[] planetNormals = { "Cracked", "Dark Dunes", "Drifting Continents", "Extreme", "Frozen Rock", "Gas Giant", "Hilly", "Hurricanes", "Lava Crust", "Lava Valleys", "Lush Green", "Mountains", "Mud Ice And Water", "Rocky", "Sand" };
-
+    private bool TextureReady = false;
+    static string[] PlanetNormals = { "Cracked", "Dark Dunes", "Drifting Continents", "Extreme", "Frozen Rock", "Gas Giant", "Hilly", "Hurricanes", "Lava Crust", "Lava Valleys", "Lush Green", "Mountains", "Mud Ice And Water", "Rocky", "Sand" };
+    private Color[] Gradient;
+    private Color[] PlanetColors;
+    private NoiseMaker noise;
     FastRandom rand;
     // Use this for initialization
     void Start()
     {
 
         rand = new FastRandom(transform.position.x, transform.position.y, transform.position.z);
-
-        //NoiseMaker noise = new NoiseMaker(Planet.Octaves,Planet.Lacunarity,Planet.Gain,rand.Next(0.0f,2.0f),Planet.Frequency,(NoiseMaker.NoiseType) rand.Next(0,2));
-        NoiseMaker noise = new NoiseMaker(rand.Next(3, 5), rand.Next(1f, 3f), rand.Next(0.1f, 10f), rand.Next(0f, 10f), 5, NoiseMaker.NoiseType.FBM);
-
-        
-        GetComponent<Renderer>().material.SetTexture("_MainTex",noise.GetTextureForSphere(4096,2048,TextureFormat.ARGB32, true,Color.black, Color.red));
-        
-
-
-        /*
-       
-
-        //GetComponent<Renderer>().material.SetTexture("_BumpMap", normalMap);
-        //GetComponent<Renderer>().material.SetTexture("_ColorGradient", GenerateColorGradient());                
-        ImprovedPerlinNoise perlin = new ImprovedPerlinNoise(rand.Next(1, 1000));
-        perlin.LoadResourcesFor3DNoise();
-        GetComponent<Renderer>().material.SetTexture("_PermTable2D", perlin.GetPermutationTable2D());
-        GetComponent<Renderer>().material.SetTexture("_Gradient3D", perlin.GetGradient3D());
-        GetComponent<Renderer>().material.SetFloat("_Frequency", Planet.Frequency / 5.0f);
-        GetComponent<Renderer>().material.SetFloat("_Lacunarity", Planet.Lacunarity);
-        GetComponent<Renderer>().material.SetFloat("_Gain", Planet.Gain);
-        */
-
+        noise = new NoiseMaker(Planet.Octaves, Planet.Lacunarity, Planet.Gain, rand.Next(0.0f, 2.0f), Planet.Frequency, (NoiseMaker.FractalType)rand.Next(0, 3), (NoiseMaker.NoiseType)rand.Next(0, 1));
+        string normalName = PlanetNormals[rand.Next(0, PlanetNormals.Length)];
+        Gradient = GenerateColorGradient();
+        Texture2D normalMap = Resources.Load<Texture2D>("PlanetNormals/" + normalName);
+        GetComponent<Renderer>().material.SetTexture("_BumpMap", normalMap);
+        Color[] colors = noise.GetColorForSphere(512, 256,Gradient);
+        Texture2D texture = new Texture2D(512, 256, TextureFormat.ARGB32, false);
+        texture.SetPixels(colors);
+        texture.Apply();
+        GetComponent<Renderer>().material.SetTexture("_MainTex", texture);
+        Thread t = new Thread(new ThreadStart(BackgroundNoise));
+        t.Start();
     }
 
+    private void BackgroundNoise()
+    {
+        PlanetColors = noise.GetColorForSphere(4096, 2048, Gradient);      
+        TextureReady = true;
+    }
 
-    float time = 99999;
 
     // Update is called once per frame
     void Update()
     {
 
-          transform.Rotate(Vector3.up, (float)(ROTATION_RATE * 2 * Time.deltaTime));
-        if (time > 3)
+        transform.Rotate(Vector3.up, (float)(ROTATION_RATE * Planet.RotationRate * Time.deltaTime));
+        if (TextureReady)
         {
-            NoiseMaker noise = new NoiseMaker(rand.Next(1,7), rand.Next(1f, 7f), rand.Next(0.1f, 2f), rand.Next(0f, 10f), rand.Next(.1f, 5f),(NoiseMaker.NoiseType)rand.Next(0,3));
-            string normalName = planetNormals[rand.Next(0, planetNormals.Length)];
-            Texture2D normalMap = Resources.Load<Texture2D>("PlanetNormals/" + normalName);
-            GetComponent<Renderer>().material.SetTexture("_BumpMap", normalMap);
-            
-           
-            GetComponent<Renderer>().material.SetTexture("_MainTex", noise.GetTextureForSphere(4096, 2048, TextureFormat.ARGB32, true, Color.black, Color.red, GenerateColorGradient()));
-           
-           
-            time = 0;
+            Texture2D texture = new Texture2D(4096, 2048, TextureFormat.ARGB32, true);
+            texture.SetPixels(PlanetColors);
+            texture.Apply();
+            GetComponent<Renderer>().material.SetTexture("_MainTex", texture);
+            TextureReady = false;
         }
 
-        time = time + Time.deltaTime;
-        
     }
 
     public Color[] GenerateColorGradient()
     {
-              
+
         int numColors = rand.Next(2, 10);
         Color[] colors = new Color[numColors];
         for (int i = 0; i < colors.Length; i++)
         {
-            colors[i] = new Color(rand.Next(0.0f, 1.0f), rand.Next(0.0f, 1.0f), rand.Next(0.0f, 1.0f),1);
+            colors[i] = new Color(rand.Next(0.0f, 1.0f), rand.Next(0.0f, 1.0f), rand.Next(0.0f, 1.0f), 1);
         }
         int[] ranges = new int[colors.Length - 1];
         int colorCount = 0;
-        for (int i = 0; i < ranges.Length;i++)
+        for (int i = 0; i < ranges.Length; i++)
         {
             ranges[i] = rand.Next(1, 255);
             colorCount += ranges[i];
@@ -91,18 +78,18 @@ public class ClientPlanet : MonoBehaviour, IHasInfo
 
         Color[] result = new Color[colorCount];
         int colorIndex = 0;
-        for (int i = 0; i < colors.Length-1;i++)
+        for (int i = 0; i < colors.Length - 1; i++)
         {
             Color start = colors[i];
             Color end = colors[i + 1];
-            
+
             for (int j = 0; j < ranges[i]; j++)
-            {                
+            {
                 result[colorIndex] = Color.Lerp(start, end, (float)j / (float)ranges[i]);
                 colorIndex++;
             }
         }
-                
+
         return result;
 
     }
