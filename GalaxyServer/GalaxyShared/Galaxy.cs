@@ -38,7 +38,9 @@ namespace GalaxyShared
 
                 LightyearsPerPixel = GALAXY_SIZE_LIGHTYEARS / Hoag.Width;
             }
-           
+            SectorCoord s = new SectorCoord(-2560, 0, 41);
+           Color c = GetColorAt(s);
+            Console.WriteLine(c);
         }
 
         public static Color GetColorAt(SectorCoord coord)
@@ -58,7 +60,7 @@ namespace GalaxyShared
             Color c1 = Hoag.GetPixel(pixelX,pixelY);
 
             int z = Math.Abs(coord.Z);
-            float zFactor = Math.Max(0, (10000 - z) / 10000);
+            float zFactor = Math.Max(0, (400.0f - z) / 400.0f);
 
             Color result = Color.FromArgb(Convert.ToInt32(c1.R * zFactor), Convert.ToInt32(c1.G * zFactor),Convert.ToInt32( c1.B * zFactor));
             return result;

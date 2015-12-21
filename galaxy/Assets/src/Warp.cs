@@ -51,7 +51,7 @@ public class Warp : MonoBehaviour {
             LoadedSectors.Add(c.Hash, c);
         }
 
-        int CUBE_SIZE = 256;
+        int CUBE_SIZE =512;
         Cubemap background = new Cubemap(CUBE_SIZE, TextureFormat.ARGB32, true);
 
         SectorCoord sc = NetworkManager.PlayerState.Location.SectorCoord;
@@ -89,17 +89,17 @@ public class Warp : MonoBehaviour {
                     //    Debug.Log("Early exit");
                         break;
                     }
-                    
-                    
+
+
                     SectorCoord s = new SectorCoord(Convert.ToInt32(p.x), Convert.ToInt32(p.y), Convert.ToInt32(p.z));
-                  //  Debug.Log("sector:"+s.X + "," + s.Y + "," + s.Z); 
+                 //  Debug.Log("sector:"+s.X + "," + s.Y + "," + s.Z); 
                     
                     try {
                         System.Drawing.Color cc = Galaxy.GetColorAt(s);
-                      //  Debug.Log("cc:" + cc);
-                        r += cc.R / 10.0f /  256.0f;
-                        g += cc.G / 10.0f /  256.0f;
-                        b += cc.B / 10.0f /  256.0f;
+                     //   Debug.Log("cc:" + cc);
+                        r += cc.R / 20.0f /  256.0f;
+                        g += cc.G / 20.0f /  256.0f;
+                        b += cc.B / 20.0f /  256.0f;
 //                        Debug.Log("rgb" + r + "," + g + "," + b);
 
                     } catch (Exception e)
