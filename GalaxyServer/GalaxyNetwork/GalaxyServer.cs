@@ -38,7 +38,7 @@ namespace GalaxyServer
 
         public static void Main(string[] args)
         {
-           
+            Galaxy.Init();
             GalaxyServer server = new GalaxyServer();          
 
         }

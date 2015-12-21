@@ -84,25 +84,25 @@ namespace GalaxyShared
             switch (Type)
             {
                 case Star.O:
-                    Color.FromArgb(149, 71, 254);
+                    Color = GalaxyColor.FromArgb(149, 71, 254);
                     break;
                 case Star.B:
-                    Color.FromArgb(123, 109, 252);
+                    Color = GalaxyColor.FromArgb(123, 109, 252);
                     break;
                 case Star.A:
-                    Color.FromArgb(186, 179, 253);
+                    Color = GalaxyColor.FromArgb(186, 179, 253);
                     break;
                 case Star.F:
-                    Color.FromArgb(255, 255, 255);
+                    Color = GalaxyColor.FromArgb(255, 255, 255);
                     break;
                 case Star.G:
-                    Color.FromArgb(255, 247, 85);
+                    Color = GalaxyColor.FromArgb(255, 247, 85);
                     break;
                 case Star.K:
-                    Color.FromArgb(240, 96, 0);
+                    Color = GalaxyColor.FromArgb(240, 96, 0);
                     break;
                 case Star.M:
-                    Color.FromArgb(250, 18, 5);
+                    Color = GalaxyColor.FromArgb(250, 18, 5);
                     break;
             }
 

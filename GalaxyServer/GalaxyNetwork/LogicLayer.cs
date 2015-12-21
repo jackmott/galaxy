@@ -138,7 +138,7 @@ namespace GalaxyServer
             msg.Rotation = client.Player.Rotation;
 
             Vector3 systemPos = client.Player.Location.SystemPos;
-            Vector3 startPos = new Vector3(systemPos.X * Sector.EXPAND_FACTOR, systemPos.Y * Sector.EXPAND_FACTOR, systemPos.Z * Sector.EXPAND_FACTOR);
+            Vector3 startPos = new Vector3(systemPos.X * Galaxy.EXPAND_FACTOR, systemPos.Y * Galaxy.EXPAND_FACTOR, systemPos.Z * Galaxy.EXPAND_FACTOR);
             startPos += Vector3.Transform(Vector3.Forward * .3d, client.Player.Rotation);
             client.Player.Location.Pos = startPos;
 
@@ -185,7 +185,7 @@ namespace GalaxyServer
                 system.Clients = new LinkedList<object>();
             }
 
-            double distance = Vector3.Distance(player.Location.Pos, system.Pos * Sector.EXPAND_FACTOR);
+            double distance = Vector3.Distance(player.Location.Pos, system.Pos * Galaxy.EXPAND_FACTOR);
             Console.WriteLine("Distance:" + distance);
             //give some wiggle room since server/client will not be perfectly in sync
             if (system != null && distance <= Simulator.WARP_DISTANCE_THRESHOLD * 2)

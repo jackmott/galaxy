@@ -31,11 +31,11 @@ namespace GalaxyShared
         {
             
             UserName = userName;
-            Location.SectorCoord = new SectorCoord(0, 0, 0);
+            Location.SectorCoord = new SectorCoord(-Galaxy.GALAXY_SIZE_SECTORS/2, 0, 0);
             Sector s = new Sector(Location.SectorCoord);
             Location.SystemPos = s.GenerateSystems(1)[0].Pos;                             
             Rotation = Quaternion.Identity;
-            Location.Pos = (Location.SystemPos * Sector.EXPAND_FACTOR) + Vector3.Transform(Vector3.Forward * .3d, Rotation);
+            Location.Pos = (Location.SystemPos * Galaxy.EXPAND_FACTOR) + Vector3.Transform(Vector3.Forward * .3d, Rotation);
             Throttle = 0;
             Location.InWarp = true;
             Ship = new Ship(this);

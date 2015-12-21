@@ -19,14 +19,14 @@ public class ClientSector  {
         int y = Sector.Coord.Y;
         int z = Sector.Coord.Z;
 
-        Hash = x + y * Sector.SECTOR_SIZE + z * Sector.SECTOR_SIZE * Sector.SECTOR_SIZE;
+        Hash = x + y * Galaxy.SECTOR_SIZE + z * Galaxy.SECTOR_SIZE * Galaxy.SECTOR_SIZE;
         Coord = new SectorCoord(x, y, z);
         
         Active = true;
 
-        UnityX = x * Sector.SECTOR_SIZE * Sector.EXPAND_FACTOR;
-        UnityY = y * Sector.SECTOR_SIZE * Sector.EXPAND_FACTOR;
-        UnityZ = z * Sector.SECTOR_SIZE * Sector.EXPAND_FACTOR;
+        UnityX = x * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR;
+        UnityY = y * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR;
+        UnityZ = z * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR;
 
 
         ParticleSystem.Particle[] particles = GenStars();
@@ -44,7 +44,7 @@ public class ClientSector  {
         
         foreach (SolarSystem system in Sector.Systems)
         {
-            particles[i].position = Utility.UVector(system.Pos*Sector.EXPAND_FACTOR);
+            particles[i].position = Utility.UVector(system.Pos*Galaxy.EXPAND_FACTOR);
             particles[i].startSize = system.Star.Size / 37.5f;
             particles[i].startColor = new Color(system.Star.Color.R / 255f, system.Star.Color.G / 255f, system.Star.Color.B / 255f);                  
             i++;

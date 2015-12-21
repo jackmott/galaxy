@@ -23,14 +23,14 @@ public class Warp : MonoBehaviour {
     // Use this for initialization
     void Start () {
 
-       
+        Galaxy.Init();
         // Thread thread = new Thread(new ThreadStart(NetworkLoop));
         // thread.Start();
 
         GameObject OriginalParticlePrefab = Resources.Load<GameObject>("StarParticles");
 
 
-        Camera.main.farClipPlane = (float)(Sector.SECTOR_SIZE * Sector.EXPAND_FACTOR * (SectorCount / 2f));
+        Camera.main.farClipPlane = (float)(Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR * (SectorCount / 2f));
         distanceThreshold = (double)Camera.main.farClipPlane;
         Ship.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
         Ship.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
@@ -47,10 +47,85 @@ public class Warp : MonoBehaviour {
             ParticleSystem p = go.GetComponent<ParticleSystem>();                    
             c.ParticleSystem = p;            
             c.Active = false;
-            c.Hash = i+Sector.GALAXY_SIZE_LIGHTYEARS+10;
+            c.Hash = i+Galaxy.GALAXY_SIZE_LIGHTYEARS+10;
             LoadedSectors.Add(c.Hash, c);
         }
+
+        int CUBE_SIZE = 256;
+        Cubemap background = new Cubemap(CUBE_SIZE, TextureFormat.ARGB32, true);
+
+        SectorCoord sc = NetworkManager.PlayerState.Location.SectorCoord;
+        Vector3 player = new Vector3(sc.X, sc.Y, sc.Z);
+        Debug.Log("player:" + player);
+        int dist = Galaxy.GALAXY_SIZE_SECTORS / 2 - sc.X;
+        float minb = 999;
+        float maxb = -999;
+        for (int x = 0; x < CUBE_SIZE; x = x + 1)
+        {
+            for (int y = 0; y < CUBE_SIZE; y = y + 1)
+            {
+                //get far vector
+                float sx = Galaxy.GALAXY_SIZE_SECTORS;
+                float sz = (y * (Galaxy.GALAXY_SIZE_SECTORS) / CUBE_SIZE) - Galaxy.GALAXY_SIZE_SECTORS / 2;
+                float sy = (x * (Galaxy.GALAXY_SIZE_SECTORS) / CUBE_SIZE) - Galaxy.GALAXY_SIZE_SECTORS / 2;
+                //  Debug.Log("sxetc:"+sx + "," + sy + "," + sz);
+                Vector3 far = player + new Vector3(sx, sy, sz);
+//                Debug.Log("far:" + far);
+                float distance = Vector3.Distance(player, far);
+                float pGap = 100.0f / distance;
+                Vector3 ray = far - player;
+                //Debug.Log("ray:"+ray);
+                float r = 0;
+                float g = 0;
+                float b = 0;
+                for (float pct = 0; pct <= 1; pct += pGap)
+                {
+                    Vector3 p = player+ ray * pct;
+                  //  Debug.Log("p:" + p);
+                    if ( Mathf.Abs(p.x) > Galaxy.GALAXY_SIZE_SECTORS/2.0f ||
+                         Mathf.Abs(p.y) > Galaxy.GALAXY_SIZE_SECTORS / 2.0f ||
+                         Mathf.Abs(p.z) > Galaxy.GALAXY_SIZE_SECTORS / 2.0f)
+                    {
+                    //    Debug.Log("Early exit");
+                        break;
+                    }
+                    
+                    
+                    SectorCoord s = new SectorCoord(Convert.ToInt32(p.x), Convert.ToInt32(p.y), Convert.ToInt32(p.z));
+                  //  Debug.Log("sector:"+s.X + "," + s.Y + "," + s.Z); 
+                    
+                    try {
+                        System.Drawing.Color cc = Galaxy.GetColorAt(s);
+                      //  Debug.Log("cc:" + cc);
+                        r += cc.R / 10.0f /  256.0f;
+                        g += cc.G / 10.0f /  256.0f;
+                        b += cc.B / 10.0f /  256.0f;
+//                        Debug.Log("rgb" + r + "," + g + "," + b);
+
+                    } catch (Exception e)
+                    {
+                        Debug.Log("FAIL");
+                        return;
+                    }
+
+                   
+
+                }
+              //  Debug.Log("rgb" + r + "," + g + "," + b);
+                Color c = new Color(r, g, b);
+          //      Debug.Log("color:"+c);
+                background.SetPixel(CubemapFace.PositiveX, x, y, c);
+                background.SetPixel(CubemapFace.NegativeX, x, y, c);
+                background.SetPixel(CubemapFace.PositiveY, x, y, c);
+                background.SetPixel(CubemapFace.NegativeY, x, y, c);
+                background.SetPixel(CubemapFace.PositiveZ, x, y, c);
+                background.SetPixel(CubemapFace.NegativeZ, x, y, c);
+            }
+        }
         
+        background.Apply();
+        Camera.main.GetComponent<Skybox>().material.SetTexture("_Tex", background);
+
 
     }
 
@@ -69,9 +144,9 @@ public class Warp : MonoBehaviour {
 
         XnaGeometry.Vector3 shipPos = NetworkManager.PlayerState.Location.Pos;
 
-        int x = Convert.ToInt32(shipPos.X / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
-        int y = Convert.ToInt32(shipPos.Y / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
-        int z = Convert.ToInt32(shipPos.Z / Sector.EXPAND_FACTOR / Sector.SECTOR_SIZE);
+        int x = Convert.ToInt32(shipPos.X / Galaxy.EXPAND_FACTOR / Galaxy.SECTOR_SIZE);
+        int y = Convert.ToInt32(shipPos.Y / Galaxy.EXPAND_FACTOR / Galaxy.SECTOR_SIZE);
+        int z = Convert.ToInt32(shipPos.Z / Galaxy.EXPAND_FACTOR / Galaxy.SECTOR_SIZE);
 
 
         int range = (SectorCount - 1) / 2;
@@ -82,17 +157,17 @@ public class Warp : MonoBehaviour {
         int maxY = y + range;
         int maxZ = z + range;
 
-        double secMult = Sector.EXPAND_FACTOR * Sector.SECTOR_SIZE;
+        double secMult = Galaxy.EXPAND_FACTOR * Galaxy.SECTOR_SIZE;
 
         double minDistance = double.MaxValue;
         ClientSector closestSector = null;
 
         for (z = minZ; z <= maxZ; z++)
         {
-            int zHash = z * Sector.SECTOR_SIZE * Sector.SECTOR_SIZE;
+            int zHash = z * Galaxy.SECTOR_SIZE * Galaxy.SECTOR_SIZE;
             for (y = minY; y <= maxY; y++)
             {
-                int yHash = y * Sector.SECTOR_SIZE;
+                int yHash = y * Galaxy.SECTOR_SIZE;
                 for (x = minX; x <= maxX; x++)
                 {
                     int hash = x + yHash + zHash;
@@ -166,7 +241,7 @@ public class Warp : MonoBehaviour {
         closeSystem = sector.Systems[0];
         foreach (SolarSystem s in sector.Systems)
         {
-            double distance = XnaGeometry.Vector3.Distance(pos, s.Pos * Sector.EXPAND_FACTOR);
+            double distance = XnaGeometry.Vector3.Distance(pos, s.Pos * Galaxy.EXPAND_FACTOR);
             if (distance < minDistance)
             {
                 minDistance = distance;
