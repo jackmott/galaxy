@@ -1,29 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
-
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 namespace GalaxyShared
 {
     public static class Galaxy
     {
-        public static Bitmap Hoag;
-        public static GalaxyColor[][][] GalaxyVolume;
-        public const int VOLUME_SCALE = 10;
-        public const int GALAXY_THICKNESS = 200;
+        public static byte[] HoagPixels;
+
+        
+        public const int VOLUME_DOWNSCALE = 20;
+
+
+        public const int HOAG_SIZE = 1024;
 
         public const int GALAXY_SIZE_LIGHTYEARS = 128000; //light years, cube
         public const int SECTOR_SIZE = 25; //light years cubed
-        public const int GALAXY_SIZE_SECTORS = GALAXY_SIZE_LIGHTYEARS / SECTOR_SIZE;
+        public const int GALAXY_SIZE_SECTORS = GALAXY_SIZE_LIGHTYEARS / SECTOR_SIZE;        
+        public const int GALAXY_THICKNESS_SECTORS = 20000 / SECTOR_SIZE;
         public const double EXPAND_FACTOR = 1d / 2.5d; //multiplied by galaxy coordinates to get unity coordinates
-        public const int HALF_SECTOR_SIZE = SECTOR_SIZE / 2;
+        
 
         private static float LightyearsPerPixel;
 
         public static void Init()
         {
+            Bitmap Hoag = null;
             if (Hoag == null)
             {
 
@@ -35,35 +38,34 @@ namespace GalaxyShared
                 {
                     Hoag = (Bitmap)Bitmap.FromFile("assets/hoag-ring.bmp");
                 }
-
-                LightyearsPerPixel = GALAXY_SIZE_LIGHTYEARS / Hoag.Width;
-            }
-            SectorCoord s = new SectorCoord(-2560, 0, 41);
-           Color c = GetColorAt(s);
-            Console.WriteLine(c);
+                BitmapData hoagdata = Hoag.LockBits(new Rectangle(0, 0, HOAG_SIZE, HOAG_SIZE), ImageLockMode.ReadWrite, Hoag.PixelFormat);                
+                HoagPixels = new byte[HOAG_SIZE * hoagdata.Stride];
+                IntPtr Iptr = hoagdata.Scan0;
+                Marshal.Copy(Iptr, HoagPixels, 0, HoagPixels.Length);
+                LightyearsPerPixel = (float)GALAXY_SIZE_LIGHTYEARS / (float)Hoag.Width;
+               
+            } 
         }
 
-        public static Color GetColorAt(SectorCoord coord)
+
+
+        public static Color GetColorAt(int x, int y, int z)
         {
-             
-
-            int adjustedSectorX = coord.X + GALAXY_SIZE_SECTORS / 2;
-            int adjustedSectorY = coord.Y + GALAXY_SIZE_SECTORS / 2;
-            
-
-            int pixelX = Convert.ToInt32(adjustedSectorX * SECTOR_SIZE / LightyearsPerPixel)-1;
-            int pixelY = Convert.ToInt32(adjustedSectorY * SECTOR_SIZE / LightyearsPerPixel)-1;
+                         
+            int pixelX = Convert.ToInt32(x*SECTOR_SIZE / LightyearsPerPixel)-1;
+            int pixelY = Convert.ToInt32(y*SECTOR_SIZE / LightyearsPerPixel)-1;
             pixelX = Math.Max(0, pixelX);
             pixelY = Math.Max(0, pixelY);
+            //24bit bitmap, 3 bytes per pixel
+            int i = (pixelY*HOAG_SIZE*3) + (pixelX*3);
+            Color c1 = Color.FromArgb(255, HoagPixels[i], HoagPixels[i + 1], HoagPixels[i + 2]);
+
+            float distanceFromGalacticPlane = Math.Abs(GALAXY_THICKNESS_SECTORS / 2.0f - z);
+
+            float zFactor = Math.Max(0, (400f - distanceFromGalacticPlane) / 400f);
+
+            return Color.FromArgb(Convert.ToInt32(c1.R * zFactor), Convert.ToInt32(c1.G * zFactor),Convert.ToInt32( c1.B * zFactor));
             
-
-            Color c1 = Hoag.GetPixel(pixelX,pixelY);
-
-            int z = Math.Abs(coord.Z);
-            float zFactor = Math.Max(0, (400.0f - z) / 400.0f);
-
-            Color result = Color.FromArgb(Convert.ToInt32(c1.R * zFactor), Convert.ToInt32(c1.G * zFactor),Convert.ToInt32( c1.B * zFactor));
-            return result;
 
         }
 

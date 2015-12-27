@@ -28,7 +28,7 @@ namespace GalaxyShared
             this.Coord = coord;            
                                             
             //things to be looked up from data somehow           
-            Color = Galaxy.GetColorAt(coord);
+            Color = Galaxy.GetColorAt(coord.X,coord.Y,coord.Z);
             float saturation = Color.GetSaturation();
             if (saturation < .4) DominantStarType = Star.F;
             else

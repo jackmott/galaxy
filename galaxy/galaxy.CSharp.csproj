@@ -16,7 +16,7 @@
     <CompilerResponseFile>Assets\smcs.rsp</CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
-    <UnityVersion>5.3.1f1</UnityVersion>
+    <UnityVersion>5.3.1p1</UnityVersion>
     <RootNamespace></RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -56,12 +56,6 @@
     </Reference>
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
@@ -142,6 +136,12 @@
     <Compile Include="Assets\SLS\Widgets\Table\InputCell.cs" />
     <Compile Include="Assets\SLS\Widgets\Table\MeasureMaster.cs" />
     <Compile Include="Assets\SLS\Widgets\Table\Row.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Samples\AutoUpdating.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Samples\AutoUpdatingAll.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Samples\DataTable.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Samples\DataTableData.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Samples\KitchenSink.cs" />
+    <Compile Include="Assets\SLS\Widgets\Table\Samples\Simple.cs" />
     <Compile Include="Assets\SLS\Widgets\Table\ScrollWatcher.cs" />
     <Compile Include="Assets\SLS\Widgets\Table\Spinner.cs" />
     <Compile Include="Assets\SLS\Widgets\Table\Table.cs" />
@@ -150,6 +150,7 @@
     <Compile Include="Assets\src\ClientObject\ClientSector.cs" />
     <Compile Include="Assets\src\ClientObject\ClientSolarSystem.cs" />
     <Compile Include="Assets\src\ClientObject\ClientStar.cs" />
+    <Compile Include="Assets\src\GalaxyGlow.cs" />
     <Compile Include="Assets\src\Gui\Hud.cs" />
     <Compile Include="Assets\src\Gui\IHasInfo.cs" />
     <Compile Include="Assets\src\Gui\Info.cs" />

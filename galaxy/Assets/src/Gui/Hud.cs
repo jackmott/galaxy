@@ -49,7 +49,7 @@ public class Hud : MonoBehaviour
         {
             StationModule sm = (StationModule)System.Activator.CreateInstance(sType);
             sm.SetDataFromJSON();
-            Datum d = Datum.Body(sm.Name,sm);
+            Datum d = Datum.Body(sm.Name);
             d.elements.Add(sm.Name);
             if (sm.CanBuild(NetworkManager.PlayerState))
             {
@@ -84,7 +84,7 @@ public class Hud : MonoBehaviour
         {
             ActionElementMap buttonMap = inputPlayer.controllers.maps.GetFirstButtonMapWithAction(action.id, true);
             Datum d = Datum.Body(action.name);            
-            d.elements.Add(GenerateMenuItem(buttonMap.elementIdentifierName, action.descriptiveName),action);
+            d.elements.Add(GenerateMenuItem(buttonMap.elementIdentifierName, action.descriptiveName));
             MenuTable.data.Add(d);
         }
         MenuTable.startRenderEngine();
@@ -157,18 +157,19 @@ public class Hud : MonoBehaviour
             if (ActiveMenu == Menu.Main)
             {
                 Element e = MenuTable.GetSelectedElement();
-                action = (InputAction)e.GetPayload();                
+
+                //action = (InputAction)e.GetPayload();                
             }
             if (ActiveMenu == Menu.Build)
             {
                 Datum d = MenuTable.selectedDatum;
-                StationModule sm = (StationModule)d.GetPayload();
-                if (sm.CanBuild(NetworkManager.PlayerState))
-                {
-                    ConstructionMessage cm = new ConstructionMessage();
-                    cm.ClassName = sm.GetType().Name;                    
-                    NetworkManager.Send(cm);
-                }
+               // StationModule sm = (StationModule)d.GetPayload();
+               // if (sm.CanBuild(NetworkManager.PlayerState))
+                //{
+                  //  ConstructionMessage cm = new ConstructionMessage();
+                   // cm.ClassName = sm.GetType().Name;                    
+                    //NetworkManager.Send(cm);
+                //}
             }
 
 

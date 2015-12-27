@@ -2,31 +2,25 @@
 using System.Collections.Generic;
 using System;
 using GalaxyShared;
-
+using System.Diagnostics;
 
 
 
 [AddComponentMenu("Camera/Warp ")]
-public class Warp : MonoBehaviour {
-    
-    
-    int SectorCount = 9; //must be odd
-    ClientSector SectorToRemove = null;
-    
-    public GameObject Ship;
-        
-    Dictionary<int,ClientSector> LoadedSectors;
+public class Warp : MonoBehaviour
+{
+    const int SectorCount = 9; //must be odd
 
-    double distanceThreshold; 
+    ClientSector SectorToRemove = null;
+    public GameObject Ship;
+    Dictionary<int, ClientSector> LoadedSectors;
+    double distanceThreshold;
 
 
     // Use this for initialization
-    void Start () {
-
+    void Start()
+    {
         Galaxy.Init();
-        // Thread thread = new Thread(new ThreadStart(NetworkLoop));
-        // thread.Start();
-
         GameObject OriginalParticlePrefab = Resources.Load<GameObject>("StarParticles");
 
 
@@ -35,112 +29,108 @@ public class Warp : MonoBehaviour {
         Ship.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
         Ship.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
         Ship.transform.Translate(Vector3.forward * .2f);
-       
+
 
         //warm up clientsectors
-        LoadedSectors = new Dictionary<int, ClientSector>();        
-        for (int i = 0; i < SectorCount*SectorCount*SectorCount; i++)
+        LoadedSectors = new Dictionary<int, ClientSector>();
+        for (int i = 0; i < SectorCount * SectorCount * SectorCount; i++)
         {
-            
+
             ClientSector c = new ClientSector();
-            GameObject go = (GameObject)Instantiate(OriginalParticlePrefab,Vector3.zero, Quaternion.identity);            
-            ParticleSystem p = go.GetComponent<ParticleSystem>();                    
-            c.ParticleSystem = p;            
+            GameObject go = (GameObject)Instantiate(OriginalParticlePrefab, Vector3.zero, Quaternion.identity);
+            ParticleSystem p = go.GetComponent<ParticleSystem>();
+            c.ParticleSystem = p;
             c.Active = false;
-            c.Hash = i+Galaxy.GALAXY_SIZE_LIGHTYEARS+10;
+            c.Hash = i + Galaxy.GALAXY_SIZE_LIGHTYEARS + 10;
             LoadedSectors.Add(c.Hash, c);
         }
 
-        int CUBE_SIZE =512;
-        Cubemap background = new Cubemap(CUBE_SIZE, TextureFormat.ARGB32, true);
 
-        SectorCoord sc = NetworkManager.PlayerState.Location.SectorCoord;
-        Vector3 player = new Vector3(sc.X, sc.Y, sc.Z);
-        Debug.Log("player:" + player);
-        int dist = Galaxy.GALAXY_SIZE_SECTORS / 2 - sc.X;
-        float minb = 999;
-        float maxb = -999;
-        for (int x = 0; x < CUBE_SIZE; x = x + 1)
-        {
-            for (int y = 0; y < CUBE_SIZE; y = y + 1)
-            {
-                //get far vector
-                float sx = Galaxy.GALAXY_SIZE_SECTORS;
-                float sz = (y * (Galaxy.GALAXY_SIZE_SECTORS) / CUBE_SIZE) - Galaxy.GALAXY_SIZE_SECTORS / 2;
-                float sy = (x * (Galaxy.GALAXY_SIZE_SECTORS) / CUBE_SIZE) - Galaxy.GALAXY_SIZE_SECTORS / 2;
-                //  Debug.Log("sxetc:"+sx + "," + sy + "," + sz);
-                Vector3 far = player + new Vector3(sx, sy, sz);
-//                Debug.Log("far:" + far);
-                float distance = Vector3.Distance(player, far);
-                float pGap = 100.0f / distance;
-                Vector3 ray = far - player;
-                //Debug.Log("ray:"+ray);
-                float r = 0;
-                float g = 0;
-                float b = 0;
-                for (float pct = 0; pct <= 1; pct += pGap)
-                {
-                    Vector3 p = player+ ray * pct;
-                  //  Debug.Log("p:" + p);
-                    if ( Mathf.Abs(p.x) > Galaxy.GALAXY_SIZE_SECTORS/2.0f ||
-                         Mathf.Abs(p.y) > Galaxy.GALAXY_SIZE_SECTORS / 2.0f ||
-                         Mathf.Abs(p.z) > Galaxy.GALAXY_SIZE_SECTORS / 2.0f)
-                    {
-                    //    Debug.Log("Early exit");
-                        break;
-                    }
-
-
-                    SectorCoord s = new SectorCoord(Convert.ToInt32(p.x), Convert.ToInt32(p.y), Convert.ToInt32(p.z));
-                 //  Debug.Log("sector:"+s.X + "," + s.Y + "," + s.Z); 
-                    
-                    try {
-                        System.Drawing.Color cc = Galaxy.GetColorAt(s);
-                     //   Debug.Log("cc:" + cc);
-                        r += cc.R / 20.0f /  256.0f;
-                        g += cc.G / 20.0f /  256.0f;
-                        b += cc.B / 20.0f /  256.0f;
-//                        Debug.Log("rgb" + r + "," + g + "," + b);
-
-                    } catch (Exception e)
-                    {
-                        Debug.Log("FAIL");
-                        return;
-                    }
-
-                   
-
-                }
-              //  Debug.Log("rgb" + r + "," + g + "," + b);
-                Color c = new Color(r, g, b);
-          //      Debug.Log("color:"+c);
-                background.SetPixel(CubemapFace.PositiveX, x, y, c);
-                background.SetPixel(CubemapFace.NegativeX, x, y, c);
-                background.SetPixel(CubemapFace.PositiveY, x, y, c);
-                background.SetPixel(CubemapFace.NegativeY, x, y, c);
-                background.SetPixel(CubemapFace.PositiveZ, x, y, c);
-                background.SetPixel(CubemapFace.NegativeZ, x, y, c);
-            }
-        }
-        
-        background.Apply();
-        Camera.main.GetComponent<Skybox>().material.SetTexture("_Tex", background);
-
+        GalaxyGlow();
 
     }
 
+    public Vector3 RandomVector(FastRandom r)
+    {
+        Vector3 v = new Vector3(r.NextGaussianFloat(), r.NextGaussianFloat(), r.NextGaussianFloat());
+        v.Normalize();
+        return v;
+    }
 
-	// Update is called once per frame
-	void Update () {
-        
+    public void GalaxyGlow()
+    {
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+        FastRandom rand = new FastRandom(1.0, 2.0, 3.0);
+        int POINT_COUNT = 5000;
+        Vector3[] points = new Vector3[POINT_COUNT];
+        SectorCoord s = NetworkManager.PlayerState.Location.SectorCoord;
+        Vector3 sector = new Vector3(s.X, s.Y, s.Z);
+        Vector3 player = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
+        List<ParticleSystem.Particle> particleList = new List<ParticleSystem.Particle>(10000);
+        for (int i = 0; i < points.Length; i++)
+        {
+            Vector3 unit = RandomVector(rand);
+            Vector3 galaxyRay = unit * Galaxy.GALAXY_SIZE_SECTORS;
+            float r = 0;
+            float g = 0;
+            float b = 0;
+            int count = 0;
+            for (float pct = .2f; pct <= 1; pct = pct + .025f)
+            {
+                count++;
+                Vector3 pos = sector + galaxyRay * pct;
+                // UnityEngine.Debug.Log(pos.x + "," + pos.y + "," + pos.z);
+                if (pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= Galaxy.GALAXY_SIZE_SECTORS || pos.y >= Galaxy.GALAXY_SIZE_SECTORS || pos.z >= Galaxy.GALAXY_THICKNESS_SECTORS)
+                {
+                    // UnityEngine.Debug.Log("break");
+                    break;
+                }
+
+                System.Drawing.Color c = Galaxy.GetColorAt(Convert.ToInt32(pos.x), Convert.ToInt32(pos.y), Convert.ToInt32(pos.z));
+                r = r + c.R;
+                g = g + c.G;
+                b = b + c.B;
+
+            }
+
+            if (r + g + b > .01f)
+            {
+               
+                float scale = 10000f;
+                ParticleSystem.Particle p = new ParticleSystem.Particle();
+                p.startColor = new Color(r/scale, g / scale, b / scale);               
+                p.startSize = 10;
+                p.position = player + unit * 20;
+               // UnityEngine.Debug.Log(player);
+                particleList.Add(p);
+            }
+            //  UnityEngine.Debug.Log(p[i].startColor);                      
+
+        }
+
+        GameObject glowGO = (GameObject)Instantiate(Resources.Load<GameObject>("GlowParticles"),Vector3.zero, Quaternion.identity);
+        ParticleSystem psystem = glowGO.GetComponent<ParticleSystem>();
+        psystem.SetParticles(particleList.ToArray(),particleList.Count);
+        UnityEngine.Debug.Log(particleList.Count + "particles generated for glow");
+        /*Cubemap skybox = new Cubemap(4096, TextureFormat.ARGB32, false);
+        Camera.main.RenderToCubemap(skybox);
+        Camera.main.GetComponent<Skybox>().material.SetTexture("_Tex", skybox);
+        Destroy(psystem);*/
+        UnityEngine.Debug.Log("GenerateGlow:" + stopwatch.ElapsedMilliseconds);
+    }
+
+
+    // Update is called once per frame
+    void Update()
+    {
+
         UpdateSectors();
 
     }
 
     void UpdateSectors()
     {
-
-        
 
         XnaGeometry.Vector3 shipPos = NetworkManager.PlayerState.Location.Pos;
 
@@ -176,34 +166,36 @@ public class Warp : MonoBehaviour {
                     //check what sector to remove, we remove only 1 per update
                     if (LoadedSectors.ContainsKey(hash))
                     {
-                                             
+
                         if (distance > distanceThreshold && SectorToRemove == null)
-                        {                            
+                        {
                             LoadedSectors.TryGetValue(hash, out SectorToRemove);
                             SectorToRemove.Dispose();
                             LoadedSectors.Remove(hash);
-                          //  UnityEngine.Debug.Log("Removing chunk");
-                                              
-                        } else if (distance < minDistance)
+                            //  UnityEngine.Debug.Log("Removing chunk");
+
+                        }
+                        else if (distance < minDistance)
                         {
                             minDistance = distance;
                             LoadedSectors.TryGetValue(hash, out closestSector);
                         }
-                        
+
                     }
                     else if (distance < distanceThreshold)
                     {
                         if (SectorToRemove != null)
                         {
-                          //  UnityEngine.Debug.Log("Generating new chunk");
+                            //  UnityEngine.Debug.Log("Generating new chunk");
                             Sector s = new Sector(new SectorCoord(x, y, z));
                             s.GenerateSystems(1);
                             SectorToRemove.Activate(s);
-                            LoadedSectors.Add(SectorToRemove.Hash,SectorToRemove);
+                            LoadedSectors.Add(SectorToRemove.Hash, SectorToRemove);
                             SectorToRemove = null;
-                         //   UnityEngine.Debug.Log("ChunkGenerated");
+                            //   UnityEngine.Debug.Log("ChunkGenerated");
                             return;
-                        } else
+                        }
+                        else
                         {
                             foreach (ClientSector cs in LoadedSectors.Values)
                             {
@@ -221,7 +213,7 @@ public class Warp : MonoBehaviour {
         if (closestSector != null)
         {
             SolarSystem s;
-            double distance = GetClosestSystem(closestSector.Sector, shipPos,out s);
+            double distance = GetClosestSystem(closestSector.Sector, shipPos, out s);
             if (distance < Simulator.WARP_DISTANCE_THRESHOLD)
             {
                 DropOutOfWarp(s);
@@ -229,8 +221,8 @@ public class Warp : MonoBehaviour {
         }
 
 
-   
-       
+
+
 
     }//updatesectors
 
@@ -263,5 +255,5 @@ public class Warp : MonoBehaviour {
     }
 
 
-   
+
 }

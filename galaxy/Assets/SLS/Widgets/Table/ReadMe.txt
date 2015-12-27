@@ -1,4 +1,4 @@
-Thanks for using Table Pro!
+Thanks for using Table Pro (v1.007)!
 
 Simple instructions to get started:
 

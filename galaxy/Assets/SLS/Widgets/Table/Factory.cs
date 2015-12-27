@@ -258,6 +258,7 @@ public class Factory  {
         rt.localPosition = Vector3.zero;
         rt.sizeDelta = Vector2.zero;
         rt.SetParent(this.table.root, false);
+        this.table.columnOverlay = rt;
 
         go = new GameObject();
         this.table.columnOverlayContent = go.AddComponent<RectTransform>();
@@ -464,8 +465,11 @@ public class Factory  {
           rt.transform.SetParent(row.rt, false);
         }
       } // if rows.Count <= i
-      else
+      else {
         row = this.table.rows[i];
+        row.isOver = false;
+        row.isDown = false;
+      }
 
       this.instantiateCells(row, false, false);
 

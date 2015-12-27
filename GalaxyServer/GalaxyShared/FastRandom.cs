@@ -177,7 +177,23 @@ namespace GalaxyShared
             return (float)NextDouble() * (max - min) + min;
         }
 
-        
+        public float NextGaussianFloat()
+        {
+            float u, v, S;
+
+            do
+            {
+                u = 2.0f * this.Next(0f,1f) - 1.0f;
+                v = 2.0f * this.Next(0f,1f) - 1.0f;
+                S = u * u + v * v;
+            }
+            while (S >= 1.0);
+
+            float fac =(float) Math.Sqrt(-2.0f * (float)Math.Log(S) / S);
+            return u * fac;
+        }
+
+
     }
 
 }

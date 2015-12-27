@@ -31,7 +31,7 @@ namespace GalaxyShared
         {
             
             UserName = userName;
-            Location.SectorCoord = new SectorCoord(-Galaxy.GALAXY_SIZE_SECTORS/2, 0, 0);
+            Location.SectorCoord = new SectorCoord(Galaxy.GALAXY_SIZE_SECTORS/2, Galaxy.GALAXY_SIZE_SECTORS/2, Galaxy.GALAXY_THICKNESS_SECTORS/2);
             Sector s = new Sector(Location.SectorCoord);
             Location.SystemPos = s.GenerateSystems(1)[0].Pos;                             
             Rotation = Quaternion.Identity;
