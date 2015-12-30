@@ -150,7 +150,6 @@
     <Compile Include="Assets\src\ClientObject\ClientSector.cs" />
     <Compile Include="Assets\src\ClientObject\ClientSolarSystem.cs" />
     <Compile Include="Assets\src\ClientObject\ClientStar.cs" />
-    <Compile Include="Assets\src\GalaxyGlow.cs" />
     <Compile Include="Assets\src\Gui\Hud.cs" />
     <Compile Include="Assets\src\Gui\IHasInfo.cs" />
     <Compile Include="Assets\src\Gui\Info.cs" />
@@ -367,6 +366,7 @@
     <None Include="Assets\ShaderForge\Editor\InternalResources\Shader Presets\PresetUnlit.shader" />
     <None Include="Assets\ShaderForge\Readme.txt" />
     <None Include="Assets\ShaderForge\ShaderForgeBase.shader" />
+    <None Include="Assets\Shaders\GlowShader.shader" />
     <None Include="Assets\Shaders\ImprovedPerlinNoise3D.shader" />
     <None Include="Assets\Shaders\PerlinBumpmap.shader" />
     <None Include="Assets\Shaders\Standard.shader" />

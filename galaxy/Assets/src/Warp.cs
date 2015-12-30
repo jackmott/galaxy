@@ -24,8 +24,7 @@ public class Warp : MonoBehaviour
         GameObject OriginalParticlePrefab = Resources.Load<GameObject>("StarParticles");
 
 
-        Camera.main.farClipPlane = (float)(Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR * (SectorCount / 2f));
-        distanceThreshold = (double)Camera.main.farClipPlane;
+      
         Ship.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
         Ship.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
         Ship.transform.Translate(Vector3.forward * .2f);
@@ -48,6 +47,11 @@ public class Warp : MonoBehaviour
 
         GalaxyGlow();
 
+        Camera.main.farClipPlane = (float)(Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR * (SectorCount / 2f));
+        Camera.main.nearClipPlane = 0.5f;
+        
+        distanceThreshold = (double)Camera.main.farClipPlane;
+
     }
 
     public Vector3 RandomVector(FastRandom r)
@@ -62,7 +66,7 @@ public class Warp : MonoBehaviour
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
         FastRandom rand = new FastRandom(1.0, 2.0, 3.0);
-        int POINT_COUNT = 5000;
+        int POINT_COUNT = 100000;
         Vector3[] points = new Vector3[POINT_COUNT];
         SectorCoord s = NetworkManager.PlayerState.Location.SectorCoord;
         Vector3 sector = new Vector3(s.X, s.Y, s.Z);
@@ -97,26 +101,77 @@ public class Warp : MonoBehaviour
             if (r + g + b > .01f)
             {
                
-                float scale = 10000f;
+                float scale = 30000f;
                 ParticleSystem.Particle p = new ParticleSystem.Particle();
                 p.startColor = new Color(r/scale, g / scale, b / scale);               
-                p.startSize = 10;
-                p.position = player + unit * 20;
+                p.startSize = 100;
+                            
+                p.position = player + unit * 400;                
                // UnityEngine.Debug.Log(player);
                 particleList.Add(p);
             }
             //  UnityEngine.Debug.Log(p[i].startColor);                      
 
         }
+     
+        GameObject glowGO = (GameObject)Instantiate(Resources.Load<GameObject>("GlowParticles"),player, Quaternion.identity);
 
-        GameObject glowGO = (GameObject)Instantiate(Resources.Load<GameObject>("GlowParticles"),Vector3.zero, Quaternion.identity);
+        GameObject camLO = (GameObject)Instantiate(Resources.Load<GameObject>("GlowCamera"), player, Quaternion.identity);
+        Camera camL = camLO.GetComponent<Camera>();
+        GameObject camRO = (GameObject)Instantiate(Resources.Load<GameObject>("GlowCamera"), player, Quaternion.identity);
+        Camera camR = camRO.GetComponent<Camera>();
+        GameObject camUO = (GameObject)Instantiate(Resources.Load<GameObject>("GlowCamera"), player, Quaternion.identity);
+        Camera camU = camUO.GetComponent<Camera>();
+        GameObject camDO = (GameObject)Instantiate(Resources.Load<GameObject>("GlowCamera"), player, Quaternion.identity);
+        Camera camD = camDO.GetComponent<Camera>();
+        GameObject camFO = (GameObject)Instantiate(Resources.Load<GameObject>("GlowCamera"), player, Quaternion.identity);
+        Camera camF = camFO.GetComponent<Camera>();
+        GameObject camBO = (GameObject)Instantiate(Resources.Load<GameObject>("GlowCamera"), player, Quaternion.identity);
+        Camera camB = camBO.GetComponent<Camera>();
+
+
+
         ParticleSystem psystem = glowGO.GetComponent<ParticleSystem>();
         psystem.SetParticles(particleList.ToArray(),particleList.Count);
         UnityEngine.Debug.Log(particleList.Count + "particles generated for glow");
-        /*Cubemap skybox = new Cubemap(4096, TextureFormat.ARGB32, false);
-        Camera.main.RenderToCubemap(skybox);
+
+    
+        Cubemap skybox = new Cubemap(2048, TextureFormat.ARGB32, false);
+
+        camL.transform.LookAt(player + Vector3.left);     
+        camL.RenderToCubemap(skybox, 1 << (int)CubemapFace.NegativeX);
+
+        camR.transform.LookAt(player + Vector3.right);        
+        camR.RenderToCubemap(skybox, 1 << (int)CubemapFace.PositiveX);
+
+        camU.transform.LookAt(player + Vector3.up);        
+        camU.RenderToCubemap(skybox, 1 << (int)CubemapFace.PositiveY);
+
+        camD.transform.LookAt(player + Vector3.down);        
+        camD.RenderToCubemap(skybox, 1 << (int)CubemapFace.NegativeY);
+
+        camF.transform.LookAt(player + Vector3.forward);        
+        camF.RenderToCubemap(skybox, 1 << (int)CubemapFace.PositiveZ);
+
+        camB.transform.LookAt(player + Vector3.back);        
+        camB.RenderToCubemap(skybox, 1 << (int)CubemapFace.NegativeZ);
+
+
+
         Camera.main.GetComponent<Skybox>().material.SetTexture("_Tex", skybox);
-        Destroy(psystem);*/
+
+        
+
+       
+       
+        Destroy(glowGO);
+        Destroy(camLO);
+        Destroy(camRO);
+        Destroy(camUO);
+        Destroy(camDO);
+        Destroy(camFO);
+        Destroy(camBO);
+
         UnityEngine.Debug.Log("GenerateGlow:" + stopwatch.ElapsedMilliseconds);
     }
 

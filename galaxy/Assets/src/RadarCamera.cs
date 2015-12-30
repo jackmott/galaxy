@@ -5,22 +5,8 @@ public class RadarCamera : MonoBehaviour {
 
     
 
-	// Use this for initialization
-	void Start () {
 	
-	}
-
-    void Awake()
-    {
-                
-
-    }
-
-    void LateUpdate()
-    {
-        
-    }
-
+    
 
     // Update is called once per frame
     void Update () {
