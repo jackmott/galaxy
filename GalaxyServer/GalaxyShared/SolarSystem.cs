@@ -38,8 +38,7 @@ namespace GalaxyShared
 
 
         public SolarSystem(int index, Sector parentSector, Vector3 pos, FastRandom rand)
-        {
-            InitLists();
+        {         
             ParentSector = parentSector;
             ParentSectorCoord = parentSector.Coord;
             Index = index;
@@ -77,7 +76,7 @@ namespace GalaxyShared
         public void Generate()
         {
 
-            FastRandom Rand = new FastRandom(Pos.X, Pos.Y, Pos.Z);
+            FastRandom Rand = new FastRandom((int)Pos.X, (int)Pos.Y, (int)Pos.Z);
 
             List<int> availableOrbits = new List<int>();
             int numOrbits = 25;
@@ -108,7 +107,7 @@ namespace GalaxyShared
                     int numAsteroids = Rand.Next(20 * orbit, 100 * orbit);
                     for (int i = 0; i < numAsteroids;i++)
                     {
-                        double magnitude = Rand.Next(50d, 500d);
+                        float magnitude = Rand.Next(50f, 500f);
                         Vector3 posAdjust = new Vector3(Rand.Next(-magnitude, magnitude), Rand.Next(-magnitude, magnitude), Rand.Next(-magnitude, magnitude));                        
                         Asteroids.Add(new Asteroid(this, orbit,Rand.Next(0.0f,(float)MathHelper.TwoPi),(byte)Rand.Next(1,255),posAdjust,asteroidIndex));
                         asteroidIndex++;

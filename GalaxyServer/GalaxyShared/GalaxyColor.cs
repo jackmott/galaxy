@@ -6,28 +6,20 @@ namespace GalaxyShared
     public struct GalaxyColor
     {
         [ProtoMember(1)]
-        public byte R;
+        public float r;
         [ProtoMember(2)]
-        public byte G;
+        public float g;
         [ProtoMember(3)]
-        public byte B;
+        public float b;
 
 
-        private GalaxyColor(byte r,byte g, byte b)
+        public GalaxyColor(float r,float g, float b)
         {
-            this.R = r;
-            this.G = g;
-            this.B = b;
+            this.r = r;
+            this.g = g;
+            this.b = b;
 
         }
-        public static GalaxyColor FromArgb(int r,int g, int b)
-        {
-            return new GalaxyColor((byte)r, (byte)g, (byte)b);            
-        }
-
-        public static GalaxyColor FromArgb(byte r, byte g, byte b)
-        {
-            return new GalaxyColor(r, g, b);
-        }
+        
     }
 }

@@ -20,7 +20,7 @@ public class ClientPlanet : MonoBehaviour, IHasInfo
     void Start()
     {
 
-        rand = new FastRandom(transform.position.x, transform.position.y, transform.position.z);
+        rand = new FastRandom((int)transform.position.x, (int)transform.position.y,(int) transform.position.z);
         noise = new NoiseMaker(Planet.Octaves, Planet.Lacunarity, Planet.Gain, rand.Next(0.0f, 2.0f), Planet.Frequency, (NoiseMaker.FractalType)rand.Next(0, 3), (NoiseMaker.NoiseType)rand.Next(0, 1));
         string normalName = PlanetNormals[rand.Next(0, PlanetNormals.Length)];
         Gradient = GenerateColorGradient();

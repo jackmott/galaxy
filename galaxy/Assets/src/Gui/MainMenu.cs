@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using GalaxyShared;
 using UnityEngine.UI;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 public class MainMenu : MonoBehaviour {
 
@@ -13,6 +15,7 @@ public class MainMenu : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+      
         NewUserMessage msg = new NewUserMessage("jack", "mott");
         NetworkManager.Send(msg);
     }

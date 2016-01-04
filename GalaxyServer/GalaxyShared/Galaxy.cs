@@ -8,24 +8,25 @@ namespace GalaxyShared
     public static class Galaxy
     {
         public static byte[] HoagPixels;
-
-        
-        public const int VOLUME_DOWNSCALE = 20;
-
-
+                     
         public const int HOAG_SIZE = 1024;
 
         public const int GALAXY_SIZE_LIGHTYEARS = 128000; //light years, cube
         public const int SECTOR_SIZE = 25; //light years cubed
+        public const float HALF_SECTOR_SIZE = SECTOR_SIZE / 2f;
+        public const int SECTOR_SIZE_CUBED = SECTOR_SIZE * SECTOR_SIZE * SECTOR_SIZE;
         public const int GALAXY_SIZE_SECTORS = GALAXY_SIZE_LIGHTYEARS / SECTOR_SIZE;        
         public const int GALAXY_THICKNESS_SECTORS = 20000 / SECTOR_SIZE;
-        public const double EXPAND_FACTOR = 1d / 2.5d; //multiplied by galaxy coordinates to get unity coordinates
+        public const float EXPAND_FACTOR = 1f / 2.5f; //multiplied by galaxy coordinates to get unity coordinates
         
 
         private static float LightyearsPerPixel;
 
         public static void Init()
         {
+            
+
+
             Bitmap Hoag = null;
             if (Hoag == null)
             {

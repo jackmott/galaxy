@@ -12,13 +12,10 @@ namespace GalaxyShared
        
         public SectorCoord Coord;
         public Color Color;
-        public List<SolarSystem> Systems;
+        public SolarSystem[] Systems;
         public int DominantStarType;
         public float StellarDensity;
-        
-
-       
-
+               
         private FastRandom r = new FastRandom(0);
 
 
@@ -46,19 +43,18 @@ namespace GalaxyShared
         public SolarSystem GenerateSystem(int index)
         {
             r.Init(Coord.X, Coord.Y, Coord.Z, index);
-            Vector3 starCoord = new Vector3(r.Next(-Galaxy.SECTOR_SIZE /2d, Galaxy.SECTOR_SIZE /2d) + Coord.X * Galaxy.SECTOR_SIZE, r.Next(-Galaxy.SECTOR_SIZE /2d, Galaxy.SECTOR_SIZE /2d) + Coord.Y * Galaxy.SECTOR_SIZE, r.Next(-Galaxy.SECTOR_SIZE /2d, Galaxy.SECTOR_SIZE /2d) + Coord.Z * Galaxy.SECTOR_SIZE);
+            Vector3 starCoord = new Vector3(r.Next(-Galaxy.SECTOR_SIZE /2f, Galaxy.SECTOR_SIZE /2f) + Coord.X * Galaxy.SECTOR_SIZE, r.Next(-Galaxy.SECTOR_SIZE /2f, Galaxy.SECTOR_SIZE /2f) + Coord.Y * Galaxy.SECTOR_SIZE, r.Next(-Galaxy.SECTOR_SIZE /2f, Galaxy.SECTOR_SIZE /2f) + Coord.Z * Galaxy.SECTOR_SIZE);
             SolarSystem system = new SolarSystem(index, this, starCoord,r);            
             return system;
         }
 
-        public List<SolarSystem> GenerateSystems(int everyNth)
-        {
-            int sectorCubed = Galaxy.SECTOR_SIZE * Galaxy.SECTOR_SIZE * Galaxy.SECTOR_SIZE;  //how many lights years cubed are there?
-            int starCount = (int)Math.Floor(StellarDensity * sectorCubed);
-            Systems = new List<SolarSystem>(starCount);
-            for (int i = 0; i < starCount; i=i+everyNth)
+        public SolarSystem[] GenerateSystems()
+        {            
+            int starCount = (int)(StellarDensity * Galaxy.SECTOR_SIZE_CUBED);
+            Systems = new SolarSystem[starCount];
+            for (int i = 0; i < starCount; i=i+1)
             {
-                Systems.Add(GenerateSystem(i));
+                Systems[i] = GenerateSystem(i);
             }
             return Systems;
         }

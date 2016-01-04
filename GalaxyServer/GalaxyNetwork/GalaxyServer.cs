@@ -7,6 +7,7 @@ using System.IO;
 using GalaxyShared;
 using ProtoBuf;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace GalaxyServer
 {
@@ -38,6 +39,12 @@ namespace GalaxyServer
 
         public static void Main(string[] args)
         {
+            FastRandom r = new FastRandom(1, 2, 3);
+            for (int i = 0; i < 50;i++)
+            {
+                float n = r.Next(1f,10f);
+                Console.WriteLine(n);
+            }
             Galaxy.Init();
             GalaxyServer server = new GalaxyServer();          
 

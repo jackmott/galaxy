@@ -16,6 +16,16 @@ namespace GalaxyShared
         public const int K = 5;
         public const int M = 6;
 
+        public static GalaxyColor[] StarColors =
+            {   new GalaxyColor(149/255f, 71/255f, 254/255f),
+                new GalaxyColor(123/255f, 109/255f, 252/255f),
+                new GalaxyColor(186/255f, 179/255f, 253/255f),
+                new GalaxyColor(255/255f, 255/255f, 255/255f),
+                new GalaxyColor(255/255f, 247/255f, 85/255f),
+                new GalaxyColor(240/255f, 96/255f, 0/255f),
+                new GalaxyColor(250/255f, 18/255f, 5/255f)
+            };
+
         [ProtoMember(1)]
         public int Type;
         [ProtoMember(2)]
@@ -23,11 +33,6 @@ namespace GalaxyShared
 
         [ProtoMember(3)]
         public GalaxyColor Color;
-
-        
-
-        
-
 
         //360/30 = 12 buckets
         //saturation value will map to StarTypeF
@@ -74,38 +79,14 @@ namespace GalaxyShared
         public Star() { }
 
         public Star(SolarSystem parentSystem, FastRandom rand)
-        {            
+        {
+            
             ParentSystem = parentSystem;
             Sector s = ParentSystem.ParentSector;
             Type = typeToTypeDistribution[s.DominantStarType][rand.Next(0, 10)];
             Size = typeToSizeDistribution[Type][rand.Next(0, 10)];
-
+            Color = StarColors[(int)Type];
             
-            switch (Type)
-            {
-                case Star.O:
-                    Color = GalaxyColor.FromArgb(149, 71, 254);
-                    break;
-                case Star.B:
-                    Color = GalaxyColor.FromArgb(123, 109, 252);
-                    break;
-                case Star.A:
-                    Color = GalaxyColor.FromArgb(186, 179, 253);
-                    break;
-                case Star.F:
-                    Color = GalaxyColor.FromArgb(255, 255, 255);
-                    break;
-                case Star.G:
-                    Color = GalaxyColor.FromArgb(255, 247, 85);
-                    break;
-                case Star.K:
-                    Color = GalaxyColor.FromArgb(240, 96, 0);
-                    break;
-                case Star.M:
-                    Color = GalaxyColor.FromArgb(250, 18, 5);
-                    break;
-            }
-
         }
 
     }

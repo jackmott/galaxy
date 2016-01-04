@@ -3,10 +3,7 @@ using System.Collections;
 
 public class RadarCamera : MonoBehaviour {
 
-    
-
-	
-    
+    	    
 
     // Update is called once per frame
     void Update () {

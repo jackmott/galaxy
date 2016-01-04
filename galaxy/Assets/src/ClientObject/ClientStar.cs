@@ -28,7 +28,7 @@ public class ClientStar : MonoBehaviour, IHasInfo {
 
     public Texture2D GenerateColorGradient()
     {
-        Color primeColor = new Color(Star.Color.R / 255.0f,Star.Color.G/255.0f,Star.Color.B/255.0f);
+        Color primeColor = new Color(Star.Color.r,Star.Color.g,Star.Color.b);
         Color secondColor = Color.Lerp(Color.white, primeColor, .5f);
 
         Texture2D tex = new Texture2D(256, 1, TextureFormat.ARGB32, false);

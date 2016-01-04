@@ -195,14 +195,8 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     private static byte[] typeBuffer = new byte[1];
     public static void Send(IMessage msg)
     {
-
         msg.Proto(stream, typeBuffer);
-
-
     }
-
-
-
 
     public void NetworkReadLoop()
     {
@@ -246,7 +240,6 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             }
             catch (Exception Ex)
             {
-
                 UnityEngine.Debug.Log(Ex);
                 if (shutdown) return;
             }
@@ -279,10 +272,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     }
 
     public void HandleMessage(DropOutOfWarpMessage msg, object extra = null)
-    {
-        //Warp.ClosestSector.ParticleSystem.Clear();
-        ClientSolarSystem.Cubemap = new Cubemap(4096, TextureFormat.ARGB32, false);
-        Camera.main.RenderToCubemap(ClientSolarSystem.Cubemap);
+    {                
         PlayerState.Location = msg.Location;
         PlayerState.Rotation = msg.Rotation;
         PlayerState.SolarSystem = msg.System;
@@ -359,19 +349,15 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     public void HandleMessage(PlayerStateMessage p, object extra = null)
     {
+        /*
         lock (BufferedInputs)
         {
-            BufferedInputs.RemoveAll(input => input.Seq <= p.Seq);
-
-            //  log.WriteLine("PlayerState.Pos:" + PlayerState.Location.Pos + ", throttle:" + PlayerState.Throttle);
+            BufferedInputs.RemoveAll(input => input.Seq <= p.Seq);           
 
             PlayerState.Location.Pos = p.PlayerPos;
             PlayerState.Rotation = p.Rotation;
             PlayerState.Throttle = p.Throttle;
-
-            //  log.WriteLine(p);
-            //  log.WriteLine("bufferedinput count:" + BufferedInputs.Count);
-
+           
             foreach (InputMessage input in BufferedInputs)
             {
 
@@ -393,12 +379,8 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             }
 
             BufferedInputs.RemoveAll(input => input.ClientOnly);
-
-            // log.WriteLine("PlayerState.Pos:" + PlayerState.Location.Pos + ", throttle:" + PlayerState.Throttle);
-
-            //  log.WriteLine("-----------------------------------------------");
-
-        }
+          
+        }*/
     }
 
     public void HandleMessage(ConstructionMessage msg, object extra = null)

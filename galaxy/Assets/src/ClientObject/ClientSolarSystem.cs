@@ -42,7 +42,7 @@ public class ClientSolarSystem : MonoBehaviour
         light.transform.position = Vector3.zero;
         Light l = light.GetComponent<Light>();
         LensFlare flare = star.GetComponent<LensFlare>();
-        Color c = new Color(SolarSystem.Star.Color.R / 255f, SolarSystem.Star.Color.G / 255f, SolarSystem.Star.Color.B / 255f);
+        Color c = new Color(SolarSystem.Star.Color.r, SolarSystem.Star.Color.g,  SolarSystem.Star.Color.b);
         flare.color = c;
 
         l.color = Color.Lerp(Color.white, c,.5f);
