@@ -219,7 +219,7 @@ namespace XnaGeometry
 
         public void Contains(ref BoundingSphere sphere, out ContainmentType result)
         {
-            double dist;
+            float dist;
 			result = ContainmentType.Contains;
 			
             Vector3.Dot(ref bottom.Normal, ref sphere.Center, out dist);
@@ -292,7 +292,7 @@ namespace XnaGeometry
 
         public void Contains(ref Vector3 point, out ContainmentType result)
         {
-            double val;
+            float val;
             // If a point is on the POSITIVE side of the plane, then the point is not contained within the frustum
 
             // Check the top
@@ -416,12 +416,12 @@ namespace XnaGeometry
             throw new NotImplementedException();
         }
 
-        public Nullable<double> Intersects(Ray ray)
+        public Nullable<float> Intersects(Ray ray)
         {
             throw new NotImplementedException();
         }
 
-        public void Intersects(ref Ray ray, out Nullable<double> result)
+        public void Intersects(ref Ray ray, out Nullable<float> result)
         {
             throw new NotImplementedException();
         }
@@ -502,7 +502,7 @@ namespace XnaGeometry
             // Note: N refers to the normal, d refers to the displacement. '.' means dot product. '*' means cross product
 
             Vector3 v1, v2, v3;
-            double f = -Vector3.Dot(a.Normal, Vector3.Cross(b.Normal, c.Normal));
+            float f = -Vector3.Dot(a.Normal, Vector3.Cross(b.Normal, c.Normal));
 
             v1 = (a.D * (Vector3.Cross(b.Normal, c.Normal)));
             v2 = (b.D * (Vector3.Cross(c.Normal, a.Normal)));
@@ -514,7 +514,7 @@ namespace XnaGeometry
         
         private void NormalizePlane(ref Plane p)
         {
-            double factor = 1f / p.Normal.Length();
+            float factor = 1f / p.Normal.Length();
             p.Normal.X *= factor;
             p.Normal.Y *= factor;
             p.Normal.Z *= factor;

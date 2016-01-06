@@ -5,10 +5,12 @@ public class ClientSector  {
 
     public ParticleSystem ParticleSystem;        
     public Sector Sector;
+    public GameObject GameObject;
     
   
-    public ClientSector(Sector sector, ParticleSystem p)
+    public ClientSector(Sector sector, ParticleSystem p,GameObject gameObject)
     {
+        GameObject = gameObject;
         ParticleSystem = p;
         Activate(sector);
     }

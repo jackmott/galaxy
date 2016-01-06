@@ -36,18 +36,18 @@ namespace XnaGeometry
     {
 
         [ProtoMember(1)]
-        public double X;
+        public float X;
         [ProtoMember(2)]
-        public double Y;
+        public float Y;
         [ProtoMember(3)]
-        public double Z;
+        public float Z;
         [ProtoMember(4)]
-        public double W;
+        public float W;
 
         static Quaternion identity = new Quaternion(0, 0, 0, 1);
 
 
-        public Quaternion(double x, double y, double z, double w)
+        public Quaternion(float x, float y, float z, float w)
         {
             this.X = x;
             this.Y = y;
@@ -56,7 +56,7 @@ namespace XnaGeometry
         }
 
 
-        public Quaternion(Vector3 vectorPart, double scalarPart)
+        public Quaternion(Vector3 vectorPart, float scalarPart)
         {
             this.X = vectorPart.X;
             this.Y = vectorPart.Y;
@@ -95,18 +95,18 @@ namespace XnaGeometry
         public static Quaternion Concatenate(Quaternion value1, Quaternion value2)
         {
             Quaternion quaternion;
-            double x = value2.X;
-            double y = value2.Y;
-            double z = value2.Z;
-            double w = value2.W;
-            double num4 = value1.X;
-            double num3 = value1.Y;
-            double num2 = value1.Z;
-            double num = value1.W;
-            double num12 = (y * num2) - (z * num3);
-            double num11 = (z * num4) - (x * num2);
-            double num10 = (x * num3) - (y * num4);
-            double num9 = ((x * num4) + (y * num3)) + (z * num2);
+            float x = value2.X;
+            float y = value2.Y;
+            float z = value2.Z;
+            float w = value2.W;
+            float num4 = value1.X;
+            float num3 = value1.Y;
+            float num2 = value1.Z;
+            float num = value1.W;
+            float num12 = (y * num2) - (z * num3);
+            float num11 = (z * num4) - (x * num2);
+            float num10 = (x * num3) - (y * num4);
+            float num9 = ((x * num4) + (y * num3)) + (z * num2);
             quaternion.X = ((x * num) + (num4 * w)) + num12;
             quaternion.Y = ((y * num) + (num3 * w)) + num11;
             quaternion.Z = ((z * num) + (num2 * w)) + num10;
@@ -118,18 +118,18 @@ namespace XnaGeometry
         //Añadida por Syderis
         public static void Concatenate(ref Quaternion value1, ref Quaternion value2, out Quaternion result)
         {
-            double x = value2.X;
-            double y = value2.Y;
-            double z = value2.Z;
-            double w = value2.W;
-            double num4 = value1.X;
-            double num3 = value1.Y;
-            double num2 = value1.Z;
-            double num = value1.W;
-            double num12 = (y * num2) - (z * num3);
-            double num11 = (z * num4) - (x * num2);
-            double num10 = (x * num3) - (y * num4);
-            double num9 = ((x * num4) + (y * num3)) + (z * num2);
+            float x = value2.X;
+            float y = value2.Y;
+            float z = value2.Z;
+            float w = value2.W;
+            float num4 = value1.X;
+            float num3 = value1.Y;
+            float num2 = value1.Z;
+            float num = value1.W;
+            float num12 = (y * num2) - (z * num3);
+            float num11 = (z * num4) - (x * num2);
+            float num10 = (x * num3) - (y * num4);
+            float num9 = ((x * num4) + (y * num3)) + (z * num2);
             result.X = ((x * num) + (num4 * w)) + num12;
             result.Y = ((y * num) + (num3 * w)) + num11;
             result.Z = ((z * num) + (num2 * w)) + num10;
@@ -164,13 +164,13 @@ namespace XnaGeometry
             result.W = value.W;
         }
 
-        public static Quaternion CreateFromAxisAngle(Vector3 axis, double angle)
+        public static Quaternion CreateFromAxisAngle(Vector3 axis, float angle)
         {
 
             Quaternion quaternion;
-            double num2 = angle * 0.5f;
-            double num = Math.Sin(num2);
-            double num3 = Math.Cos(num2);
+            float num2 = angle * 0.5f;
+            float num = (float)Math.Sin(num2);            
+            float num3 =(float)Math.Cos(num2);
             quaternion.X = axis.X * num;
             quaternion.Y = axis.Y * num;
             quaternion.Z = axis.Z * num;
@@ -180,11 +180,11 @@ namespace XnaGeometry
         }
 
 
-        public static void CreateFromAxisAngle(ref Vector3 axis, double angle, out Quaternion result)
+        public static void CreateFromAxisAngle(ref Vector3 axis, float angle, out Quaternion result)
         {
-            double num2 = angle * 0.5f;
-            double num = Math.Sin(num2);
-            double num3 = Math.Cos(num2);
+            float num2 = angle * 0.5f;
+            float num = (float)Math.Sin(num2);
+            float num3 = (float)Math.Cos(num2);
             result.X = axis.X * num;
             result.Y = axis.Y * num;
             result.Z = axis.Z * num;
@@ -196,13 +196,13 @@ namespace XnaGeometry
         public static Quaternion CreateFromRotationMatrix(Matrix matrix)
         {
             Quaternion quaternion;
-            double sqrt;
-            double half;
-            double scale = matrix.M11 + matrix.M22 + matrix.M33;
+            float sqrt;
+            float half;
+            float scale = matrix.M11 + matrix.M22 + matrix.M33;
 
             if (scale > 0.0f)
             {
-                sqrt = Math.Sqrt(scale + 1.0f);
+                sqrt = (float)Math.Sqrt(scale + 1.0f);
                 quaternion.W = sqrt * 0.5f;
                 sqrt = 0.5f / sqrt;
 
@@ -214,7 +214,7 @@ namespace XnaGeometry
             }
             if ((matrix.M11 >= matrix.M22) && (matrix.M11 >= matrix.M33))
             {
-                sqrt = Math.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
+                sqrt = (float)Math.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
                 half = 0.5f / sqrt;
 
                 quaternion.X = 0.5f * sqrt;
@@ -226,7 +226,7 @@ namespace XnaGeometry
             }
             if (matrix.M22 > matrix.M33)
             {
-                sqrt = Math.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
+                sqrt = (float)Math.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
                 half = 0.5f / sqrt;
 
                 quaternion.X = (matrix.M21 + matrix.M12) * half;
@@ -236,7 +236,7 @@ namespace XnaGeometry
 
                 return quaternion;
             }
-            sqrt = Math.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
+            sqrt = (float)Math.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
             half = 0.5f / sqrt;
 
             quaternion.X = (matrix.M31 + matrix.M13) * half;
@@ -251,13 +251,13 @@ namespace XnaGeometry
 
         public static void CreateFromRotationMatrix(ref Matrix matrix, out Quaternion result)
         {
-            double sqrt;
-            double half;
-            double scale = matrix.M11 + matrix.M22 + matrix.M33;
+            float sqrt;
+            float half;
+            float scale = matrix.M11 + matrix.M22 + matrix.M33;
 
             if (scale > 0.0f)
             {
-                sqrt = Math.Sqrt(scale + 1.0f);
+                sqrt = (float)Math.Sqrt(scale + 1.0f);
                 result.W = sqrt * 0.5f;
                 sqrt = 0.5f / sqrt;
 
@@ -268,7 +268,7 @@ namespace XnaGeometry
             else
             if ((matrix.M11 >= matrix.M22) && (matrix.M11 >= matrix.M33))
             {
-                sqrt = Math.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
+                sqrt = (float)Math.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
                 half = 0.5f / sqrt;
 
                 result.X = 0.5f * sqrt;
@@ -278,7 +278,7 @@ namespace XnaGeometry
             }
             else if (matrix.M22 > matrix.M33)
             {
-                sqrt = Math.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
+                sqrt = (float)Math.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
                 half = 0.5f / sqrt;
 
                 result.X = (matrix.M21 + matrix.M12) * half;
@@ -288,7 +288,7 @@ namespace XnaGeometry
             }
             else
             {
-                sqrt = Math.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
+                sqrt = (float)Math.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
                 half = 0.5f / sqrt;
 
                 result.X = (matrix.M31 + matrix.M13) * half;
@@ -299,18 +299,18 @@ namespace XnaGeometry
 
         }
 
-        public static Quaternion CreateFromYawPitchRoll(double yaw, double pitch, double roll)
+        public static Quaternion CreateFromYawPitchRoll(float yaw, float pitch, float roll)
         {
-            double halfRoll = roll * 0.5f;
-            double halfPitch = pitch * 0.5f;
-            double halfYaw = yaw * 0.5f;
+            float halfRoll = roll * 0.5f;
+            float halfPitch = pitch * 0.5f;
+            float halfYaw = yaw * 0.5f;
 
-            double sinRoll = Math.Sin(halfRoll);
-            double cosRoll = Math.Cos(halfRoll);
-            double sinPitch = Math.Sin(halfPitch);
-            double cosPitch = Math.Cos(halfPitch);
-            double sinYaw = Math.Sin(halfYaw);
-            double cosYaw = Math.Cos(halfYaw);
+            float sinRoll = (float)Math.Sin(halfRoll);
+            float cosRoll = (float)Math.Cos(halfRoll);
+            float sinPitch = (float)Math.Sin(halfPitch);
+            float cosPitch = (float)Math.Cos(halfPitch);
+            float sinYaw = (float)Math.Sin(halfYaw);
+            float cosYaw = (float)Math.Cos(halfYaw);
 
             return new Quaternion((cosYaw * sinPitch * cosRoll) + (sinYaw * cosPitch * sinRoll),
                                   (sinYaw * cosPitch * cosRoll) - (cosYaw * sinPitch * sinRoll),
@@ -318,18 +318,18 @@ namespace XnaGeometry
                                   (cosYaw * cosPitch * cosRoll) + (sinYaw * sinPitch * sinRoll));
         }
 
-        public static void CreateFromYawPitchRoll(double yaw, double pitch, double roll, out Quaternion result)
+        public static void CreateFromYawPitchRoll(float yaw, float pitch, float roll, out Quaternion result)
         {
-            double halfRoll = roll * 0.5f;
-            double halfPitch = pitch * 0.5f;
-            double halfYaw = yaw * 0.5f;
+            float halfRoll = roll * 0.5f;
+            float halfPitch = pitch * 0.5f;
+            float halfYaw = yaw * 0.5f;
 
-            double sinRoll = Math.Sin(halfRoll);
-            double cosRoll = Math.Cos(halfRoll);
-            double sinPitch = Math.Sin(halfPitch);
-            double cosPitch = Math.Cos(halfPitch);
-            double sinYaw = Math.Sin(halfYaw);
-            double cosYaw = Math.Cos(halfYaw);
+            float sinRoll = (float)Math.Sin(halfRoll);
+            float cosRoll = (float)Math.Cos(halfRoll);
+            float sinPitch = (float)Math.Sin(halfPitch);
+            float cosPitch = (float)Math.Cos(halfPitch);
+            float sinYaw = (float)Math.Sin(halfYaw);
+            float cosYaw = (float)Math.Cos(halfYaw);
 
             result.X = (cosYaw * sinPitch * cosRoll) + (sinYaw * cosPitch * sinRoll);
             result.Y = (sinYaw * cosPitch * cosRoll) - (cosYaw * sinPitch * sinRoll);
@@ -340,20 +340,20 @@ namespace XnaGeometry
         public static Quaternion Divide(Quaternion quaternion1, Quaternion quaternion2)
         {
             Quaternion quaternion;
-            double x = quaternion1.X;
-            double y = quaternion1.Y;
-            double z = quaternion1.Z;
-            double w = quaternion1.W;
-            double num14 = (((quaternion2.X * quaternion2.X) + (quaternion2.Y * quaternion2.Y)) + (quaternion2.Z * quaternion2.Z)) + (quaternion2.W * quaternion2.W);
-            double num5 = 1f / num14;
-            double num4 = -quaternion2.X * num5;
-            double num3 = -quaternion2.Y * num5;
-            double num2 = -quaternion2.Z * num5;
-            double num = quaternion2.W * num5;
-            double num13 = (y * num2) - (z * num3);
-            double num12 = (z * num4) - (x * num2);
-            double num11 = (x * num3) - (y * num4);
-            double num10 = ((x * num4) + (y * num3)) + (z * num2);
+            float x = quaternion1.X;
+            float y = quaternion1.Y;
+            float z = quaternion1.Z;
+            float w = quaternion1.W;
+            float num14 = (((quaternion2.X * quaternion2.X) + (quaternion2.Y * quaternion2.Y)) + (quaternion2.Z * quaternion2.Z)) + (quaternion2.W * quaternion2.W);
+            float num5 = 1f / num14;
+            float num4 = -quaternion2.X * num5;
+            float num3 = -quaternion2.Y * num5;
+            float num2 = -quaternion2.Z * num5;
+            float num = quaternion2.W * num5;
+            float num13 = (y * num2) - (z * num3);
+            float num12 = (z * num4) - (x * num2);
+            float num11 = (x * num3) - (y * num4);
+            float num10 = ((x * num4) + (y * num3)) + (z * num2);
             quaternion.X = ((x * num) + (num4 * w)) + num13;
             quaternion.Y = ((y * num) + (num3 * w)) + num12;
             quaternion.Z = ((z * num) + (num2 * w)) + num11;
@@ -364,20 +364,20 @@ namespace XnaGeometry
 
         public static void Divide(ref Quaternion quaternion1, ref Quaternion quaternion2, out Quaternion result)
         {
-            double x = quaternion1.X;
-            double y = quaternion1.Y;
-            double z = quaternion1.Z;
-            double w = quaternion1.W;
-            double num14 = (((quaternion2.X * quaternion2.X) + (quaternion2.Y * quaternion2.Y)) + (quaternion2.Z * quaternion2.Z)) + (quaternion2.W * quaternion2.W);
-            double num5 = 1f / num14;
-            double num4 = -quaternion2.X * num5;
-            double num3 = -quaternion2.Y * num5;
-            double num2 = -quaternion2.Z * num5;
-            double num = quaternion2.W * num5;
-            double num13 = (y * num2) - (z * num3);
-            double num12 = (z * num4) - (x * num2);
-            double num11 = (x * num3) - (y * num4);
-            double num10 = ((x * num4) + (y * num3)) + (z * num2);
+            float x = quaternion1.X;
+            float y = quaternion1.Y;
+            float z = quaternion1.Z;
+            float w = quaternion1.W;
+            float num14 = (((quaternion2.X * quaternion2.X) + (quaternion2.Y * quaternion2.Y)) + (quaternion2.Z * quaternion2.Z)) + (quaternion2.W * quaternion2.W);
+            float num5 = 1f / num14;
+            float num4 = -quaternion2.X * num5;
+            float num3 = -quaternion2.Y * num5;
+            float num2 = -quaternion2.Z * num5;
+            float num = quaternion2.W * num5;
+            float num13 = (y * num2) - (z * num3);
+            float num12 = (z * num4) - (x * num2);
+            float num11 = (x * num3) - (y * num4);
+            float num10 = ((x * num4) + (y * num3)) + (z * num2);
             result.X = ((x * num) + (num4 * w)) + num13;
             result.Y = ((y * num) + (num3 * w)) + num12;
             result.Z = ((z * num) + (num2 * w)) + num11;
@@ -386,13 +386,13 @@ namespace XnaGeometry
         }
 
 
-        public static double Dot(Quaternion quaternion1, Quaternion quaternion2)
+        public static float Dot(Quaternion quaternion1, Quaternion quaternion2)
         {
             return ((((quaternion1.X * quaternion2.X) + (quaternion1.Y * quaternion2.Y)) + (quaternion1.Z * quaternion2.Z)) + (quaternion1.W * quaternion2.W));
         }
 
 
-        public static void Dot(ref Quaternion quaternion1, ref Quaternion quaternion2, out double result)
+        public static void Dot(ref Quaternion quaternion1, ref Quaternion quaternion2, out float result)
         {
             result = (((quaternion1.X * quaternion2.X) + (quaternion1.Y * quaternion2.Y)) + (quaternion1.Z * quaternion2.Z)) + (quaternion1.W * quaternion2.W);
         }
@@ -424,8 +424,8 @@ namespace XnaGeometry
         public static Quaternion Inverse(Quaternion quaternion)
         {
             Quaternion quaternion2;
-            double num2 = (((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W);
-            double num = 1f / num2;
+            float num2 = (((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W);
+            float num = 1f / num2;
             quaternion2.X = -quaternion.X * num;
             quaternion2.Y = -quaternion.Y * num;
             quaternion2.Z = -quaternion.Z * num;
@@ -436,33 +436,33 @@ namespace XnaGeometry
 
         public static void Inverse(ref Quaternion quaternion, out Quaternion result)
         {
-            double num2 = (((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W);
-            double num = 1f / num2;
+            float num2 = (((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W);
+            float num = 1f / num2;
             result.X = -quaternion.X * num;
             result.Y = -quaternion.Y * num;
             result.Z = -quaternion.Z * num;
             result.W = quaternion.W * num;
         }
 
-        public double Length()
+        public float Length()
         {
-            double num = (((this.X * this.X) + (this.Y * this.Y)) + (this.Z * this.Z)) + (this.W * this.W);
-            return Math.Sqrt(num);
+            float num = (((this.X * this.X) + (this.Y * this.Y)) + (this.Z * this.Z)) + (this.W * this.W);
+            return (float)Math.Sqrt(num);
         }
 
 
-        public double LengthSquared()
+        public float LengthSquared()
         {
             return ((((this.X * this.X) + (this.Y * this.Y)) + (this.Z * this.Z)) + (this.W * this.W));
         }
 
 
-        public static Quaternion Lerp(Quaternion quaternion1, Quaternion quaternion2, double amount)
+        public static Quaternion Lerp(Quaternion quaternion1, Quaternion quaternion2, float amount)
         {
-            double num = amount;
-            double num2 = 1f - num;
+            float num = amount;
+            float num2 = 1f - num;
             Quaternion quaternion = new Quaternion();
-            double num5 = (((quaternion1.X * quaternion2.X) + (quaternion1.Y * quaternion2.Y)) + (quaternion1.Z * quaternion2.Z)) + (quaternion1.W * quaternion2.W);
+            float num5 = (((quaternion1.X * quaternion2.X) + (quaternion1.Y * quaternion2.Y)) + (quaternion1.Z * quaternion2.Z)) + (quaternion1.W * quaternion2.W);
             if (num5 >= 0f)
             {
                 quaternion.X = (num2 * quaternion1.X) + (num * quaternion2.X);
@@ -477,8 +477,8 @@ namespace XnaGeometry
                 quaternion.Z = (num2 * quaternion1.Z) - (num * quaternion2.Z);
                 quaternion.W = (num2 * quaternion1.W) - (num * quaternion2.W);
             }
-            double num4 = (((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W);
-            double num3 = 1f / (Math.Sqrt(num4));
+            float num4 = (((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W);
+            float num3 = 1f / ((float)Math.Sqrt(num4));
             quaternion.X *= num3;
             quaternion.Y *= num3;
             quaternion.Z *= num3;
@@ -487,11 +487,11 @@ namespace XnaGeometry
         }
 
 
-        public static void Lerp(ref Quaternion quaternion1, ref Quaternion quaternion2, double amount, out Quaternion result)
+        public static void Lerp(ref Quaternion quaternion1, ref Quaternion quaternion2, float amount, out Quaternion result)
         {
-            double num = amount;
-            double num2 = 1f - num;
-            double num5 = (((quaternion1.X * quaternion2.X) + (quaternion1.Y * quaternion2.Y)) + (quaternion1.Z * quaternion2.Z)) + (quaternion1.W * quaternion2.W);
+            float num = amount;
+            float num2 = 1f - num;
+            float num5 = (((quaternion1.X * quaternion2.X) + (quaternion1.Y * quaternion2.Y)) + (quaternion1.Z * quaternion2.Z)) + (quaternion1.W * quaternion2.W);
             if (num5 >= 0f)
             {
                 result.X = (num2 * quaternion1.X) + (num * quaternion2.X);
@@ -506,8 +506,8 @@ namespace XnaGeometry
                 result.Z = (num2 * quaternion1.Z) - (num * quaternion2.Z);
                 result.W = (num2 * quaternion1.W) - (num * quaternion2.W);
             }
-            double num4 = (((result.X * result.X) + (result.Y * result.Y)) + (result.Z * result.Z)) + (result.W * result.W);
-            double num3 = 1f / (Math.Sqrt(num4));
+            float num4 = (((result.X * result.X) + (result.Y * result.Y)) + (result.Z * result.Z)) + (result.W * result.W);
+            float num3 = 1f / ((float)Math.Sqrt(num4));
             result.X *= num3;
             result.Y *= num3;
             result.Z *= num3;
@@ -516,13 +516,13 @@ namespace XnaGeometry
         }
 
 
-        public static Quaternion Slerp(Quaternion quaternion1, Quaternion quaternion2, double amount)
+        public static Quaternion Slerp(Quaternion quaternion1, Quaternion quaternion2, float amount)
         {
-            double num2;
-            double num3;
+            float num2;
+            float num3;
             Quaternion quaternion;
-            double num = amount;
-            double num4 = (((quaternion1.X * quaternion2.X) + (quaternion1.Y * quaternion2.Y)) + (quaternion1.Z * quaternion2.Z)) + (quaternion1.W * quaternion2.W);
+            float num = amount;
+            float num4 = (((quaternion1.X * quaternion2.X) + (quaternion1.Y * quaternion2.Y)) + (quaternion1.Z * quaternion2.Z)) + (quaternion1.W * quaternion2.W);
             bool flag = false;
             if (num4 < 0f)
             {
@@ -536,10 +536,10 @@ namespace XnaGeometry
             }
             else
             {
-                double num5 = Math.Acos(num4);
-                double num6 = (1.0 / Math.Sin(num5));
-                num3 = (Math.Sin(((1f - num) * num5))) * num6;
-                num2 = flag ? ((-Math.Sin((num * num5))) * num6) : ((Math.Sin((num * num5))) * num6);
+                float num5 = (float)Math.Acos(num4);
+                float num6 = (1.0f / (float)Math.Sin(num5));
+                num3 = ((float)Math.Sin(((1f - num) * num5))) * num6;
+                num2 = flag ? ((-(float)Math.Sin((num * num5))) * num6) : (((float)Math.Sin((num * num5))) * num6);
             }
             quaternion.X = (num3 * quaternion1.X) + (num2 * quaternion2.X);
             quaternion.Y = (num3 * quaternion1.Y) + (num2 * quaternion2.Y);
@@ -549,12 +549,12 @@ namespace XnaGeometry
         }
 
 
-        public static void Slerp(ref Quaternion quaternion1, ref Quaternion quaternion2, double amount, out Quaternion result)
+        public static void Slerp(ref Quaternion quaternion1, ref Quaternion quaternion2, float amount, out Quaternion result)
         {
-            double num2;
-            double num3;
-            double num = amount;
-            double num4 = (((quaternion1.X * quaternion2.X) + (quaternion1.Y * quaternion2.Y)) + (quaternion1.Z * quaternion2.Z)) + (quaternion1.W * quaternion2.W);
+            float num2;
+            float num3;
+            float num = amount;
+            float num4 = (((quaternion1.X * quaternion2.X) + (quaternion1.Y * quaternion2.Y)) + (quaternion1.Z * quaternion2.Z)) + (quaternion1.W * quaternion2.W);
             bool flag = false;
             if (num4 < 0f)
             {
@@ -568,10 +568,10 @@ namespace XnaGeometry
             }
             else
             {
-                double num5 = Math.Acos(num4);
-                double num6 = (1.0 / Math.Sin(num5));
-                num3 = (Math.Sin(((1f - num) * num5))) * num6;
-                num2 = flag ? ((-Math.Sin((num * num5))) * num6) : ((Math.Sin((num * num5))) * num6);
+                float num5 = (float)Math.Acos(num4);
+                float num6 = (1.0f / (float)Math.Sin(num5));
+                num3 = ((float)Math.Sin(((1f - num) * num5))) * num6;
+                num2 = flag ? ((-(float)Math.Sin((num * num5))) * num6) : (((float)Math.Sin((num * num5))) * num6);
             }
             result.X = (num3 * quaternion1.X) + (num2 * quaternion2.X);
             result.Y = (num3 * quaternion1.Y) + (num2 * quaternion2.Y);
@@ -603,18 +603,18 @@ namespace XnaGeometry
         public static Quaternion Multiply(Quaternion quaternion1, Quaternion quaternion2)
         {
             Quaternion quaternion;
-            double x = quaternion1.X;
-            double y = quaternion1.Y;
-            double z = quaternion1.Z;
-            double w = quaternion1.W;
-            double num4 = quaternion2.X;
-            double num3 = quaternion2.Y;
-            double num2 = quaternion2.Z;
-            double num = quaternion2.W;
-            double num12 = (y * num2) - (z * num3);
-            double num11 = (z * num4) - (x * num2);
-            double num10 = (x * num3) - (y * num4);
-            double num9 = ((x * num4) + (y * num3)) + (z * num2);
+            float x = quaternion1.X;
+            float y = quaternion1.Y;
+            float z = quaternion1.Z;
+            float w = quaternion1.W;
+            float num4 = quaternion2.X;
+            float num3 = quaternion2.Y;
+            float num2 = quaternion2.Z;
+            float num = quaternion2.W;
+            float num12 = (y * num2) - (z * num3);
+            float num11 = (z * num4) - (x * num2);
+            float num10 = (x * num3) - (y * num4);
+            float num9 = ((x * num4) + (y * num3)) + (z * num2);
             quaternion.X = ((x * num) + (num4 * w)) + num12;
             quaternion.Y = ((y * num) + (num3 * w)) + num11;
             quaternion.Z = ((z * num) + (num2 * w)) + num10;
@@ -623,7 +623,7 @@ namespace XnaGeometry
         }
 
 
-        public static Quaternion Multiply(Quaternion quaternion1, double scaleFactor)
+        public static Quaternion Multiply(Quaternion quaternion1, float scaleFactor)
         {
             Quaternion quaternion;
             quaternion.X = quaternion1.X * scaleFactor;
@@ -634,7 +634,7 @@ namespace XnaGeometry
         }
 
 
-        public static void Multiply(ref Quaternion quaternion1, double scaleFactor, out Quaternion result)
+        public static void Multiply(ref Quaternion quaternion1, float scaleFactor, out Quaternion result)
         {
             result.X = quaternion1.X * scaleFactor;
             result.Y = quaternion1.Y * scaleFactor;
@@ -645,18 +645,18 @@ namespace XnaGeometry
 
         public static void Multiply(ref Quaternion quaternion1, ref Quaternion quaternion2, out Quaternion result)
         {
-            double x = quaternion1.X;
-            double y = quaternion1.Y;
-            double z = quaternion1.Z;
-            double w = quaternion1.W;
-            double num4 = quaternion2.X;
-            double num3 = quaternion2.Y;
-            double num2 = quaternion2.Z;
-            double num = quaternion2.W;
-            double num12 = (y * num2) - (z * num3);
-            double num11 = (z * num4) - (x * num2);
-            double num10 = (x * num3) - (y * num4);
-            double num9 = ((x * num4) + (y * num3)) + (z * num2);
+            float x = quaternion1.X;
+            float y = quaternion1.Y;
+            float z = quaternion1.Z;
+            float w = quaternion1.W;
+            float num4 = quaternion2.X;
+            float num3 = quaternion2.Y;
+            float num2 = quaternion2.Z;
+            float num = quaternion2.W;
+            float num12 = (y * num2) - (z * num3);
+            float num11 = (z * num4) - (x * num2);
+            float num10 = (x * num3) - (y * num4);
+            float num9 = ((x * num4) + (y * num3)) + (z * num2);
             result.X = ((x * num) + (num4 * w)) + num12;
             result.Y = ((y * num) + (num3 * w)) + num11;
             result.Z = ((z * num) + (num2 * w)) + num10;
@@ -686,7 +686,7 @@ namespace XnaGeometry
 
         public void Normalize()
         {
-            double num = 1f / Math.Sqrt((((X * X) + (Y * Y)) + (Z * Z)) + (W * W));
+            float num = 1f / (float)Math.Sqrt((((X * X) + (Y * Y)) + (Z * Z)) + (W * W));
             
             X *= num;
             Y *= num;
@@ -698,7 +698,7 @@ namespace XnaGeometry
         public static Quaternion Normalize(Quaternion quaternion)
         {
             Quaternion quaternion2;
-            double num = 1f/ Math.Sqrt((((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W));            
+            float num = 1f/ (float)Math.Sqrt((((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W));            
             quaternion2.X = quaternion.X * num;
             quaternion2.Y = quaternion.Y * num;
             quaternion2.Z = quaternion.Z * num;
@@ -709,7 +709,7 @@ namespace XnaGeometry
 
         public static void Normalize(ref Quaternion quaternion, out Quaternion result)
         {
-            double num = 1f / Math.Sqrt((((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W));
+            float num = 1f / (float)Math.Sqrt((((quaternion.X * quaternion.X) + (quaternion.Y * quaternion.Y)) + (quaternion.Z * quaternion.Z)) + (quaternion.W * quaternion.W));
             result.X = quaternion.X * num;
             result.Y = quaternion.Y * num;
             result.Z = quaternion.Z * num;
@@ -731,20 +731,20 @@ namespace XnaGeometry
         public static Quaternion operator /(Quaternion quaternion1, Quaternion quaternion2)
         {
             Quaternion quaternion;
-            double x = quaternion1.X;
-            double y = quaternion1.Y;
-            double z = quaternion1.Z;
-            double w = quaternion1.W;
-            double num14 = (((quaternion2.X * quaternion2.X) + (quaternion2.Y * quaternion2.Y)) + (quaternion2.Z * quaternion2.Z)) + (quaternion2.W * quaternion2.W);
-            double num5 = 1f / num14;
-            double num4 = -quaternion2.X * num5;
-            double num3 = -quaternion2.Y * num5;
-            double num2 = -quaternion2.Z * num5;
-            double num = quaternion2.W * num5;
-            double num13 = (y * num2) - (z * num3);
-            double num12 = (z * num4) - (x * num2);
-            double num11 = (x * num3) - (y * num4);
-            double num10 = ((x * num4) + (y * num3)) + (z * num2);
+            float x = quaternion1.X;
+            float y = quaternion1.Y;
+            float z = quaternion1.Z;
+            float w = quaternion1.W;
+            float num14 = (((quaternion2.X * quaternion2.X) + (quaternion2.Y * quaternion2.Y)) + (quaternion2.Z * quaternion2.Z)) + (quaternion2.W * quaternion2.W);
+            float num5 = 1f / num14;
+            float num4 = -quaternion2.X * num5;
+            float num3 = -quaternion2.Y * num5;
+            float num2 = -quaternion2.Z * num5;
+            float num = quaternion2.W * num5;
+            float num13 = (y * num2) - (z * num3);
+            float num12 = (z * num4) - (x * num2);
+            float num11 = (x * num3) - (y * num4);
+            float num10 = ((x * num4) + (y * num3)) + (z * num2);
             quaternion.X = ((x * num) + (num4 * w)) + num13;
             quaternion.Y = ((y * num) + (num3 * w)) + num12;
             quaternion.Z = ((z * num) + (num2 * w)) + num11;
@@ -772,18 +772,18 @@ namespace XnaGeometry
         public static Quaternion operator *(Quaternion quaternion1, Quaternion quaternion2)
         {
             Quaternion quaternion;
-            double x = quaternion1.X;
-            double y = quaternion1.Y;
-            double z = quaternion1.Z;
-            double w = quaternion1.W;
-            double num4 = quaternion2.X;
-            double num3 = quaternion2.Y;
-            double num2 = quaternion2.Z;
-            double num = quaternion2.W;
-            double num12 = (y * num2) - (z * num3);
-            double num11 = (z * num4) - (x * num2);
-            double num10 = (x * num3) - (y * num4);
-            double num9 = ((x * num4) + (y * num3)) + (z * num2);
+            float x = quaternion1.X;
+            float y = quaternion1.Y;
+            float z = quaternion1.Z;
+            float w = quaternion1.W;
+            float num4 = quaternion2.X;
+            float num3 = quaternion2.Y;
+            float num2 = quaternion2.Z;
+            float num = quaternion2.W;
+            float num12 = (y * num2) - (z * num3);
+            float num11 = (z * num4) - (x * num2);
+            float num10 = (x * num3) - (y * num4);
+            float num9 = ((x * num4) + (y * num3)) + (z * num2);
             quaternion.X = ((x * num) + (num4 * w)) + num12;
             quaternion.Y = ((y * num) + (num3 * w)) + num11;
             quaternion.Z = ((z * num) + (num2 * w)) + num10;
@@ -792,7 +792,7 @@ namespace XnaGeometry
         }
 
 
-        public static Quaternion operator *(Quaternion quaternion1, double scaleFactor)
+        public static Quaternion operator *(Quaternion quaternion1, float scaleFactor)
         {
             Quaternion quaternion;
             quaternion.X = quaternion1.X * scaleFactor;
@@ -857,15 +857,15 @@ namespace XnaGeometry
         {
 
             // source -> http://content.gpwiki.org/index.php/OpenGL:Tutorials:Using_Quaternions_to_represent_rotation#Quaternion_to_Matrix
-            double x2 = quaternion.X * quaternion.X;
-            double y2 = quaternion.Y * quaternion.Y;
-            double z2 = quaternion.Z * quaternion.Z;
-            double xy = quaternion.X * quaternion.Y;
-            double xz = quaternion.X * quaternion.Z;
-            double yz = quaternion.Y * quaternion.Z;
-            double wx = quaternion.W * quaternion.X;
-            double wy = quaternion.W * quaternion.Y;
-            double wz = quaternion.W * quaternion.Z;
+            float x2 = quaternion.X * quaternion.X;
+            float y2 = quaternion.Y * quaternion.Y;
+            float z2 = quaternion.Z * quaternion.Z;
+            float xy = quaternion.X * quaternion.Y;
+            float xz = quaternion.X * quaternion.Z;
+            float yz = quaternion.Y * quaternion.Z;
+            float wx = quaternion.W * quaternion.X;
+            float wy = quaternion.W * quaternion.Y;
+            float wz = quaternion.W * quaternion.Z;
 
             // This calculation would be a lot more complicated for non-unit length quaternions
             // Note: The constructor of Matrix4 expects the Matrix in column-major format like expected by

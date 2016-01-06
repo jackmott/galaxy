@@ -38,7 +38,7 @@ namespace XnaGeometry
         /// <param name="point">The point to check with</param>
         /// <param name="plane">The plane to check against</param>
         /// <returns>Greater than zero if on the positive side, less than zero if on the negative size, 0 otherwise</returns>
-        public static double ClassifyPoint(ref Vector3 point, ref Plane plane)
+        public static float ClassifyPoint(ref Vector3 point, ref Plane plane)
         {
             return point.X * plane.Normal.X + point.Y * plane.Normal.Y + point.Z * plane.Normal.Z + plane.D;
         }
@@ -49,10 +49,10 @@ namespace XnaGeometry
         /// <param name="point">The point to check</param>
         /// <param name="plane">The place to check</param>
         /// <returns>The perpendicular distance from the point to the plane</returns>
-        public static double PerpendicularDistance(ref Vector3 point, ref Plane plane)
+        public static float PerpendicularDistance(ref Vector3 point, ref Plane plane)
         {
             // dist = (ax + by + cz + d) / sqrt(a*a + b*b + c*c)
-            return (double)Math.Abs((plane.Normal.X * point.X + plane.Normal.Y * point.Y + plane.Normal.Z * point.Z)
+            return (float)Math.Abs((plane.Normal.X * point.X + plane.Normal.Y * point.Y + plane.Normal.Z * point.Z)
                                     / Math.Sqrt(plane.Normal.X * plane.Normal.X + plane.Normal.Y * plane.Normal.Y + plane.Normal.Z * plane.Normal.Z));
         }
     }
@@ -61,7 +61,7 @@ namespace XnaGeometry
     {
         #region Public Fields
 
-        public double D;
+        public float D;
         public Vector3 Normal;
 
         #endregion Public Fields
@@ -75,7 +75,7 @@ namespace XnaGeometry
 
         }
 
-        public Plane(Vector3 normal, double d)
+        public Plane(Vector3 normal, float d)
         {
             Normal = normal;
             D = d;
@@ -91,7 +91,7 @@ namespace XnaGeometry
             D = -(Vector3.Dot(Normal, a));
         }
 
-        public Plane(double a, double b, double c, double d)
+        public Plane(float a, float b, float c, float d)
             : this(new Vector3(a, b, c), d)
         {
 
@@ -102,32 +102,32 @@ namespace XnaGeometry
 
         #region Public Methods
 
-        public double Dot(Vector4 value)
+        public float Dot(Vector4 value)
         {
             return ((((this.Normal.X * value.X) + (this.Normal.Y * value.Y)) + (this.Normal.Z * value.Z)) + (this.D * value.W));
         }
 
-        public void Dot(ref Vector4 value, out double result)
+        public void Dot(ref Vector4 value, out float result)
         {
             result = (((this.Normal.X * value.X) + (this.Normal.Y * value.Y)) + (this.Normal.Z * value.Z)) + (this.D * value.W);
         }
 
-        public double DotCoordinate(Vector3 value)
+        public float DotCoordinate(Vector3 value)
         {
             return ((((this.Normal.X * value.X) + (this.Normal.Y * value.Y)) + (this.Normal.Z * value.Z)) + this.D);
         }
 
-        public void DotCoordinate(ref Vector3 value, out double result)
+        public void DotCoordinate(ref Vector3 value, out float result)
         {
             result = (((this.Normal.X * value.X) + (this.Normal.Y * value.Y)) + (this.Normal.Z * value.Z)) + this.D;
         }
 
-        public double DotNormal(Vector3 value)
+        public float DotNormal(Vector3 value)
         {
             return (((this.Normal.X * value.X) + (this.Normal.Y * value.Y)) + (this.Normal.Z * value.Z));
         }
 
-        public void DotNormal(ref Vector3 value, out double result)
+        public void DotNormal(ref Vector3 value, out float result)
         {
             result = ((this.Normal.X * value.X) + (this.Normal.Y * value.Y)) + (this.Normal.Z * value.Z);
         }
@@ -154,11 +154,11 @@ namespace XnaGeometry
 
         public void Normalize()
         {
-            double factor;
+            float factor;
             Vector3 normal = Normal;
             Normal = Vector3.Normalize(Normal);
-            factor = (double)Math.Sqrt(Normal.X * Normal.X + Normal.Y * Normal.Y + Normal.Z * Normal.Z) /
-                    (double)Math.Sqrt(normal.X * normal.X + normal.Y * normal.Y + normal.Z * normal.Z);
+            factor = (float)Math.Sqrt(Normal.X * Normal.X + Normal.Y * Normal.Y + Normal.Z * Normal.Z) /
+                    (float)Math.Sqrt(normal.X * normal.X + normal.Y * normal.Y + normal.Z * normal.Z);
             D = D * factor;
         }
 
@@ -171,10 +171,10 @@ namespace XnaGeometry
 
         public static void Normalize(ref Plane value, out Plane result)
         {
-            double factor;
+            float factor;
             result.Normal = Vector3.Normalize(value.Normal);
-            factor = (double)Math.Sqrt(result.Normal.X * result.Normal.X + result.Normal.Y * result.Normal.Y + result.Normal.Z * result.Normal.Z) /
-                    (double)Math.Sqrt(value.Normal.X * value.Normal.X + value.Normal.Y * value.Normal.Y + value.Normal.Z * value.Normal.Z);
+            factor = (float)Math.Sqrt(result.Normal.X * result.Normal.X + result.Normal.Y * result.Normal.Y + result.Normal.Z * result.Normal.Z) /
+                    (float)Math.Sqrt(value.Normal.X * value.Normal.X + value.Normal.Y * value.Normal.Y + value.Normal.Z * value.Normal.Z);
             result.D = value.D * factor;
         }
 

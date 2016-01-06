@@ -40,14 +40,14 @@ namespace XnaGeometry
         #region Public Fields
 
         public Vector3 Center;
-        public double Radius;
+        public float Radius;
 
         #endregion Public Fields
 
 
         #region Constructors
 
-        public BoundingSphere(Vector3 center, double radius)
+        public BoundingSphere(Vector3 center, float radius)
         {
             this.Center = center;
             this.Radius = radius;
@@ -62,14 +62,14 @@ namespace XnaGeometry
         {
             BoundingSphere sphere = new BoundingSphere();
             sphere.Center = Vector3.Transform(this.Center, matrix);
-            sphere.Radius = this.Radius * ((double)Math.Sqrt((double)Math.Max(((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13), Math.Max(((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23), ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33)))));
+            sphere.Radius = this.Radius * ((float)Math.Sqrt((float)Math.Max(((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13), Math.Max(((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23), ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33)))));
             return sphere;
         }
 
         public void Transform(ref Matrix matrix, out BoundingSphere result)
         {
             result.Center = Vector3.Transform(this.Center, matrix);
-            result.Radius = this.Radius * ((double)Math.Sqrt((double)Math.Max(((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13), Math.Max(((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23), ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33)))));
+            result.Radius = this.Radius * ((float)Math.Sqrt((float)Math.Max(((matrix.M11 * matrix.M11) + (matrix.M12 * matrix.M12)) + (matrix.M13 * matrix.M13), Math.Max(((matrix.M21 * matrix.M21) + (matrix.M22 * matrix.M22)) + (matrix.M23 * matrix.M23), ((matrix.M31 * matrix.M31) + (matrix.M32 * matrix.M32)) + (matrix.M33 * matrix.M33)))));
         }
 
         public ContainmentType Contains(BoundingBox box)
@@ -89,7 +89,7 @@ namespace XnaGeometry
                 return ContainmentType.Contains;
 
             //check if the distance from sphere center to cube face < radius
-            double dmin = 0;
+            float dmin = 0;
 
             if (Center.X < box.Min.X)
 				dmin += (Center.X - box.Min.X) * (Center.X - box.Min.X);
@@ -140,7 +140,7 @@ namespace XnaGeometry
                 return ContainmentType.Contains;
 
             //check if the distance from sphere center to frustrum face < radius
-            double dmin = 0;
+            float dmin = 0;
             //TODO : calcul dmin
 
             if (dmin <= Radius * Radius)
@@ -152,7 +152,7 @@ namespace XnaGeometry
 
         public ContainmentType Contains(BoundingSphere sphere)
         {
-            double val = Vector3.Distance(sphere.Center, Center);
+            float val = Vector3.Distance(sphere.Center, Center);
 
             if (val > sphere.Radius + Radius)
                 return ContainmentType.Disjoint;
@@ -171,7 +171,7 @@ namespace XnaGeometry
 
         public ContainmentType Contains(Vector3 point)
         {
-            double distance = Vector3.Distance(point, Center);
+            float distance = Vector3.Distance(point, Center);
 
             if (distance > this.Radius)
                 return ContainmentType.Disjoint;
@@ -195,7 +195,7 @@ namespace XnaGeometry
                                          (box.Min.Z + box.Max.Z) / 2.0f);
 
             // Find the distance between the center and one of the corners of the box.
-            double radius = Vector3.Distance(center, box.Max);
+            float radius = Vector3.Distance(center, box.Max);
 
             return new BoundingSphere(center, radius);
         }
@@ -215,7 +215,7 @@ namespace XnaGeometry
             if (points == null)
                 throw new ArgumentNullException("points");
 
-            double radius = 0;
+            float radius = 0;
             Vector3 center = new Vector3();
             // First, we'll find the center of gravity for the point 'cloud'.
             int num_points = 0; // The number of points (there MUST be a better way to get this instead of counting the number of points one by one?)
@@ -226,12 +226,12 @@ namespace XnaGeometry
                 ++num_points;
             }
             
-            center /= (double)num_points;
+            center /= (float)num_points;
 
             // Calculate the radius of the needed sphere (it equals the distance between the center and the point further away).
             foreach (Vector3 v in points)
             {
-                double distance = ((Vector3)(v - center)).Length();
+                float distance = ((Vector3)(v - center)).Length();
                 
                 if (distance > radius)
                     radius = distance;
@@ -243,7 +243,7 @@ namespace XnaGeometry
         public static BoundingSphere CreateMerged(BoundingSphere original, BoundingSphere additional)
         {
             Vector3 ocenterToaCenter = Vector3.Subtract(additional.Center, original.Center);
-            double distance = ocenterToaCenter.Length();
+            float distance = ocenterToaCenter.Length();
             if (distance <= original.Radius + additional.Radius)//intersect
             {
                 if (distance <= original.Radius - additional.Radius)//original contain additional
@@ -253,8 +253,8 @@ namespace XnaGeometry
             }
 
             //else find center of new sphere and radius
-            double leftRadius = Math.Max(original.Radius - distance, additional.Radius);
-            double Rightradius = Math.Max(original.Radius + distance, additional.Radius);
+            float leftRadius = Math.Max(original.Radius - distance, additional.Radius);
+            float Rightradius = Math.Max(original.Radius + distance, additional.Radius);
             ocenterToaCenter = ocenterToaCenter + (((leftRadius - Rightradius) / (2 * ocenterToaCenter.Length())) * ocenterToaCenter);//oCenterToResultCenter
             
             BoundingSphere result = new BoundingSphere();
@@ -306,7 +306,7 @@ namespace XnaGeometry
 
         public bool Intersects(BoundingSphere sphere)
         {
-            double val = Vector3.Distance(sphere.Center, Center);
+            float val = Vector3.Distance(sphere.Center, Center);
 			if (val > sphere.Radius + Radius)
 				return false;
 			return true;
@@ -319,7 +319,7 @@ namespace XnaGeometry
 
         public PlaneIntersectionType Intersects(Plane plane)
         {
-			double distance = Vector3.Dot(plane.Normal, this.Center) + plane.D;
+			float distance = Vector3.Dot(plane.Normal, this.Center) + plane.D;
 			if (distance > this.Radius)
 				return PlaneIntersectionType.Front;
 			if (distance < -this.Radius)
@@ -333,12 +333,12 @@ namespace XnaGeometry
 			result = Intersects(plane);
         }
 
-        public Nullable<double> Intersects(Ray ray)
+        public Nullable<float> Intersects(Ray ray)
         {
             return ray.Intersects(this);
         }
 
-        public void Intersects(ref Ray ray, out Nullable<double> result)
+        public void Intersects(ref Ray ray, out Nullable<float> result)
         {
 			result = Intersects(ray);
         }

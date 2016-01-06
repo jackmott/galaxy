@@ -101,7 +101,7 @@ namespace XnaGeometry
 
 
 
-        public double? Intersects(BoundingBox box)
+        public float? Intersects(BoundingBox box)
         {
             //first test if start in box
             if (Position.X >= box.Min.X
@@ -137,7 +137,7 @@ namespace XnaGeometry
                 if (maxT.X < 0.0f)
                     return null;// ray go on opposite of face
                 //coordonate of hit point of face of cube
-                double coord = Position.Z + maxT.X * Direction.Z;
+                float coord = Position.Z + maxT.X * Direction.Z;
                 // if hit point coord ( intersect face with ray) is out of other plane coord it miss 
                 if (coord < box.Min.Z || coord > box.Max.Z)
                     return null;
@@ -151,7 +151,7 @@ namespace XnaGeometry
                 if (maxT.Y < 0.0f)
                     return null;// ray go on opposite of face
                 //coordonate of hit point of face of cube
-                double coord = Position.Z + maxT.Y * Direction.Z;
+                float coord = Position.Z + maxT.Y * Direction.Z;
                 // if hit point coord ( intersect face with ray) is out of other plane coord it miss 
                 if (coord < box.Min.Z || coord > box.Max.Z)
                     return null;
@@ -165,7 +165,7 @@ namespace XnaGeometry
                 if (maxT.Z < 0.0f)
                     return null;// ray go on opposite of face
                 //coordonate of hit point of face of cube
-                double coord = Position.X + maxT.Z * Direction.X;
+                float coord = Position.X + maxT.Z * Direction.X;
                 // if hit point coord ( intersect face with ray) is out of other plane coord it miss 
                 if (coord < box.Min.X || coord > box.Max.X)
                     return null;
@@ -179,7 +179,7 @@ namespace XnaGeometry
 
 
 
-        public void Intersects(ref BoundingBox box, out double? result)
+        public void Intersects(ref BoundingBox box, out float? result)
         {
             result = Intersects(box);
         }
@@ -187,7 +187,7 @@ namespace XnaGeometry
 
 
 
-        public double? Intersects(BoundingFrustum frustum)
+        public float? Intersects(BoundingFrustum frustum)
         {
             if (frustum == null)
             {
@@ -203,23 +203,23 @@ namespace XnaGeometry
 
 
 
-        public double? Intersects(BoundingSphere sphere)
+        public float? Intersects(BoundingSphere sphere)
         {
-            double? result;
+            float? result;
             Intersects(ref sphere, out result);
             return result;
         }
 
 
-        public double? Intersects(Plane plane)
+        public float? Intersects(Plane plane)
         {
-            double? result;
+            float? result;
             Intersects(ref plane, out result);
             return result;
         }
 
 
-        public void Intersects(ref Plane plane, out double? result)
+        public void Intersects(ref Plane plane, out float? result)
         {
             var den = Vector3.Dot(Direction, plane.Normal);
             if (Math.Abs(den) < 0.00001f)
@@ -246,17 +246,17 @@ namespace XnaGeometry
         }
 
 
-        public void Intersects(ref BoundingSphere sphere, out double? result)
+        public void Intersects(ref BoundingSphere sphere, out float? result)
         {
             // Find the vector between where the ray starts the the sphere's centre
             Vector3 difference = sphere.Center - this.Position;
 
 
-            double differenceLengthSquared = difference.LengthSquared();
-            double sphereRadiusSquared = sphere.Radius * sphere.Radius;
+            float differenceLengthSquared = difference.LengthSquared();
+            float sphereRadiusSquared = sphere.Radius * sphere.Radius;
 
 
-            double distanceAlongRay;
+            float distanceAlongRay;
 
 
             // If the distance between the ray start and the sphere's centre is less than
@@ -282,10 +282,10 @@ namespace XnaGeometry
             // if y = distance between ray position and sphere centre
             // if z = the distance we've travelled along the ray
             // if x^2 + z^2 - y^2 < 0, we do not intersect
-            double dist = sphereRadiusSquared + distanceAlongRay * distanceAlongRay - differenceLengthSquared;
+            float dist = sphereRadiusSquared + distanceAlongRay * distanceAlongRay - differenceLengthSquared;
 
 
-            result = (dist < 0) ? null : distanceAlongRay - (double?)Math.Sqrt(dist);
+            result = (dist < 0) ? null : distanceAlongRay - (float?)Math.Sqrt(dist);
         }
 
 

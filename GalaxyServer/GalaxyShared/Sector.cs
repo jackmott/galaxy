@@ -43,7 +43,9 @@ namespace GalaxyShared
         public SolarSystem GenerateSystem(int index)
         {
             r.Init(Coord.X, Coord.Y, Coord.Z, index);
-            Vector3 starCoord = new Vector3(r.Next(-Galaxy.SECTOR_SIZE /2f, Galaxy.SECTOR_SIZE /2f) + Coord.X * Galaxy.SECTOR_SIZE, r.Next(-Galaxy.SECTOR_SIZE /2f, Galaxy.SECTOR_SIZE /2f) + Coord.Y * Galaxy.SECTOR_SIZE, r.Next(-Galaxy.SECTOR_SIZE /2f, Galaxy.SECTOR_SIZE /2f) + Coord.Z * Galaxy.SECTOR_SIZE);
+            Vector3 starCoord = new Vector3(r.Next(0, Galaxy.SECTOR_SIZE) , 
+                                            r.Next(0, Galaxy.SECTOR_SIZE) , 
+                                            r.Next(0, Galaxy.SECTOR_SIZE));
             SolarSystem system = new SolarSystem(index, this, starCoord,r);            
             return system;
         }

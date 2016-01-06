@@ -28,6 +28,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     public static List<InputMessage> BufferedInputs;
 
     private GameObject Ship;
+    public static Vector3 ShipPos;
 
     private static Stopwatch MasterClock = new Stopwatch();
     public static long Millis
@@ -446,7 +447,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             PlayerState.LastPhysicsUpdate = Millis;
             
 
-            Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
+            ShipPos = Utility.UVector(PlayerState.Location.Pos);
             Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
         }
 

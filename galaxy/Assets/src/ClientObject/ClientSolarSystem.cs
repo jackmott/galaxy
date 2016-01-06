@@ -1,25 +1,14 @@
 ﻿using UnityEngine;
 using GalaxyShared;
-using System;
-using Vectrosity;
 using System.Collections.Generic;
-using System.Text;
-using UnityEngine.UI;
+
 
 public class ClientSolarSystem : MonoBehaviour
 {
 
     private static SolarSystem SolarSystem;
-    public static Cubemap Cubemap;
-
-       
-    public Material LineMaterial;
-
-
-    public GameObject Ship;
-
-    public VectorLine MiningLaser;
-
+    public static Cubemap Cubemap;       
+    public GameObject Ship;    
     public Dictionary<int, Asteroid> asteroidDictionary;
 
 
@@ -92,15 +81,6 @@ public class ClientSolarSystem : MonoBehaviour
             planetGO.transform.localScale *= (float)p.Size * Planet.EARTH_CONSTANT;
             ClientPlanet cp = planetGO.GetComponent<ClientPlanet>();
             cp.Planet = p;
-
-
-     
-
-          /*  int vertexCount = Convert.ToInt32(100f * (p.Orbit / 5f));
-            VectorLine orbitLine = new VectorLine("OrbitLine", new List<Vector3>(vertexCount), 1.0f, LineType.Continuous);
-            orbitLine.material = LineMaterial;
-            orbitLine.MakeCircle(Vector3.zero, Vector3.up, Vector3.Distance(Vector3.zero, Utility.UVector(p.Pos)));
-            orbitLine.Draw3DAuto();*/
 
         }
 

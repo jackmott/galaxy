@@ -216,8 +216,8 @@ namespace XnaGeometry
 
             // TODO: Just check that Count > 0
             bool empty = true;
-            Vector3 vector2 = new Vector3(double.MaxValue);
-            Vector3 vector1 = new Vector3(double.MinValue);
+            Vector3 vector2 = new Vector3(float.MaxValue);
+            Vector3 vector1 = new Vector3(float.MinValue);
             foreach (Vector3 vector3 in points)
             {
                 vector2 = Vector3.Min(vector2, vector3);

@@ -9,13 +9,13 @@ namespace GalaxyShared
 {
     public class Simulator
     {
-        public const double WARP_DISTANCE_THRESHOLD = 0.2d;
+        public const double WARP_DISTANCE_THRESHOLD = 0.2f;
 
                    
         public static void ContinuedPhysics(Player player, long deltaTime)
         {                        
-            double speed = player.Ship.TopSpeed * GetGravityInfluence(player);
-            player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle*speed * deltaTime/1000d, player.Rotation);
+            float speed = player.Ship.TopSpeed * GetGravityInfluence(player);
+            player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle*speed * deltaTime/1000f, player.Rotation);
         }
 
         public static void ProcessInput(Player player, InputMessage input)
@@ -40,7 +40,7 @@ namespace GalaxyShared
         public static void ContinuedPhysicsWarp(Player player,long deltaTime)
         {
            
-            player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle * player.Ship.TopSpeed * (deltaTime / 1500000d), player.Rotation);
+            player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle * player.Ship.TopSpeed * (deltaTime / 1500000f), player.Rotation);
         }
 
         public static void ProcessInputWarp(Player player, InputMessage input)
@@ -61,18 +61,18 @@ namespace GalaxyShared
         }
 
         //Finds the closest planet, computes 'gravity' to use to scale down ship speed
-        public static double GetGravityInfluence(Player player)
+        public static float GetGravityInfluence(Player player)
         {
             SolarSystem system = player.SolarSystem;
             if (system.Planets != null)
             {
-                double closestDistance = double.MaxValue;
+                float closestDistance = float.MaxValue;
                 Planet closestPlanet = null;
                 foreach (Planet p in system.Planets)
                 {
                     
 
-                    double distance = Vector3.Distance(p.Pos, player.Location.Pos);
+                    float distance = Vector3.Distance(p.Pos, player.Location.Pos);
                     if (distance < closestDistance)
                     {
                         closestDistance = distance;
@@ -80,11 +80,11 @@ namespace GalaxyShared
                     }
 
                 }
-                closestDistance = closestDistance - closestPlanet.Size/2d * Planet.EARTH_CONSTANT;
-                return MathHelper.Clamp(closestDistance / 4000d, .001d, 1d);
+                closestDistance = closestDistance - closestPlanet.Size/2f * Planet.EARTH_CONSTANT;
+                return MathHelper.Clamp(closestDistance / 4000f, .001f, 1f);
             } else
             {
-                return 0d;
+                return 0f;
             }
         }
 

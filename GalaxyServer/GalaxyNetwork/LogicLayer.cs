@@ -139,7 +139,7 @@ namespace GalaxyServer
 
             Vector3 systemPos = client.Player.Location.SystemPos;
             Vector3 startPos = new Vector3(systemPos.X * Galaxy.EXPAND_FACTOR, systemPos.Y * Galaxy.EXPAND_FACTOR, systemPos.Z * Galaxy.EXPAND_FACTOR);
-            startPos += Vector3.Transform(Vector3.Forward * .3d, client.Player.Rotation);
+            startPos += Vector3.Transform(Vector3.Forward * .3f, client.Player.Rotation);
             client.Player.Location.Pos = startPos;
 
             //client has left, clear em out

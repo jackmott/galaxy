@@ -30,9 +30,16 @@ namespace GalaxyShared
         }
         public float Next(float min, float max)
         {
-            byte[] bytes = new byte[4];
-            NextBytes(bytes);
-            float f = (1f / 256f) * (bytes[0] + (1f / 256f) * (bytes[1] + (1f / 256f) * (bytes[2] + (1f / 256f) * bytes[3])));
+            uint tx = _x ^ (_x << 11);
+            uint ty = _y ^ (_y << 11);
+            uint tz = _z ^ (_z << 11);
+            uint tw = _w ^ (_w << 11);
+            _x = _w ^ (_w >> 19) ^ (tx ^ (tx >> 8));
+            _y = _x ^ (_x >> 19) ^ (ty ^ (ty >> 8));
+            _z = _y ^ (_y >> 19) ^ (tz ^ (tz >> 8));
+            _w = _z ^ (_z >> 19) ^ (tw ^ (tw >> 8));
+            
+            float f = (1f / 256f) * ((byte)_x+ (1f / 256f) * ((byte)_y + (1f / 256f) * ((byte)_z + (1f / 256f) * (byte)_w)));
             return f * (max - min) + min;
             
         }
@@ -69,9 +76,8 @@ namespace GalaxyShared
             fixed (byte* pbytes = buf)
             {
                 uint* pbuf = (uint*)(pbytes);
-                uint* pend = (uint*)(pbytes + buf.Length);
-                while (pbuf < pend)
-                {
+               // uint* pend = (uint*)(pbytes + buf.Length);
+               
                     uint tx = _x ^ (_x << 11);
                     uint ty = _y ^ (_y << 11);
                     uint tz = _z ^ (_z << 11);
@@ -80,7 +86,7 @@ namespace GalaxyShared
                     *(pbuf++) = _y = _x ^ (_x >> 19) ^ (ty ^ (ty >> 8));
                     *(pbuf++) = _z = _y ^ (_y >> 19) ^ (tz ^ (tz >> 8));
                     *(pbuf++) = _w = _z ^ (_z >> 19) ^ (tw ^ (tw >> 8));
-                }
+                
             }
         }
 

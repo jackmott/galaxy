@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
+
 
 public class Utility {
 
 	public static Vector3 UVector(XnaGeometry.Vector3 v)
     {
-        return new Vector3((float)v.X, (float)v.Y, (float)v.Z);
+        return new Vector3(v.X, v.Y, v.Z);
     }
 
     public static XnaGeometry.Vector3 XVector(Vector3 v)
@@ -15,7 +15,7 @@ public class Utility {
 
     public static Quaternion UQuaternion(XnaGeometry.Quaternion q)
     {
-        return new Quaternion((float)q.X, (float)q.Y, (float)q.Z, (float)q.W);
+        return new Quaternion(q.X, q.Y, q.Z, q.W);
     }
 
     public static XnaGeometry.Quaternion XQuaternion(Quaternion q)

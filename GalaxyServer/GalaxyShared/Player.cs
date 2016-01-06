@@ -33,9 +33,10 @@ namespace GalaxyShared
             UserName = userName;
             Location.SectorCoord = new SectorCoord(Galaxy.GALAXY_SIZE_SECTORS/2, Galaxy.GALAXY_SIZE_SECTORS/2, Galaxy.GALAXY_THICKNESS_SECTORS/2);
             Sector s = new Sector(Location.SectorCoord);
-            Location.SystemPos = s.GenerateSystems()[0].Pos;                             
+            Vector3 sectorPos = new Vector3(s.Coord.X * Galaxy.SECTOR_SIZE, s.Coord.Y * Galaxy.SECTOR_SIZE, s.Coord.Z * Galaxy.SECTOR_SIZE);
+            Location.SystemPos = sectorPos + s.GenerateSystem(0).Pos;                             
             Rotation = Quaternion.Identity;
-            Location.Pos = (Location.SystemPos * Galaxy.EXPAND_FACTOR) + Vector3.Transform(Vector3.Forward * .3d, Rotation);
+            Location.Pos = (Location.SystemPos * Galaxy.EXPAND_FACTOR) + Vector3.Transform(Vector3.Forward * .3f, Rotation);
             Throttle = 0;
             Location.InWarp = true;
             Ship = new Ship(this);

@@ -54,11 +54,11 @@ namespace XnaGeometry
 
         #region Public Fields
         [ProtoMember(1)]
-        public double X;
+        public float X;
         [ProtoMember(2)]
-        public double Y;
+        public float Y;
         [ProtoMember(3)]
-        public double Z;
+        public float Z;
 
         #endregion Public Fields
 
@@ -125,7 +125,7 @@ namespace XnaGeometry
 
         #region Constructors
 
-        public Vector3(double x, double y, double z)
+        public Vector3(float x, float y, float z)
         {
             this.X = x;
             this.Y = y;
@@ -133,7 +133,7 @@ namespace XnaGeometry
         }
 
 
-        public Vector3(double value)
+        public Vector3(float value)
         {
             this.X = value;
             this.Y = value;
@@ -141,7 +141,7 @@ namespace XnaGeometry
         }
 
 
-        public Vector3(Vector2 value, double z)
+        public Vector3(Vector2 value, float z)
         {
             this.X = value.X;
             this.Y = value.Y;
@@ -169,7 +169,7 @@ namespace XnaGeometry
             result.Z = value1.Z + value2.Z;
         }
 
-        public static Vector3 Barycentric(Vector3 value1, Vector3 value2, Vector3 value3, double amount1, double amount2)
+        public static Vector3 Barycentric(Vector3 value1, Vector3 value2, Vector3 value3, float amount1, float amount2)
         {
             return new Vector3(
                 MathHelper.Barycentric(value1.X, value2.X, value3.X, amount1, amount2),
@@ -177,7 +177,7 @@ namespace XnaGeometry
                 MathHelper.Barycentric(value1.Z, value2.Z, value3.Z, amount1, amount2));
         }
 
-        public static void Barycentric(ref Vector3 value1, ref Vector3 value2, ref Vector3 value3, double amount1, double amount2, out Vector3 result)
+        public static void Barycentric(ref Vector3 value1, ref Vector3 value2, ref Vector3 value3, float amount1, float amount2, out Vector3 result)
         {
             result = new Vector3(
                 MathHelper.Barycentric(value1.X, value2.X, value3.X, amount1, amount2),
@@ -185,7 +185,7 @@ namespace XnaGeometry
                 MathHelper.Barycentric(value1.Z, value2.Z, value3.Z, amount1, amount2));
         }
 
-        public static Vector3 CatmullRom(Vector3 value1, Vector3 value2, Vector3 value3, Vector3 value4, double amount)
+        public static Vector3 CatmullRom(Vector3 value1, Vector3 value2, Vector3 value3, Vector3 value4, float amount)
         {
             return new Vector3(
                 MathHelper.CatmullRom(value1.X, value2.X, value3.X, value4.X, amount),
@@ -193,7 +193,7 @@ namespace XnaGeometry
                 MathHelper.CatmullRom(value1.Z, value2.Z, value3.Z, value4.Z, amount));
         }
 
-        public static void CatmullRom(ref Vector3 value1, ref Vector3 value2, ref Vector3 value3, ref Vector3 value4, double amount, out Vector3 result)
+        public static void CatmullRom(ref Vector3 value1, ref Vector3 value2, ref Vector3 value3, ref Vector3 value4, float amount, out Vector3 result)
         {
             result = new Vector3(
                 MathHelper.CatmullRom(value1.X, value2.X, value3.X, value4.X, amount),
@@ -230,27 +230,27 @@ namespace XnaGeometry
                                  vector1.X * vector2.Y - vector2.X * vector1.Y);
         }
 
-        public static double Distance(Vector3 vector1, Vector3 vector2)
+        public static float Distance(Vector3 vector1, Vector3 vector2)
         {
-            double result;
+            float result;
             DistanceSquared(ref vector1, ref vector2, out result);
-            return (double)Math.Sqrt(result);
+            return (float)Math.Sqrt(result);
         }
 
-        public static void Distance(ref Vector3 value1, ref Vector3 value2, out double result)
+        public static void Distance(ref Vector3 value1, ref Vector3 value2, out float result)
         {
             DistanceSquared(ref value1, ref value2, out result);
-            result = (double)Math.Sqrt(result);
+            result = (float)Math.Sqrt(result);
         }
 
-        public static double DistanceSquared(Vector3 value1, Vector3 value2)
+        public static float DistanceSquared(Vector3 value1, Vector3 value2)
         {
-            double result;
+            float result;
             DistanceSquared(ref value1, ref value2, out result);
             return result;
         }
 
-        public static void DistanceSquared(ref Vector3 value1, ref Vector3 value2, out double result)
+        public static void DistanceSquared(ref Vector3 value1, ref Vector3 value2, out float result)
         {
             result = (value1.X - value2.X) * (value1.X - value2.X) +
                      (value1.Y - value2.Y) * (value1.Y - value2.Y) +
@@ -265,18 +265,18 @@ namespace XnaGeometry
             return value1;
         }
 
-        public static Vector3 Divide(Vector3 value1, double value2)
+        public static Vector3 Divide(Vector3 value1, float value2)
         {
-            double factor = 1 / value2;
+            float factor = 1 / value2;
             value1.X *= factor;
             value1.Y *= factor;
             value1.Z *= factor;
             return value1;
         }
 
-        public static void Divide(ref Vector3 value1, double divisor, out Vector3 result)
+        public static void Divide(ref Vector3 value1, float divisor, out Vector3 result)
         {
-            double factor = 1 / divisor;
+            float factor = 1 / divisor;
             result.X = value1.X * factor;
             result.Y = value1.Y * factor;
             result.Z = value1.Z * factor;
@@ -289,12 +289,12 @@ namespace XnaGeometry
             result.Z = value1.Z / value2.Z;
         }
 
-        public static double Dot(Vector3 vector1, Vector3 vector2)
+        public static float Dot(Vector3 vector1, Vector3 vector2)
         {
             return vector1.X * vector2.X + vector1.Y * vector2.Y + vector1.Z * vector2.Z;
         }
 
-        public static void Dot(ref Vector3 vector1, ref Vector3 vector2, out double result)
+        public static void Dot(ref Vector3 vector1, ref Vector3 vector2, out float result)
         {
             result = vector1.X * vector2.X + vector1.Y * vector2.Y + vector1.Z * vector2.Z;
         }
@@ -314,35 +314,35 @@ namespace XnaGeometry
             return (int)(this.X + this.Y + this.Z);
         }
 
-        public static Vector3 Hermite(Vector3 value1, Vector3 tangent1, Vector3 value2, Vector3 tangent2, double amount)
+        public static Vector3 Hermite(Vector3 value1, Vector3 tangent1, Vector3 value2, Vector3 tangent2, float amount)
         {
             Vector3 result = new Vector3();
             Hermite(ref value1, ref tangent1, ref value2, ref tangent2, amount, out result);
             return result;
         }
 
-        public static void Hermite(ref Vector3 value1, ref Vector3 tangent1, ref Vector3 value2, ref Vector3 tangent2, double amount, out Vector3 result)
+        public static void Hermite(ref Vector3 value1, ref Vector3 tangent1, ref Vector3 value2, ref Vector3 tangent2, float amount, out Vector3 result)
         {
             result.X = MathHelper.Hermite(value1.X, tangent1.X, value2.X, tangent2.X, amount);
             result.Y = MathHelper.Hermite(value1.Y, tangent1.Y, value2.Y, tangent2.Y, amount);
             result.Z = MathHelper.Hermite(value1.Z, tangent1.Z, value2.Z, tangent2.Z, amount);
         }
 
-        public double Length()
+        public float Length()
         {
-            double result;
+            float result;
             DistanceSquared(ref this, ref zero, out result);
-            return (double)Math.Sqrt(result);
+            return (float)Math.Sqrt(result);
         }
 
-        public double LengthSquared()
+        public float LengthSquared()
         {
-            double result;
+            float result;
             DistanceSquared(ref this, ref zero, out result);
             return result;
         }
 
-        public static Vector3 Lerp(Vector3 value1, Vector3 value2, double amount)
+        public static Vector3 Lerp(Vector3 value1, Vector3 value2, float amount)
         {
             return new Vector3(
                 MathHelper.Lerp(value1.X, value2.X, amount),
@@ -350,7 +350,7 @@ namespace XnaGeometry
                 MathHelper.Lerp(value1.Z, value2.Z, amount));
         }
 
-        public static void Lerp(ref Vector3 value1, ref Vector3 value2, double amount, out Vector3 result)
+        public static void Lerp(ref Vector3 value1, ref Vector3 value2, float amount, out Vector3 result)
         {
             result = new Vector3(
                 MathHelper.Lerp(value1.X, value2.X, amount),
@@ -398,7 +398,7 @@ namespace XnaGeometry
             return value1;
         }
 
-        public static Vector3 Multiply(Vector3 value1, double scaleFactor)
+        public static Vector3 Multiply(Vector3 value1, float scaleFactor)
         {
             value1.X *= scaleFactor;
             value1.Y *= scaleFactor;
@@ -406,7 +406,7 @@ namespace XnaGeometry
             return value1;
         }
 
-        public static void Multiply(ref Vector3 value1, double scaleFactor, out Vector3 result)
+        public static void Multiply(ref Vector3 value1, float scaleFactor, out Vector3 result)
         {
             result.X = value1.X * scaleFactor;
             result.Y = value1.Y * scaleFactor;
@@ -444,7 +444,7 @@ namespace XnaGeometry
 
         public static void Normalize(ref Vector3 value, out Vector3 result)
         {
-            double factor;
+            float factor;
             Distance(ref value, ref zero, out factor);
             factor = 1f / factor;
             result.X = value.X * factor;
@@ -459,7 +459,7 @@ namespace XnaGeometry
 		// R = I - (2 * N * ( DotProduct[ I,N] ))
 		Vector3 reflectedVector;
 		// inline the dotProduct here instead of calling method
-		double dotProduct = ((vector.X * normal.X) + (vector.Y * normal.Y)) + (vector.Z * normal.Z);
+		float dotProduct = ((vector.X * normal.X) + (vector.Y * normal.Y)) + (vector.Z * normal.Z);
 		reflectedVector.X = vector.X - (2.0f * normal.X) * dotProduct;
 		reflectedVector.Y = vector.Y - (2.0f * normal.Y) * dotProduct;
 		reflectedVector.Z = vector.Z - (2.0f * normal.Z) * dotProduct;
@@ -474,14 +474,14 @@ namespace XnaGeometry
 		// R = I - (2 * N * ( DotProduct[ I,N] ))
 
 		// inline the dotProduct here instead of calling method
-		double dotProduct = ((vector.X * normal.X) + (vector.Y * normal.Y)) + (vector.Z * normal.Z);
+		float dotProduct = ((vector.X * normal.X) + (vector.Y * normal.Y)) + (vector.Z * normal.Z);
 		result.X = vector.X - (2.0f * normal.X) * dotProduct;
 		result.Y = vector.Y - (2.0f * normal.Y) * dotProduct;
 		result.Z = vector.Z - (2.0f * normal.Z) * dotProduct;
 
 	}
 		
-        public static Vector3 SmoothStep(Vector3 value1, Vector3 value2, double amount)
+        public static Vector3 SmoothStep(Vector3 value1, Vector3 value2, float amount)
         {
             return new Vector3(
                 MathHelper.SmoothStep(value1.X, value2.X, amount),
@@ -489,7 +489,7 @@ namespace XnaGeometry
                 MathHelper.SmoothStep(value1.Z, value2.Z, amount));
         }
 
-        public static void SmoothStep(ref Vector3 value1, ref Vector3 value2, double amount, out Vector3 result)
+        public static void SmoothStep(ref Vector3 value1, ref Vector3 value2, float amount, out Vector3 result)
         {
             result = new Vector3(
                 MathHelper.SmoothStep(value1.X, value2.X, amount),
@@ -606,9 +606,9 @@ namespace XnaGeometry
         
         public static void Transform(ref Vector3 value, ref Quaternion rotation, out Vector3 result)
         {
-            double x = 2 * (rotation.Y * value.Z - rotation.Z * value.Y);
-            double y = 2 * (rotation.Z * value.X - rotation.X * value.Z);
-            double z = 2 * (rotation.X * value.Y - rotation.Y * value.X);
+            float x = 2 * (rotation.Y * value.Z - rotation.Z * value.Y);
+            float y = 2 * (rotation.Z * value.X - rotation.X * value.Z);
+            float z = 2 * (rotation.X * value.Y - rotation.Y * value.X);
 
             result.X = value.X + x * rotation.W + (rotation.Y * z - rotation.Z * y);
             result.Y = value.Y + y * rotation.W + (rotation.Z * x - rotation.X * z);
@@ -675,7 +675,7 @@ namespace XnaGeometry
             return value1;
         }
 
-        public static Vector3 operator *(Vector3 value, double scaleFactor)
+        public static Vector3 operator *(Vector3 value, float scaleFactor)
         {
             value.X *= scaleFactor;
             value.Y *= scaleFactor;
@@ -683,7 +683,7 @@ namespace XnaGeometry
             return value;
         }
 
-        public static Vector3 operator *(double scaleFactor, Vector3 value)
+        public static Vector3 operator *(float scaleFactor, Vector3 value)
         {
             value.X *= scaleFactor;
             value.Y *= scaleFactor;
@@ -699,9 +699,9 @@ namespace XnaGeometry
             return value1;
         }
 
-        public static Vector3 operator /(Vector3 value, double divider)
+        public static Vector3 operator /(Vector3 value, float divider)
         {
-            double factor = 1 / divider;
+            float factor = 1 / divider;
             value.X *= factor;
             value.Y *= factor;
             value.Z *= factor;
