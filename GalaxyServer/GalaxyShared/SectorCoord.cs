@@ -1,4 +1,5 @@
 ﻿using ProtoBuf;
+using XnaGeometry;
 namespace GalaxyShared
 {
     [ProtoContract]
@@ -10,6 +11,11 @@ namespace GalaxyShared
         public int Y;
         [ProtoMember(3)]
         public int Z;
+
+		public Vector3 asVector()
+		{
+			return new Vector3(X, Y, Z);
+		}
 
         public SectorCoord(int x, int y, int z)
         {

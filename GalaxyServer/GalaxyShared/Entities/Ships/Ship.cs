@@ -12,7 +12,7 @@ namespace GalaxyShared
         public Player Owner;
 
         [ProtoMember(1)]
-        public ushort TopSpeed=100;		
+        public ushort TopSpeed=1000;		
         [ProtoMember(2)]
         public string TypeName;        
         [ProtoMember(3)]

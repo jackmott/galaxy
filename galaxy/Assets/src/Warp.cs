@@ -32,9 +32,9 @@ public class Warp : MonoBehaviour
         Galaxy.Init();
         GameObject OriginalParticlePrefab = Resources.Load<GameObject>("StarParticles");
 
-        Ship.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
+        Ship.transform.rotation = NetworkManager.PlayerState.Rotation.UQuaternion();
         Ship.transform.position = Vector3.zero;
-        ShipOffset = Utility.UVector(NetworkManager.PlayerState.Pos)*Galaxy.EXPAND_FACTOR;
+        ShipOffset = NetworkManager.PlayerState.Pos.UVector()*Galaxy.EXPAND_FACTOR;
         Ship.transform.Translate(Vector3.forward * .2f);
 
         GalaxyGlow();
@@ -67,6 +67,7 @@ public class Warp : MonoBehaviour
                     Vector3 sectorPos = new Vector3(s.Coord.X * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR,
                                                     s.Coord.Y * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR,
                                                     s.Coord.Z * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR) - ShipOffset;
+					UnityEngine.Debug.Log("sectorpos:"+sectorPos);
                     GameObject go = (GameObject)Instantiate(OriginalParticlePrefab, sectorPos, Quaternion.identity);
                     ParticleSystem p = go.GetComponent<ParticleSystem>();
                     ClientSector c = new ClientSector(s, p, go);
@@ -76,8 +77,8 @@ public class Warp : MonoBehaviour
                 }
             }
         }
-
-        Camera.main.farClipPlane = distanceThreshold;
+				
+		Camera.main.farClipPlane = distanceThreshold;
         Camera.main.nearClipPlane = 0.5f;
 
 
@@ -154,9 +155,10 @@ public class Warp : MonoBehaviour
         XnaGeometry.Vector3 shipPos = NetworkManager.PlayerState.Pos / Galaxy.EXPAND_FACTOR / Galaxy.SECTOR_SIZE;
 		hud = GameObject.Find("HudCanvas").GetComponent<Hud>();
 		hud.SetDebugText(NetworkManager.PlayerState.SectorPos.ToString());
-		int xDiff = (int)(shipPos.X) - oldX;
-        int yDiff = (int)(shipPos.Y) - oldY;
-        int zDiff = (int)(shipPos.Z) - oldZ;
+		var sectorPos = NetworkManager.PlayerState.SectorPos;
+		int xDiff = sectorPos.X  -oldX;
+        int yDiff = sectorPos.Y - oldY;
+        int zDiff = sectorPos.Z - oldZ;
 
         if (xDiff != 0 || yDiff != 0 || zDiff != 0)
         {
@@ -204,22 +206,48 @@ public class Warp : MonoBehaviour
                     cs.Activate(s);
                 }
 
-                s = cs.Sector;
-                Vector3 sectorPos = new Vector3(s.Coord.X * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR,
-                                                    s.Coord.Y * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR,
-                                                    s.Coord.Z * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR) - ShipOffset;
-                cs.ParticleSystem.transform.position = sectorPos;
-            }
-            oldX += xDiff;
+                s = cs.Sector;                
+                cs.ParticleSystem.transform.position = new Vector3(s.Coord.X * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR,
+															       s.Coord.Y * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR,
+													               s.Coord.Z * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR) - ShipOffset;
+			}
+
+			ClientSector closeSector = GetClosestSector();
+			ParticleSystem.Particle[] particles = new ParticleSystem.Particle[closeSector.ParticleSystem.particleCount];
+			closeSector.ParticleSystem.GetParticles(particles);
+			foreach (var p in particles)
+			{				
+				GameObject star = (GameObject)Instantiate(Resources.Load<GameObject>("StarHitbox"), closeSector.ParticleSystem.transform.position+p.position, Quaternion.identity);
+
+			}
+			oldX += xDiff;
             oldY += yDiff;
             oldZ += zDiff;
         }
-        Ship.transform.position = NetworkManager.PlayerState.Pos.UVector() - ShipOffset;
+        Ship.transform.position = NetworkManager.PlayerState.Pos.UVector()*Galaxy.EXPAND_FACTOR - ShipOffset;
         Camera.main.transform.position = Ship.transform.position;
-        Camera.main.transform.rotation = Ship.transform.rotation;
+		Camera.main.transform.rotation = Ship.transform.rotation;
+
+		
 
     }//updatesectors
 
+
+	public ClientSector GetClosestSector()
+	{
+		ClientSector closestSector = sectors[0];
+		float minDist = float.MaxValue;
+		foreach (ClientSector s in sectors)
+		{
+			float dist = Utility.FastDistance(s.Sector.Pos, NetworkManager.PlayerState.Pos);
+			if (dist < minDist)
+			{
+				minDist = dist;
+				closestSector = s;
+			}
+		}
+		return closestSector;
+	}
 
     public static double GetClosestSystem(Sector sector, XnaGeometry.Vector3 pos, out SolarSystem closeSystem)
     {

@@ -8,8 +8,22 @@ public static class Utility {
         return new Vector3(v.X, v.Y, v.Z);
     }
 
-	
-    public static XnaGeometry.Vector3 XVector(this Vector3 v)
+	public static float FastDistance(XnaGeometry.Vector3 a, XnaGeometry.Vector3 b)
+	{
+		XnaGeometry.Vector3 r = b - a;
+		return r.X * r.X + r.Y * r.Y + r.Z * r.Z;
+
+	}
+
+	public static float FastDistance(Vector3 a, Vector3 b)
+	{
+		Vector3 r = b - a;
+		return r.x * r.x + r.y * r.y + r.z * r.z;
+
+	}
+
+
+	public static XnaGeometry.Vector3 XVector(this Vector3 v)
     {
         return new XnaGeometry.Vector3(v.x, v.y, v.z);
     }
