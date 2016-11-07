@@ -157,7 +157,7 @@ namespace GalaxyShared
         [ProtoMember(1)]
         public Quaternion Rotation;
         [ProtoMember(2)]
-        public Location Location;
+        public Vector3 Pos;
 
         public void Proto(Stream stream, byte[] typeBuffer)
         {
@@ -178,7 +178,7 @@ namespace GalaxyShared
         [ProtoMember(1)]
         public Quaternion Rotation;
         [ProtoMember(2)]
-        public Location Location;
+        public Vector3 Pos;
         [ProtoMember(3)]
         public string SystemKey;
         [ProtoMember(4)]

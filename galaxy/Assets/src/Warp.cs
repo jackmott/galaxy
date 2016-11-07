@@ -9,41 +9,41 @@ using System.Diagnostics;
 [AddComponentMenu("Camera/Warp ")]
 public class Warp : MonoBehaviour
 {
-    
-  
+
+
     const int SectorCount = 7; //must be odd 
     const float distanceThreshold = (float)(Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR * (SectorCount / 2f));
     //const float HalfSectorCount = SectorCount / 2f;
     //credit to Pythagoras
-    
+
     public GameObject Ship;
     private Vector3 ShipOffset;
     ClientSector[] sectors = new ClientSector[SectorCount * SectorCount * SectorCount];
 
     int oldX, oldY, oldZ;
-    
+
+    Hud hud;
 
     // Use this for initialization
     void Start()
     {
 
-
+       
         Galaxy.Init();
         GameObject OriginalParticlePrefab = Resources.Load<GameObject>("StarParticles");
 
         Ship.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
         Ship.transform.position = Vector3.zero;
-        ShipOffset = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
+        ShipOffset = Utility.UVector(NetworkManager.PlayerState.Pos)*Galaxy.EXPAND_FACTOR;
         Ship.transform.Translate(Vector3.forward * .2f);
 
         GalaxyGlow();
-
-        //warm up clientsectors
-        XnaGeometry.Vector3 shipPos = NetworkManager.PlayerState.Location.Pos / Galaxy.EXPAND_FACTOR / Galaxy.SECTOR_SIZE;
-        int x = (int)shipPos.X;
-        int y = (int)shipPos.Y;
-        int z = (int)shipPos.Z;
-        oldX = x;
+		//warm up clientsectors
+		
+        int x = NetworkManager.PlayerState.SectorPos.X;
+		int y = NetworkManager.PlayerState.SectorPos.Y;
+		int z = NetworkManager.PlayerState.SectorPos.Z;
+		oldX = x;
         oldY = y;
         oldZ = z;
 
@@ -64,12 +64,12 @@ public class Warp : MonoBehaviour
 
                     Sector s = new Sector(new SectorCoord(minX + x, minY + y, minZ + z));
                     //     s.GenerateSystems();
-                    Vector3 sectorPos = new Vector3(s.Coord.X  * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR, 
-                                                    s.Coord.Y  * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR, 
-                                                    s.Coord.Z  * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR) - ShipOffset;
+                    Vector3 sectorPos = new Vector3(s.Coord.X * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR,
+                                                    s.Coord.Y * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR,
+                                                    s.Coord.Z * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR) - ShipOffset;
                     GameObject go = (GameObject)Instantiate(OriginalParticlePrefab, sectorPos, Quaternion.identity);
                     ParticleSystem p = go.GetComponent<ParticleSystem>();
-                    ClientSector c = new ClientSector(s, p,go);
+                    ClientSector c = new ClientSector(s, p, go);
                     c.ParticleSystem = p;
                     sectors[count] = c;
                     count++;
@@ -96,9 +96,9 @@ public class Warp : MonoBehaviour
         stopwatch.Start();
         FastRandom rand = new FastRandom(1, 2, 3);
         int POINT_COUNT = 25000;
-        SectorCoord s = NetworkManager.PlayerState.Location.SectorCoord;
+        SectorCoord s = NetworkManager.PlayerState.SectorPos;
         Vector3 sector = new Vector3(s.X, s.Y, s.Z);
-        Vector3 player = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
+        Vector3 player = Utility.UVector(NetworkManager.PlayerState.Pos);
         List<ParticleSystem.Particle> particleList = new List<ParticleSystem.Particle>(POINT_COUNT / 4);
         for (int i = 0; i < POINT_COUNT; i++)
         {
@@ -149,27 +149,28 @@ public class Warp : MonoBehaviour
 
     void Update()
     {
-        
 
-        XnaGeometry.Vector3 shipPos = NetworkManager.PlayerState.Location.Pos / Galaxy.EXPAND_FACTOR / Galaxy.SECTOR_SIZE;
-        
-        int xDiff = (int)(shipPos.X) - oldX;
+
+        XnaGeometry.Vector3 shipPos = NetworkManager.PlayerState.Pos / Galaxy.EXPAND_FACTOR / Galaxy.SECTOR_SIZE;
+		hud = GameObject.Find("HudCanvas").GetComponent<Hud>();
+		hud.SetDebugText(NetworkManager.PlayerState.SectorPos.ToString());
+		int xDiff = (int)(shipPos.X) - oldX;
         int yDiff = (int)(shipPos.Y) - oldY;
         int zDiff = (int)(shipPos.Z) - oldZ;
 
         if (xDiff != 0 || yDiff != 0 || zDiff != 0)
         {
-            ShipOffset = NetworkManager.ShipPos;
-            //All sectors with these values are replaced
-            int xToReplace = oldX - (SectorCount - 1)/2 * xDiff;
-            int yToReplace = oldY - (SectorCount - 1)/2 * yDiff;
-            int zToReplace = oldZ - (SectorCount - 1)/2 * zDiff;
+            ShipOffset = NetworkManager.PlayerState.Pos.UVector() * Galaxy.EXPAND_FACTOR;
+			//All sectors with these values are replaced
+			int xToReplace = oldX - (SectorCount - 1) / 2 * xDiff;
+            int yToReplace = oldY - (SectorCount - 1) / 2 * yDiff;
+            int zToReplace = oldZ - (SectorCount - 1) / 2 * zDiff;
 
             //With sectors that have this value
             int newX = xToReplace + SectorCount * xDiff;
             int newY = yToReplace + SectorCount * yDiff;
             int newZ = zToReplace + SectorCount * zDiff;
-           
+
             for (int i = 0; i < sectors.Length; i++)
             {
                 ClientSector cs = sectors[i];
@@ -179,7 +180,7 @@ public class Warp : MonoBehaviour
 
                 SectorCoord sc = cs.Sector.Coord;
                 bool update = false;
-                
+
                 if (sc.X == xToReplace && xDiff != 0)
                 {
                     sc.X = newX;
@@ -199,23 +200,23 @@ public class Warp : MonoBehaviour
                 Sector s;
                 if (update)
                 {
-                    s = new Sector(sc);                  
+                    s = new Sector(sc);
                     cs.Activate(s);
                 }
 
                 s = cs.Sector;
-                Vector3 sectorPos = new Vector3( s.Coord.X * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR,
-                                                 s.Coord.Y * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR,
-                                                 s.Coord.Z * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR) - ShipOffset;
+                Vector3 sectorPos = new Vector3(s.Coord.X * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR,
+                                                    s.Coord.Y * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR,
+                                                    s.Coord.Z * Galaxy.SECTOR_SIZE * Galaxy.EXPAND_FACTOR) - ShipOffset;
                 cs.ParticleSystem.transform.position = sectorPos;
             }
             oldX += xDiff;
             oldY += yDiff;
             oldZ += zDiff;
         }
-        Ship.transform.position = NetworkManager.ShipPos - ShipOffset;
-        Camera.main.transform.position = Ship.transform.position;// Utility.UVector(NetworkManager.PlayerState.Location.Pos);
-        Camera.main.transform.rotation = Ship.transform.rotation;// Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
+        Ship.transform.position = NetworkManager.PlayerState.Pos.UVector() - ShipOffset;
+        Camera.main.transform.position = Ship.transform.position;
+        Camera.main.transform.rotation = Ship.transform.rotation;
 
     }//updatesectors
 
@@ -287,7 +288,7 @@ public class Warp : MonoBehaviour
     public void DropOutOfWarp(SolarSystem system)
     {
 
-        ClientSolarSystem.Cubemap = GetCubemap(Utility.UVector(NetworkManager.PlayerState.Location.Pos), 2048);
+        ClientSolarSystem.Cubemap = GetCubemap(NetworkManager.PlayerState.Pos.UVector(), 2048);
 
         DropOutOfWarpMessage msg = new DropOutOfWarpMessage();
         msg.SystemIndex = system.Index;

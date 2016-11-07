@@ -64,7 +64,7 @@ public class ClientSolarSystem : MonoBehaviour
         }
         else
         {
-            Ship.transform.position = Utility.UVector(NetworkManager.PlayerState.Location.Pos);
+            Ship.transform.position = Utility.UVector(NetworkManager.PlayerState.Pos);
             Ship.transform.rotation = Utility.UQuaternion(NetworkManager.PlayerState.Rotation);
         }
 

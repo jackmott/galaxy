@@ -31,7 +31,7 @@ namespace GalaxyServer
                 }
                 c.Player.SolarSystem = null;
                 ClientsInWarp.AddLast(c);
-                c.Player.Location.InWarp = true;
+                c.Player.InWarp = true;
             }
         }
 
@@ -46,7 +46,7 @@ namespace GalaxyServer
                 }
                 s.Clients.AddLast(c);
                 c.Player.SolarSystem = s;
-                c.Player.Location.InWarp = false;
+                c.Player.InWarp = false;
             }
         }
 
@@ -137,16 +137,16 @@ namespace GalaxyServer
 
             msg.Rotation = client.Player.Rotation;
 
-            Vector3 systemPos = client.Player.Location.SystemPos;
+			Vector3 systemPos = client.Player.SolarSystem.Pos;
             Vector3 startPos = new Vector3(systemPos.X * Galaxy.EXPAND_FACTOR, systemPos.Y * Galaxy.EXPAND_FACTOR, systemPos.Z * Galaxy.EXPAND_FACTOR);
             startPos += Vector3.Transform(Vector3.Forward * .3f, client.Player.Rotation);
-            client.Player.Location.Pos = startPos;
+            client.Player.Pos = startPos;
 
             //client has left, clear em out
             SolarSystem system = client.Player.SolarSystem;
             MoveClientToWarp(client);
 
-            msg.Location = client.Player.Location;
+            msg.Pos = client.Player.Pos;
 
             GalaxyServer.AddToSendQueue(client, msg);
 
@@ -157,7 +157,7 @@ namespace GalaxyServer
 
             Client client = (Client)extra;
             Player player = client.Player;
-            if (!player.Location.InWarp)
+            if (!player.InWarp)
             {
                 Console.WriteLine("Drop out of warp msg received when not in warp");
                 return;
@@ -185,18 +185,16 @@ namespace GalaxyServer
                 system.Clients = new LinkedList<object>();
             }
 
-            double distance = Vector3.Distance(player.Location.Pos, system.Pos * Galaxy.EXPAND_FACTOR);
+            double distance = Vector3.Distance(player.Pos, system.Pos * Galaxy.EXPAND_FACTOR);
             Console.WriteLine("Distance:" + distance);
             //give some wiggle room since server/client will not be perfectly in sync
             if (system != null && distance <= Simulator.WARP_DISTANCE_THRESHOLD * 2)
             {
-                player.Location.Pos = SYSTEM_START_POS;
-                player.Location.SystemPos = system.Pos;
-                player.Location.SectorCoord = system.ParentSector.Coord;
-
+                player.Pos = SYSTEM_START_POS;                
+                
                 MoveClientToSystem(client, system);
 
-                msg.Location = player.Location;
+                msg.Pos = player.Pos;
                 msg.Rotation = player.Rotation;
                 msg.System = system;
                 GalaxyServer.AddToSendQueue(client, msg);
@@ -216,7 +214,7 @@ namespace GalaxyServer
             sm.SetDataFromJSON();
             if (sm.CanBuild(player))
             {
-                Vector3 pos = player.Location.Pos + Vector3.Transform(Vector3.Forward * 3, player.Rotation);
+                Vector3 pos = player.Pos + Vector3.Transform(Vector3.Forward * 3, player.Rotation);
                 ConstructionModule cm = new ConstructionModule(GalaxyServer.Millis,pos,player.Rotation,new Dock());
                 player.SolarSystem.ConstructionModules.Add(cm);
                 msg.TimeRemaining = cm.BuildTimeRemaining;
@@ -258,7 +256,7 @@ namespace GalaxyServer
         {
             List<Asteroid> asteroids = player.SolarSystem.Asteroids;
             Asteroid hit = null;
-            Vector3 pos = player.Location.Pos;
+            Vector3 pos = player.Pos;
             asteroids.Sort(new AsteroidComparer(pos));
             int count = 0;
             foreach (Asteroid a in asteroids)
@@ -298,7 +296,7 @@ namespace GalaxyServer
             {
                 Player player = client.Player;
                 PlayerStateMessage pState = new PlayerStateMessage();
-                pState.PlayerPos = player.Location.Pos;
+                pState.PlayerPos = player.Pos;
                 pState.Rotation = player.Rotation;
                 pState.Throttle = player.Throttle;
                 pState.Seq = player.Seq;

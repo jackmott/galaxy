@@ -262,7 +262,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     public void HandleMessage(GoToWarpMessage msg, object extra = null)
     {
-        PlayerState.Location = msg.Location;
+        PlayerState.Pos = msg.Pos;
         PlayerState.Rotation = msg.Rotation;
         lock (BufferedInputs)
         {
@@ -274,7 +274,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
 
     public void HandleMessage(DropOutOfWarpMessage msg, object extra = null)
     {                
-        PlayerState.Location = msg.Location;
+        PlayerState.Pos = msg.Pos;
         PlayerState.Rotation = msg.Rotation;
         PlayerState.SolarSystem = msg.System;
         lock (BufferedInputs)
@@ -343,7 +343,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
     {        
         GoingToWarp = true;
         GoToWarpMessage msg;
-        msg.Location = PlayerState.Location;
+        msg.Pos= PlayerState.Pos;
         msg.Rotation = PlayerState.Rotation;
         Send(msg);
     }
@@ -389,7 +389,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
         if (msg.Start)
         {
             GameObject g = Resources.Load<GameObject>("Station/Construction");
-            GameObject constructionModule = (GameObject)Instantiate(g, Utility.UVector(PlayerState.Location.Pos), Utility.UQuaternion(PlayerState.Rotation));
+            GameObject constructionModule = (GameObject)Instantiate(g, Utility.UVector(PlayerState.Pos), Utility.UQuaternion(PlayerState.Rotation));
             constructionModule.transform.Translate(Vector3.forward * 3);
         }
     }
@@ -447,7 +447,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             PlayerState.LastPhysicsUpdate = Millis;
             
 
-            ShipPos = Utility.UVector(PlayerState.Location.Pos);
+            ShipPos = Utility.UVector(PlayerState.Pos);
             Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
         }
 
@@ -475,10 +475,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
                 anyInput = true;
             }
 
-
-
           
-
             if (InputCollector.SecondaryButton || InputCollector.PrimaryButton)
             {
                 UnityEngine.Debug.Log("MouseButton1");
@@ -519,7 +516,7 @@ public class NetworkManager : MonoBehaviour, IMessageHandler
             Simulator.ContinuedPhysics(PlayerState, deltaT);
             PlayerState.LastPhysicsUpdate = Millis;
 
-            Ship.transform.position = Utility.UVector(PlayerState.Location.Pos);
+            Ship.transform.position = Utility.UVector(PlayerState.Pos);
             Ship.transform.rotation = Utility.UQuaternion(PlayerState.Rotation);
 
         }

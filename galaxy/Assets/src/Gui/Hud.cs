@@ -13,9 +13,11 @@ public class Hud : MonoBehaviour
     public GameObject Recticle;
     public GameObject ShipMenu;
     public GameObject MenuHeader;
+    public GameObject DebugInfo;
 
     private Table MenuTable;
     private Text HeaderText;
+    private Text DebugText;
 
     IHasInfo lastTargetedThing;
     
@@ -29,12 +31,15 @@ public class Hud : MonoBehaviour
         DontDestroyOnLoad(this);
         MenuTable = ShipMenu.GetComponent<Table>();
         HeaderText = MenuHeader.GetComponent<Text>();
-        GenerateMainMenu();
-        
+        DebugText = DebugInfo.GetComponent<Text>();
+        GenerateMainMenu();        
     }
 
-   
-
+    public void SetDebugText(string text)
+    {
+        DebugText.text = text;
+    }
+       
     void GenerateBuildMenu()
     {
         ActiveMenu = Menu.Build;
@@ -150,6 +155,7 @@ public class Hud : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+       
         InputAction action = null;
         if (InputCollector.UISubmit)
         {
@@ -188,7 +194,7 @@ public class Hud : MonoBehaviour
 
         if (InputCollector.JumpToWarp || (action != null && action.name == "Jump"))
         {
-            if (!NetworkManager.PlayerState.Location.InWarp)
+            if (!NetworkManager.PlayerState.InWarp)
             {
                 NetworkManager.GoToWarp();
             }

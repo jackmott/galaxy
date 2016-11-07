@@ -1,4 +1,4 @@
-﻿
+﻿using XnaGeometry;
 using System.Collections.Generic;
 using ProtoBuf;
 using System.IO;
@@ -12,18 +12,16 @@ namespace GalaxyShared
         public Player Owner;
 
         [ProtoMember(1)]
-        public ushort TopSpeed=100;
+        public ushort TopSpeed=100;		
         [ProtoMember(2)]
-        public Location Location;  
-        [ProtoMember(3)]
         public string TypeName;        
-        [ProtoMember(5)]
+        [ProtoMember(3)]
         public ushort CargoVolume;
-        [ProtoMember(6)]
+        [ProtoMember(4)]
         public byte MiningLaserRange;        
-        [ProtoMember(7)]
+        [ProtoMember(5)]
         public List<Item> Cargo;
-        [ProtoMember(8)]
+        [ProtoMember(6)]
         public byte MiningLaserPower = 1;
 
         public Ship()
@@ -35,6 +33,7 @@ namespace GalaxyShared
         {
             Owner = owner;
             Cargo = new List<Item>();
+			Pos = owner.Pos;
         }
 
         public void Update(Ship ship)

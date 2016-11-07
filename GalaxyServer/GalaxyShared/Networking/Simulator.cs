@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-using XnaGeometry;
+﻿using XnaGeometry;
 
 
 
@@ -15,7 +12,7 @@ namespace GalaxyShared
         public static void ContinuedPhysics(Player player, long deltaTime)
         {                        
             float speed = player.Ship.TopSpeed * GetGravityInfluence(player);
-            player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle*speed * deltaTime/1000f, player.Rotation);
+            player.Pos += Vector3.Transform(Vector3.Forward * player.Throttle*speed * deltaTime/1000f, player.Rotation);
         }
 
         public static void ProcessInput(Player player, InputMessage input)
@@ -34,13 +31,11 @@ namespace GalaxyShared
                                                                         
 
         }
-
        
-
         public static void ContinuedPhysicsWarp(Player player,long deltaTime)
         {
            
-            player.Location.Pos += Vector3.Transform(Vector3.Forward * player.Throttle * player.Ship.TopSpeed * (deltaTime / 1500000f), player.Rotation);
+            player.Pos += Vector3.Transform(Vector3.Forward * player.Throttle * player.Ship.TopSpeed * (deltaTime / 1500000f), player.Rotation);
         }
 
         public static void ProcessInputWarp(Player player, InputMessage input)
@@ -72,7 +67,7 @@ namespace GalaxyShared
                 {
                     
 
-                    float distance = Vector3.Distance(p.Pos, player.Location.Pos);
+                    float distance = Vector3.Distance(p.Pos, player.Pos);
                     if (distance < closestDistance)
                     {
                         closestDistance = distance;
